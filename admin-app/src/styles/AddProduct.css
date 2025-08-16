@@ -1,0 +1,73 @@
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .title {
+    color: #333;
+  }
+  
+  .add-product-form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .add-product-form form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .add-product-form select,
+  .add-product-form input[type="number"],
+  .add-product-form input[type="text"] {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  .add-product-form textarea {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    min-height: 150px;
+  }
+  
+  .add-product-form .error {
+    color: red;
+    margin-bottom: 10px;
+  }
+  
+  .add-product-form .showimages {
+    margin-top: 15px;
+  }
+  
+  .add-product-form .showimages img {
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+  }
+  
+  .add-product-form .btn-success {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .add-product-form .btn-success:hover {
+    background-color: #218838;
+  }
+  
+  .add-product-form .ant-select {
+    width: 100%;
+  }
+  
