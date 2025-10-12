@@ -38,6 +38,7 @@ import Jeux from './pages/Jeux';
 import CategoryPage from './pages/CategoryPage';
 import CategoriesPage from './pages/CategoriesPage';
 import CategoryDetailPage from './pages/CategoryDetailPage';
+import CategoryProducts from './pages/CategoryProducts';
 import { PrivateRoutes } from './routing/PrivateRoutes';
 import { OpenRoutes } from './routing/OpenRoutes';
 import Propros from './pages/Propros';
@@ -73,6 +74,7 @@ function App() {
 {/* Routes pour les catégories */}
 <Route path="categories" element={<CategoriesPage />}/>
 <Route path="category/:categoryId" element={<CategoryDetailPage />}/>
+<Route path="categorie/:categorySlug" element={<CategoryProducts />}/>
 
 <Route path="blogs" element={<Blogs />}/>
 <Route path="blog/:id" element={<SingleBlog />}/>
@@ -89,21 +91,36 @@ function App() {
 <Route path="cart" element={<Cart />}/>
 <Route path="checkout" element={<PrivateRoutes><Checkout /></PrivateRoutes>}/>
 
-{/* Routes d'anciennes catégories maintenant redirigées */}
-<Route path="electro" element={<Navigate to="/category/tv-audio" replace />}/>
-<Route path="info" element={<Navigate to="/category/ordinateurs" replace />}/>
-<Route path="baby" element={<Navigate to="/category/vetements-bebe" replace />}/>
-<Route path="animaux" element={<Navigate to="/category/chiens" replace />}/>
-<Route path="jardin" element={<Navigate to="/category/jardinage" replace />}/>
-<Route path="homme" element={<Navigate to="/category/mode-homme" replace />}/>
-<Route path="femme" element={<Navigate to="/category/mode-femme" replace />}/>
-<Route path="sport" element={<Navigate to="/category/fitness" replace />}/>
-<Route path="auto" element={<Navigate to="/category/pieces-auto" replace />}/>
-<Route path="sante" element={<Navigate to="/category/cosmetiques" replace />}/>
-<Route path="maison" element={<Navigate to="/category/mobilier" replace />}/>
-<Route path="jeux" element={<Navigate to="/category/jouets" replace />}/>
-<Route path="telephone" element={<Navigate to="/category/smartphones" replace />}/>
-<Route path="other" element={<Other />}/>
+{/* Routes des catégories principales - redirection vers le système dynamique */}
+<Route path="electronique" element={<CategoryProducts />}/>
+<Route path="informatique" element={<CategoryProducts />}/>
+<Route path="telephones-tablettes" element={<CategoryProducts />}/>
+<Route path="mode-homme" element={<CategoryProducts />}/>
+<Route path="mode-femme" element={<CategoryProducts />}/>
+<Route path="bebe-puericulture" element={<CategoryProducts />}/>
+<Route path="maison-bureau" element={<CategoryProducts />}/>
+<Route path="jardin-bricolage" element={<CategoryProducts />}/>
+<Route path="sport-fitness" element={<CategoryProducts />}/>
+<Route path="automobile" element={<CategoryProducts />}/>
+<Route path="sante-beaute" element={<CategoryProducts />}/>
+<Route path="animaux" element={<CategoryProducts />}/>
+<Route path="jeux-jouets" element={<CategoryProducts />}/>
+<Route path="autres" element={<CategoryProducts />}/>
+
+{/* Anciennes routes redirigées vers les nouvelles */}
+<Route path="electro" element={<Navigate to="/categorie/electronique" replace />}/>
+<Route path="info" element={<Navigate to="/categorie/informatique" replace />}/>
+<Route path="baby" element={<Navigate to="/categorie/bebe-puericulture" replace />}/>
+<Route path="jardin" element={<Navigate to="/categorie/jardin-bricolage" replace />}/>
+<Route path="homme" element={<Navigate to="/categorie/mode-homme" replace />}/>
+<Route path="femme" element={<Navigate to="/categorie/mode-femme" replace />}/>
+<Route path="sport" element={<Navigate to="/categorie/sport-fitness" replace />}/>
+<Route path="auto" element={<Navigate to="/categorie/automobile" replace />}/>
+<Route path="sante" element={<Navigate to="/categorie/sante-beaute" replace />}/>
+<Route path="maison" element={<Navigate to="/categorie/maison-bureau" replace />}/>
+<Route path="jeux" element={<Navigate to="/categorie/jeux-jouets" replace />}/>
+<Route path="telephone" element={<Navigate to="/categorie/telephones-tablettes" replace />}/>
+<Route path="other" element={<Navigate to="/categorie/autres" replace />}/>
 
 <Route path="proprs" element={<Propros />}/>
 <Route path="FAQ" element={<FAQPage />}/>

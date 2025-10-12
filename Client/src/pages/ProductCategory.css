@@ -31,7 +31,7 @@
     font-weight: 500;
 }
 
-/* Grid Layout - 2 LARGE PRODUCTS PER ROW */
+/* Grid Layout - 2 PRODUCTS PER ROW FULL WIDTH */
 .new-informatique-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -331,7 +331,7 @@
 @media (min-width: 992px) and (max-width: 1199px) {
     .new-informatique-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 1.75rem;
+        gap: 2rem;
     }
     
     .page-title {

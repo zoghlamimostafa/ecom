@@ -460,7 +460,7 @@
 @media (min-width: 992px) and (max-width: 1199px) {
     .products-grid .row.grid-view {
         grid-template-columns: repeat(2, 1fr);
-        gap: 1.75rem;
+        gap: 2rem;
     }
     
     .filters-sidebar {
