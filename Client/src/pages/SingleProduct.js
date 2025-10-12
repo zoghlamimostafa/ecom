@@ -6,15 +6,19 @@ import ReactStars from "react-rating-stars-component";
 import ReactImageZoom from 'react-image-zoom';
 import Color from '../components/Color';
 import { TbGitCompare } from "react-icons/tb";
-import { AiOutlineHeart } from "react-icons/ai";
+import { AiOutlineHeart, AiOutlineShoppingCart } from "react-icons/ai";
 import Container from '../components/Container';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addRating, getAProduct, getAllProducts } from '../features/products/productSlice';
 import { toast } from 'react-toastify';
-import { addProdToCart, getUserCart, setBuyNowItem } from '../features/user/userSlice';
+import { addProdToCart, getUserCart, setBuyNowItem, toggleProductWishlist } from '../features/user/userSlice';
+import { useTranslation } from '../contexts/TranslationContext';
+import { getProductImageUrl, getAllProductImageUrls } from '../utils/imageHelper';
+import './SingleProduct.css'; // Import des styles CSS
 
 const SingleProduct = () => {
+  const { t } = useTranslation();
   const [color, setColor] = useState(null);
   const [alreadyAdded, setAlreadyAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -22,6 +26,7 @@ const SingleProduct = () => {
   const [comment, setComment] = useState(null);
   const [popularProduct, setPopularProduct] = useState([]);
   const [orderProduct, setOrderProduct] = useState(true); // Etat pour contrôler l'affichage du formulaire de commentaire
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -31,7 +36,7 @@ const SingleProduct = () => {
   const productState = useSelector(state => state?.product?.singleproduct);
   const cartState = useSelector(state => state?.auth?.cartProducts);
   const productState1 = useSelector(state => state?.product?.product);
-  const authState = useSelector(state => state?.auth?.auth); // Get authentication state
+  const authState = useSelector(state => state?.auth?.user); // Corrected path
 
   // Etat pour éviter les appels multiples
   const [loading, setLoading] = useState(true); 
@@ -66,6 +71,13 @@ const SingleProduct = () => {
     }
   }, [cartState, productState]);
 
+  useEffect(() => {
+    if (productState?.images) {
+      const imageUrl = getProductImageUrl(productState.images);
+      setSelectedImage(imageUrl);
+    }
+  }, [productState]);
+
   const addRatingToProduct = () => {
     if (star === null) {
       toast.error("Please add star rating ");
@@ -83,12 +95,53 @@ const SingleProduct = () => {
   };
 
   const uploadCart = () => {
+    // Check if user is authenticated
+    if (!authState) {
+      toast.error(t('loginRequired'));
+      navigate('/my-Profile');
+      return;
+    }
+
     dispatch(addProdToCart({
       productId: productState?._id,
       quantity,
       color: color || null, // Send null if no color is selected
       price: productState?.price
     }));
+  };
+
+  const addToWishlist = async () => {
+    console.log('❤️ ADD TO WISHLIST clicked for product:', productState?._id);
+    console.log('Auth State:', !!authState);
+    console.log('Product State:', productState);
+    
+    // Check if user is authenticated
+    if (!authState) {
+      toast.error(t('pleaseLoginForWishlist'));
+      navigate('/my-Profile');
+      return;
+    }
+
+    if (!productState?._id) {
+      toast.error("ID produit manquant");
+      console.error('Product ID missing:', productState);
+      return;
+    }
+
+    try {
+      console.log('📦 Dispatching toggleProductWishlist with ID:', productState._id);
+      const result = await dispatch(toggleProductWishlist(productState._id)).unwrap();
+      console.log('✅ Wishlist success result:', result);
+      toast.success(t('wishlistUpdateSuccess'));
+    } catch (error) {
+      console.error("❌ Error toggling wishlist:", error);
+      console.error("❌ Error details:", {
+        message: error.message,
+        response: error.response,
+        stack: error.stack
+      });
+      toast.error(error.message || "Erreur lors de la modification de la wishlist");
+    }
   };
 
   const buyNow = () => {
@@ -121,10 +174,10 @@ const SingleProduct = () => {
   };
 
   const props = {
-    width: 304,
-    height: 300,
+    width: undefined,
+    height: undefined,
     zoomWidth: 300,
-    img: productState?.images[0]?.url || "images/watch.jpg"
+    img: selectedImage || productState?.images?.[0]?.url || "images/watch.jpg"
   };
 
   const copyToClipboard = (text) => {
@@ -134,118 +187,163 @@ const SingleProduct = () => {
     textField.select();
     document.execCommand("copy");
     textField.remove();
+    toast.success(t('linkCopied'));
   };
 
   return (
     <>
       <Meta title={productState?.title || "Product"} />
       <BrandCrumb title={productState?.title || "Product"} />
-      <Container class1="main-product-wrapper py-5 home-wrapper-2">
-        <div className="row">
-          <div className="col-6">
-            <div className="main-product-image">
+      <Container class1="product-main-wrapper home-wrapper-2">
+        <div className="modern-single-product-layout">
+          {/* Section Image - Responsive */}
+          <div className="product-image-gallery">
+            <div className="main-image-container">
               <ReactImageZoom
                 {...props}
                 zoomScale={2}
                 shouldReplaceImage={true}
-                width={500}
-                height={500}
-                zoomLensStyle={{ backgroundColor: 'rgba(255,255,255,0.6)' }}
+                width={undefined}
+                height={undefined}
+                zoomLensStyle={{ backgroundColor: 'rgba(255,111,0,0.6)' }}
+                className="product-main-image"
               />
             </div>
 
-            <div className="other-product-images d-flex flex-wrap gap-15">
-              {productState?.images.map((item, index) => (
-                <div key={index}>
-                  <img
-                    src={item?.url}
-                    className="img-fluid"
-                    alt={`product ${index}`}
-                    style={{ maxWidth: '50%', height: '100px' }}
-                  />
-                </div>
+            {/* Thumbnails responsive */}
+            <div className="product-thumbnails">
+              {productState?.images?.map((item, index) => (
+                <img
+                  key={index}
+                  src={item?.url}
+                  className={`thumbnail-image ${selectedImage === item?.url ? 'active' : ''}`}
+                  alt={`${productState?.title} ${index + 1}`}
+                  onClick={() => setSelectedImage(item?.url)}
+                />
               ))}
             </div>
           </div>
 
-          <div className="col-6">
-            <div className="main-product-details">
-              <div className="border-bottom">
-                <h3 className="title">{productState?.title}</h3>
+          {/* Section Détails - Responsive */}
+          <div className="product-details-panel">
+            <div className="product-header-section">
+              <div className="product-breadcrumb">
+                <span className="product-brand-tag">{productState?.brand}</span>
+                {productState?.Category && <span className="product-category-tag">{productState?.Category}</span>}
               </div>
-              <div className="border-bottom py-3">
-                <p className="price">{productState?.price} TND</p>
-                <div className="d-flex align-items-center gap-10">
-                  <div className="stars-container">
-                    <ReactStars
-                      count={5}
-                      size={24}
-                      value={productState?.totalratings}
-                      edit={false}
-                      activeColor="#ffd700"
-                    />
-                    <p className="mb-0 t-review">({productState?.totalratings} avis)</p>
-                  </div>
+              
+              <h1 className="modern-product-title">{productState?.title}</h1>
+              
+              {/* Rating responsive */}
+              <div className="product-rating-display">
+                <div className="rating-stars-container">
+                  <ReactStars
+                    count={5}
+                    size={window.innerWidth < 768 ? 20 : 24}
+                    value={productState?.totalratings || 0}
+                    edit={false}
+                    activeColor="#FF6F00"
+                  />
+                  <span className="rating-count">({productState?.totalratings || 0} avis)</span>
                 </div>
-                <a href="#review" className="review-btn">Write a Review</a>
+                <a href="#review" className="write-review-link">Écrire un avis</a>
               </div>
 
-              <div className="py-3">
-                <div className="d-flex gap-10 align-items-center my-2">
-                  <h3 className="product-heading">Type :</h3>
-                  <p className="product-data">GFD</p>
-                </div>
-                <div className="d-flex gap-10 align-items-center my-2">
-                  <h3 className="product-heading">Marque :</h3>
-                  <p className="product-data">{productState?.brand}</p>
-                </div>
-                <div className="d-flex gap-10 align-items-center my-2">
-                  <h3 className="product-heading">Catégorie :</h3>
-                  <p className="product-data">{productState?.Category}</p>
-                </div>
+              <div className="price-display">
+                <span className="current-price">{productState?.price} TND</span>
+              </div>
+            </div>
 
-                {/* Ajout de la gestion de couleur */}
-                {!alreadyAdded && (
-                  <div className="d-flex gap-10 flex-column mt-2 mb-3">
-                    <h3 className="product-heading">Couleur :</h3>
-                    <Color setColor={setColor} colorData={productState?.color} />
-                  </div>
-                )}
+            {/* Description responsive */}
+            <div className="product-description-section">
+              <h3>Description</h3>
+              <p className="product-description-text">{productState?.description}</p>
+            </div>
 
-                {/* Quantité et boutons */}
-                <div className="d-flex align-items-center gap-15 flex-row mt-2 mb-3">
-                  {!alreadyAdded && (
-                    <>
-                      <h3 className="product-heading">Quantité :</h3>
-                      <input
-                        onChange={(e) => setQuantity(e.target.value)}
-                        value={quantity}
-                        type="number"
-                        className="form-control"
-                        min={1}
-                        max={10}
-                      />
-                    </>
-                  )}
-                  <div className={`ms-${alreadyAdded ? '0' : '5'} d-flex align-items-center gap-30`}>
-                    <button className="button border-0" onClick={() => { alreadyAdded ? navigate('/cart') : uploadCart() }}>
-                      {alreadyAdded ? "Go to Cart" : "Add to Cart"}
+            {/* Informations produit */}
+            <div className="product-specifications">
+              <div className="spec-item">
+                <span className="spec-label">Marque :</span>
+                <span className="spec-value">{productState?.brand}</span>
+              </div>
+              <div className="spec-item">
+                <span className="spec-label">Catégorie :</span>
+                <span className="spec-value">{productState?.Category}</span>
+              </div>
+            </div>
+
+            {/* Sélecteur de couleur responsive */}
+            {!alreadyAdded && (
+              <div className="color-selection-section">
+                <h4>Couleur disponible :</h4>
+                <div className="color-options-container">
+                  <Color setColor={setColor} colorData={productState?.color} />
+                </div>
+              </div>
+            )}
+
+            {/* Actions produit responsives */}
+            <div className="product-action-panel">
+              {!alreadyAdded && (
+                <div className="quantity-selection">
+                  <label htmlFor="quantity" className="quantity-label">Quantité :</label>
+                  <div className="quantity-input-wrapper">
+                    <button 
+                      type="button" 
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="quantity-btn"
+                    >
+                      -
                     </button>
-                    <button className="button signup" onClick={buyNow}>Buy Now</button>
+                    <input
+                      id="quantity"
+                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      value={quantity}
+                      type="number"
+                      className="quantity-input"
+                      min={1}
+                      max={10}
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setQuantity(Math.min(10, quantity + 1))}
+                      className="quantity-btn"
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
-                <div className="d-flex align-items-center gap-15">
-                  <TbGitCompare className="fs-5" /> Add to compare
-                  <AiOutlineHeart className="fs-5" /> Add to wishlist
-                </div>
-                <div className="d-flex gap-10 flrx-column my-3">
-                  <h3 className="product-heading">Shipping & Returns :</h3>
-                  <p className="product-data">Shipping available across Tunisia</p>
-                </div>
-                <div className="d-flex gap-10 align-items-center my-3">
-                  <h3 className="product-heading">Product Link :</h3>
-                  <a href="javascript:void(0);" onClick={() => { copyToClipboard(window.location.href) }}>Copy product link</a>
-                </div>
+              )}
+              
+              <div className="action-buttons-container">
+                <button 
+                  className="action-button primary"
+                  onClick={() => { alreadyAdded ? navigate('/cart') : uploadCart() }}
+                >
+                  <AiOutlineShoppingCart />
+                  {alreadyAdded ? t('viewCart') : t('addToCart')}
+                </button>
+                
+                <button 
+                  className="action-button secondary"
+                  onClick={buyNow}
+                >
+                  ⚡ {t('buyNow')}
+                </button>
+                
+                <button 
+                  className="action-button outline"
+                  onClick={() => addToWishlist()}
+                >
+                  <AiOutlineHeart /> Favoris
+                </button>
+                
+                <button 
+                  className="action-button outline"
+                  onClick={() => copyToClipboard(window.location.href)}
+                >
+                  🔗 Partager
+                </button>
               </div>
             </div>
           </div>

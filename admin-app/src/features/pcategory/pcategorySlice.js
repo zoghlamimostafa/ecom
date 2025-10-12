@@ -134,7 +134,12 @@ export const pCategorySlice = createSlice({
         state.isLoading = false;
         state.isError = false;
         state.isSuccess = true;
-        state.categoryName = action.payload.title;
+        // Maintenant action.payload devrait contenir directement l'objet category
+        if (action.payload && action.payload.title) {
+          state.categoryName = action.payload.title;
+        } else {
+          state.categoryName = "Catégorie inconnue";
+        }
       })
       .addCase(getAProductCategory.rejected, (state, action) => {
         state.isLoading = false;

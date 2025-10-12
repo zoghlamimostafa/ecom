@@ -9,11 +9,10 @@ export const registerUser = createAsyncThunk(
   "auth/register",
   async (userData, thunkAPI) => {
     try {
-      const response = await userService.register(userData);
-      toast.success("Utilisateur créé avec succès");
-      return response;
+  const response = await userService.register(userData);
+  return response;
     } catch (error) {
-      toast.error(error.message || "Échec de l'enregistrement de l'utilisateur");
+  // ...existing code...
       return thunkAPI.rejectWithValue(error.message);
     }
   }
@@ -25,14 +24,14 @@ export const saveUserAddress = createAsyncThunk(
     try {
       // Enregistrer l'adresse via le service
       const response = await userService.saveAddress(addressData);
-      toast.success("Adresse enregistrée avec succès");
+  // ...existing code...
       return response;
     } catch (error) {
       const errorMessage = error.response ? error.response.data.message : "Échec de l'enregistrement de l'adresse";
       if (error.response && error.response.status === 401) {
         thunkAPI.dispatch(setAuthError("Non autorisé : jeton expiré ou invalide"));
       }
-      toast.error(errorMessage);
+  // ...existing code...
       return thunkAPI.rejectWithValue(errorMessage);
     }
   }
@@ -44,10 +43,10 @@ export const loginUser = createAsyncThunk(
   async (userData, thunkAPI) => {
     try {
       const response = await userService.login(userData);
-      toast.success("Utilisateur connecté avec succès");
+  // ...existing code...
       return response;
     } catch (error) {
-      toast.error(error.message || "Échec de la connexion de l'utilisateur");
+  // ...existing code...
       return thunkAPI.rejectWithValue(error.message);
     }
   }
@@ -167,6 +166,18 @@ export const updateCartProduct = createAsyncThunk(
   }
 );
 
+export const createOrder = createAsyncThunk(
+  "user/order/create",
+  async (orderData, thunkAPI) => {
+    try {
+      const response = await userService.createOrder(orderData);
+      return response;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message || "Failed to create order");
+    }
+  }
+);
+
 // Action asynchrone pour mettre à jour le profil de l'utilisateur
 export const updateProfile = createAsyncThunk(
   'user/profile/update',
@@ -214,11 +225,17 @@ export const logoutUser = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
-      await userService(); 
+      const result = await userService.logout(); 
+      
+      // Always clear localStorage regardless of API response
       localStorage.removeItem("customer"); 
-      return true; 
+      
+      return result; 
     } catch (error) {
-      return rejectWithValue(error.message); 
+      // Even if there's an error, clear localStorage to ensure logout
+      localStorage.removeItem("customer");
+      console.warn("Logout completed with warnings:", error.message);
+      return { success: true, message: "Déconnexion forcée" };
     }
   }
 );
@@ -230,6 +247,7 @@ const getCustomerfromLocalStorage = localStorage.getItem("customer")
 
 const initialState = {
   auth: getCustomerfromLocalStorage,
+  user: getCustomerfromLocalStorage, // Add user field for compatibility
   isError: false,
   isSuccess: false,
   isLoading: false,
@@ -241,8 +259,6 @@ const initialState = {
   loading: false,
   error: null,
   buyNowItem: null // Pour stocker l'article acheté directement
-
-
 };
 
 // Création du slice
@@ -314,6 +330,7 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.auth = action.payload;
+        state.user = action.payload; // Also update user field
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -453,6 +470,21 @@ export const authSlice = createSlice({
           toast.error("Échec de la mise à jour du produit dans le panier");
         }
       })
+      .addCase(createOrder.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.createdOrder = action.payload;
+        toast.success("Commande passée avec succès !");
+      })
+      .addCase(createOrder.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.errorMessage = action.payload;
+        toast.error("Un problème est survenu lors de la commande.");
+      })
       .addCase(logoutUser.pending, (state) => {
         state.isLoading = true;
         state.isError = false;
@@ -461,6 +493,7 @@ export const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.isLoading = false;
         state.user = null;
+        state.auth = null; // Also clear auth field
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.isLoading = false;

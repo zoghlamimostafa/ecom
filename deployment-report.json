@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-09-29T18:38:20.700Z",
+  "project": "Sanny Store E-commerce",
+  "status": "Prêt pour déploiement",
+  "frontend": {
+    "framework": "React 18.2.0",
+    "buildTool": "Create React App",
+    "recommended": "Vercel ou Netlify"
+  },
+  "backend": {
+    "runtime": "Node.js",
+    "framework": "Express",
+    "database": "SQLite (migration PostgreSQL recommandée)",
+    "recommended": "Railway ou Heroku"
+  },
+  "estimatedCost": {
+    "free": "0€/mois (Vercel + Railway gratuit)",
+    "professional": "12-15€/mois (VPS + domaine)"
+  }
+}

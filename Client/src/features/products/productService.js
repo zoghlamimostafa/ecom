@@ -2,6 +2,46 @@ import axios from "axios";
 import { base_url } from "../../utils/baseUrl";
 import { getAuthConfig } from "../../utils/axiosconfig";
 
+// Fonction utilitaire pour normaliser les données produit
+const normalizeProductData = (product) => {
+  const normalized = { ...product };
+  
+  // Normaliser les images
+  if (typeof normalized.images === 'string' && normalized.images !== 'null') {
+    try {
+      normalized.images = JSON.parse(normalized.images);
+    } catch (e) {
+      console.warn('Erreur parsing images pour le produit:', normalized.title, e);
+      normalized.images = [];
+    }
+  }
+  
+  if (!Array.isArray(normalized.images)) {
+    normalized.images = [];
+  }
+  
+  // Normaliser les couleurs
+  if (typeof normalized.color === 'string' && normalized.color !== 'null') {
+    try {
+      normalized.color = JSON.parse(normalized.color);
+    } catch (e) {
+      console.warn('Erreur parsing couleurs pour le produit:', normalized.title, e);
+      normalized.color = [];
+    }
+  }
+  
+  if (!Array.isArray(normalized.color)) {
+    normalized.color = [];
+  }
+  
+  // Assurer que l'ID est disponible
+  if (!normalized._id && normalized.id) {
+    normalized._id = normalized.id;
+  }
+  
+  return normalized;
+};
+
 const getProducts = async (filters = {}) => {
     // Build query string from filters
     const queryParams = new URLSearchParams();
@@ -53,14 +93,28 @@ const getProducts = async (filters = {}) => {
     
     const response = await axios.get(url);
     if (response.data) {
-      return response.data;
+      // Extraire les produits - peut être dans response.data.products ou directement response.data
+      let productsData = response.data;
+      if (response.data.products && Array.isArray(response.data.products)) {
+        productsData = response.data.products;
+      }
+      
+      // Normaliser tous les produits avant de les retourner
+      if (Array.isArray(productsData)) {
+        return productsData.map(normalizeProductData);
+      }
+      
+      console.warn('⚠️ Format de données inattendu:', response.data);
+      return [];
     }
+    return [];
 };
 
 const getSingleProduct = async (id) => {
   const response = await axios.get(`${base_url}product/${id}`);
   if (response.data) {
-    return response.data;
+    // Normaliser le produit unique avant de le retourner
+    return normalizeProductData(response.data);
   }
 }
 
@@ -84,12 +138,20 @@ const addToWishlist = async (prodId) => {
   }
 };
 
+const getWishlist = async () => {
+  const response = await axios.get(`${base_url}user/wishlist`, getAuthConfig());
+  if (response.data) {
+    return response.data;
+  }
+};
+
 
 const productService = {
-
     getProducts,
     addToWishlist,
+    getWishlist,
     getSingleProduct,
-    rateProduct};
+    rateProduct
+};
 
 export default productService;

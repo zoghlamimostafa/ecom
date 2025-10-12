@@ -29,6 +29,55 @@ const getAuthConfig = () => {
   };
 };
 
+// Function to refresh token
+const refreshToken = async () => {
+  try {
+    const response = await axios.post(`${base_url}token/refresh`, {}, getAuthConfig());
+    
+    if (response.data && response.data.token) {
+      // Update token in localStorage
+      const customer = localStorage.getItem("customer");
+      if (customer) {
+        const customerData = JSON.parse(customer);
+        customerData.token = response.data.token;
+        localStorage.setItem("customer", JSON.stringify(customerData));
+      }
+      
+      return response.data.token;
+    }
+    return null;
+  } catch (error) {
+    console.error("Token refresh failed:", error);
+    // Clear invalid token data
+    localStorage.removeItem("customer");
+    // Redirect to login page
+    window.location.href = "/login";
+    return null;
+  }
+};
+
+// Enhanced axios request function with automatic token refresh
+const makeAuthenticatedRequest = async (requestFn, retryCount = 0) => {
+  try {
+    return await requestFn();
+  } catch (error) {
+    // If it's a 401 error and we haven't already retried
+    if (error.response && error.response.status === 401 && retryCount === 0) {
+      console.log("Token expired, attempting refresh...");
+      
+      const newToken = await refreshToken();
+      if (newToken) {
+        console.log("Token refreshed successfully, retrying request...");
+        // Retry the original request with the new token
+        return await makeAuthenticatedRequest(requestFn, retryCount + 1);
+      }
+    }
+    
+    // If refresh failed or it's not a 401 error, throw the original error
+    throw error;
+  }
+};
+
 // Configuration Axios statique pour les requêtes sans authentification
 export const config = {
   headers: {
@@ -64,22 +113,18 @@ const login = async (userData) => {
 
 // Récupérer la wishlist de l'utilisateur
 const getUserWishlist = async () => {
-  try {
+  return await makeAuthenticatedRequest(async () => {
     const response = await axios.get(`${base_url}user/wishlist`, getAuthConfig());
     return response.data;
-  } catch (error) {
-    handleAxiosError(error, "Échec de la récupération de la wishlist");
-  }
+  });
 };
 
 // Ajouter/supprimer un produit de la wishlist
 const toggleWishlist = async (prodId) => {
-  try {
+  return await makeAuthenticatedRequest(async () => {
     const response = await axios.put(`${base_url}product/wishlist`, { prodId }, getAuthConfig());
     return response.data;
-  } catch (error) {
-    handleAxiosError(error, "Échec de la modification de la wishlist");
-  }
+  });
 };
 
 // Fonction pour envoyer l'email de réinitialisation du mot de passe
@@ -104,57 +149,47 @@ const resetPassword = async (data) => {
 
 // Fonction pour récupérer toutes les commandes de l'utilisateur connecté
 const getOrders = async () => {
-  try {
+  return await makeAuthenticatedRequest(async () => {
     const response = await axios.get(`${base_url}user/getmyorders`, getAuthConfig());
     return response.data;
-  } catch (error) {
-    handleAxiosError(error, "Échec de la récupération des commandes");
-  }
+  });
 };
 
 // Fonction pour récupérer une commande spécifique par ID
 const getOrderById = async (orderId) => {
-  try {
+  return await makeAuthenticatedRequest(async () => {
     const response = await axios.get(`${base_url}user/get-orders/${orderId}`, getAuthConfig());
     return response.data;
-  } catch (error) {
-    handleAxiosError(error, "Échec de la récupération de la commande");
-  }
+  });
 };
 
 // Fonction pour récupérer toutes les commandes (admin)
 const getAllOrders = async () => {
-  try {
+  return await makeAuthenticatedRequest(async () => {
     const response = await axios.get(`${base_url}user/getallorders`, getAuthConfig());
     return response.data;
-  } catch (error) {
-    handleAxiosError(error, "Échec de la récupération de toutes les commandes");
-  }
+  });
 };
 
 // Fonction pour créer une commande
 const createOrder = async (orderData) => {
-  try {
+  return await makeAuthenticatedRequest(async () => {
     const response = await axios.post(`${base_url}user/cart/create-order`, orderData, getAuthConfig());
     return response.data;
-  } catch (error) {
-    handleAxiosError(error, "Échec de la création de la commande");
-  }
+  });
 };
 
 // Fonction pour mettre à jour le statut d'une commande (admin)
 const updateOrderStatus = async (orderId, status) => {
-  try {
+  return await makeAuthenticatedRequest(async () => {
     const response = await axios.put(`${base_url}user/order/update-order/${orderId}`, { status }, getAuthConfig());
     return response.data;
-  } catch (error) {
-    handleAxiosError(error, "Échec de la mise à jour du statut de la commande");
-  }
+  });
 };
 
 // Ajouter un produit au panier
 const addToCart = async (cartData) => {
-  try {
+  return await makeAuthenticatedRequest(async () => {
     // Filter out null/undefined color before sending to backend
     const cleanedCartData = { ...cartData };
     if (cleanedCartData.color === null || cleanedCartData.color === undefined) {
@@ -163,46 +198,38 @@ const addToCart = async (cartData) => {
     
     const response = await axios.post(`${base_url}user/cart`, cleanedCartData, getAuthConfig());
     return response.data;
-  } catch (error) {
-    handleAxiosError(error, "Échec de l'ajout au panier");
-  }
+  });
 };
 
 // Récupérer le panier
 const getCart = async () => {
-  try {
+  return await makeAuthenticatedRequest(async () => {
     const response = await axios.get(`${base_url}user/cart`, getAuthConfig());
     return response.data;
-  } catch (error) {
-    handleAxiosError(error, "Échec de la récupération du panier");
-  }
+  });
 };
 
 // Supprimer un produit du panier
 const removeProductFromCart = async (id) => {
-  try {
+  return await makeAuthenticatedRequest(async () => {
     const response = await axios.delete(`${base_url}user/delete-product-cart`, {
       data: { cartItemId: id },
       ...getAuthConfig(),
     });
     return response.data;
-  } catch (error) {
-    handleAxiosError(error, "Échec de la suppression du produit du panier");
-  }
+  });
 };
 
 // Mettre à jour la quantité d'un produit dans le panier
 const updateProductFromCart = async (cartDetail) => {
-  try {
+  return await makeAuthenticatedRequest(async () => {
     const response = await axios.put(
       `${base_url}user/update-product-cart/${cartDetail.cartItemId}/${cartDetail.quantity}`,
       {},
       getAuthConfig()
     );
     return response.data;
-  } catch (error) {
-    handleAxiosError(error, "Échec de la mise à jour de la quantité du produit");
-  }
+  });
 };
 
 // Mettre à jour les informations de l'utilisateur
@@ -218,13 +245,23 @@ const updateUser = async (data) => {
 // Fonction de déconnexion
 const logout = async () => {
   try {
-    const response = await axios.get(`${base_url}user/logout`);
-    if (response.status === 200) {
-      localStorage.removeItem("customer");
-      return true;
+    // Always remove localStorage first, even if API call fails
+    localStorage.removeItem("customer");
+    
+    // Try to call backend logout endpoint
+    try {
+      const response = await axios.get(`${base_url}user/logout`);
+      return { success: true, message: "Déconnexion réussie" };
+    } catch (apiError) {
+      // Even if API call fails, logout is still successful since we cleared localStorage
+      console.warn("Logout API call failed, but local logout successful:", apiError.message);
+      return { success: true, message: "Déconnexion locale réussie" };
     }
   } catch (error) {
-    handleAxiosError(error, "Échec de la déconnexion");
+    // Fallback: ensure localStorage is cleared
+    localStorage.removeItem("customer");
+    console.error("Logout error:", error);
+    return { success: true, message: "Déconnexion forcée" };
   }
 };
 

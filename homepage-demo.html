@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏠 Page d'Accueil Améliorée - Sanny E-Commerce</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #FF6F00, #E65100);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: #6C757D;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #FF6F00, #E65100);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255, 111, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(255, 111, 0, 0.4);
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .feature-card p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .feature-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .demo-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section h2 {
+            color: #FF6F00;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .demo-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .demo-list li {
+            background: white;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #FF6F00;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .demo-list li::before {
+            content: '✅';
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #FF6F00, #E65100);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #FF6F00;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #FF6F00;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #6C757D;
+            font-weight: 600;
+        }
+        
+        .preview-image {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+        
+        .preview-image img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Page d'Accueil Améliorée</h1>
+            <p>Nouvelle expérience de shopping avec Add to Cart & Wishlist intégrés</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="number">3</div>
+                <h3>Sections de Produits</h3>
+                <p>Offres spéciales, produits populaires et nouveautés avec interactions complètes</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="number">18+</div>
+                <h3>Produits Visibles</h3>
+                <p>Plus de 18 produits affichés directement sur la page d'accueil avec boutons d'action</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="number">100%</div>
+                <h3>Responsive Design</h3>
+                <p>Interface adaptée à tous les appareils avec animations fluides et design moderne</p>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Offres Spéciales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Produits Populaires</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">6</div>
+                <div class="stat-label">Nouveaux Produits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Possibilités</div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🛒 Fonctionnalités Add to Cart & Wishlist</h2>
+            <ul class="demo-list">
+                <li>Boutons "Ajouter au Panier" intégrés dans chaque carte de produit</li>
+                <li>Icônes cœur interactives pour la wishlist avec état visuel</li>
+                <li>Overlay élégant au survol avec actions rapides</li>
+                <li>Feedback immédiat avec toasts de succès/erreur</li>
+                <li>Gestion de l'authentification automatique</li>
+                <li>États de chargement visuels avec spinners</li>
+            </ul>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🎨 Améliorations Visuelles</h2>
+            <ul class="demo-list">
+                <li>Design moderne avec thème Orange Sanny cohérent</li>
+                <li>Animations échelonnées pour l'apparition des cartes</li>
+                <li>Effets shimmer au survol des produits</li>
+                <li>Titres de sections avec lignes de soulignement orange</li>
+                <li>Boutons d'action avec effets d'élévation</li>
+                <li>Layout responsive pour mobile/tablette/desktop</li>
+            </ul>
+        </div>
+        
+        <div class="demo-section">
+            <h2>⚡ Performance & UX</h2>
+            <ul class="demo-list">
+                <li>Chargement optimisé avec limitation du nombre de produits</li>
+                <li>Navigation fluide entre les sections</li>
+                <li>États de chargement pour éviter l'attente utilisateur</li>
+                <li>Fallback intelligent si pas de données</li>
+                <li>Intégration Redux pour la gestion d'état</li>
+                <li>Code modulaire et maintenable</li>
+            </ul>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="http://localhost:3000" class="btn btn-primary">
+                🌐 Voir la Page d'Accueil
+            </a>
+            <a href="http://localhost:3000/login" class="btn btn-secondary">
+                🔐 Se Connecter pour Tester
+            </a>
+            <a href="http://localhost:3000/product" class="btn btn-success">
+                📦 Voir Tous les Produits
+            </a>
+        </div>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #FF6F00, #E65100); border-radius: 15px; color: white; text-align: center;">
+            <h2 style="margin-bottom: 15px;">🎯 Test Complet</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div>
+                    <h4>1. Accès</h4>
+                    <p>Ouvrir localhost:3000</p>
+                </div>
+                <div>
+                    <h4>2. Connexion</h4>
+                    <p>zoghlamimustapha16@gmail.com</p>
+                </div>
+                <div>
+                    <h4>3. Test</h4>
+                    <p>Survoler les cartes et cliquer</p>
+                </div>
+                <div>
+                    <h4>4. Vérifier</h4>
+                    <p>Panier et wishlist</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

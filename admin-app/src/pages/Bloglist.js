@@ -48,7 +48,9 @@ const Bloglist = () => {
     data1.push({
       key: i + 1,
       name: getBlogState[i].title,
-      category: getBlogState[i].category,
+      category: typeof getBlogState[i].category === 'object' 
+        ? getBlogState[i].category?.title || getBlogState[i].category?.name || 'N/A' 
+        : getBlogState[i].category || 'N/A',
 
       action: (
         <>

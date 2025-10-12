@@ -18,7 +18,8 @@ export const login = createAsyncThunk(
     try {
       return await authService.login(userData);
     } catch (error) {
-      return thunkAPI.rejectWithValue(error);
+      const message = error.response?.data?.message || error.message || 'Login failed';
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -85,8 +86,9 @@ export const authSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.isError = true;
         state.isSuccess = false;
-        state.message = action.error;
+        state.message = { message: action.payload || "Login failed" };
         state.isLoading = false;
+        state.user = null;
       })
       .addCase(getOrders.pending, (state) => {
         state.isLoading = true;

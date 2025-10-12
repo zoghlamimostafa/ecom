@@ -1,0 +1,289 @@
+/* ============================================
+   MENU CATÉGORIES À 3 NIVEAUX
+   ============================================ */
+
+/* Panneau principal des sous-catégories (niveau 1) */
+.subcategories-side-menu {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    width: 350px;
+    max-height: 600px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1001;
+    margin-left: 5px;
+}
+
+.subcategories-header {
+    padding: 15px 20px;
+    border-bottom: 2px solid #f0f0f0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+
+.subcategories-header h4 {
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.subcategories-header p {
+    margin: 0;
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+.subcategories-list {
+    padding: 10px;
+}
+
+/* Groupe de sous-catégorie avec potentiel de sous-sous-catégories */
+.subcategory-group {
+    position: relative;
+    margin-bottom: 5px;
+}
+
+.subcategory-link-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: #333;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+    margin-bottom: 2px;
+}
+
+.subcategory-link-item:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    transform: translateX(3px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.subcategory-link-item i {
+    font-size: 1rem;
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+    color: #667eea;
+}
+
+.subcategory-link-item:hover i {
+    color: white;
+}
+
+.subcategory-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+}
+
+.subcategory-name {
+    font-weight: 500;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.subcategory-desc {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-top: 2px;
+}
+
+/* Icône indiquant qu'il y a des sous-sous-catégories */
+.has-subsub-icon {
+    margin-left: auto;
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
+.subcategory-link-item:hover .has-subsub-icon {
+    opacity: 1;
+    animation: bounceRight 0.6s ease infinite;
+}
+
+@keyframes bounceRight {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(3px); }
+}
+
+/* ============================================
+   PANNEAU DES SOUS-SOUS-CATÉGORIES (niveau 2)
+   ============================================ */
+
+.sub-subcategories-panel {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    width: 280px;
+    max-height: 500px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1002;
+    margin-left: 5px;
+    animation: slideInRight 0.2s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.sub-subcategories-header {
+    padding: 12px 15px;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sub-subcategories-header h5 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.sub-subcategories-list {
+    padding: 10px;
+}
+
+.sub-subcategory-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    text-decoration: none;
+    color: #444;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+    margin-bottom: 3px;
+    background: #f8f9fa;
+}
+
+.sub-subcategory-link:hover {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    transform: translateX(3px);
+    box-shadow: 0 2px 6px rgba(240, 147, 251, 0.3);
+}
+
+.sub-subcategory-link i {
+    font-size: 0.9rem;
+    margin-right: 10px;
+    width: 18px;
+    text-align: center;
+    color: #f5576c;
+}
+
+.sub-subcategory-link:hover i {
+    color: white;
+}
+
+.sub-subcategory-link span {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* ============================================
+   SCROLLBAR PERSONNALISÉE
+   ============================================ */
+
+.subcategories-side-menu::-webkit-scrollbar,
+.sub-subcategories-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.subcategories-side-menu::-webkit-scrollbar-track,
+.sub-subcategories-panel::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.subcategories-side-menu::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+}
+
+.sub-subcategories-panel::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-radius: 10px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 1024px) {
+    .subcategories-side-menu {
+        width: 300px;
+    }
+    
+    .sub-subcategories-panel {
+        width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .subcategories-side-menu,
+    .sub-subcategories-panel {
+        position: relative;
+        left: 0;
+        width: 100%;
+        margin-left: 0;
+        margin-top: 5px;
+    }
+}
+
+/* ============================================
+   AMÉLIORATION VISUELLE
+   ============================================ */
+
+/* Séparateur entre les groupes */
+.subcategory-group:not(:last-child)::after {
+    content: '';
+    display: block;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
+    margin: 8px 0;
+}
+
+/* Badge pour le nombre de sous-sous-catégories */
+.subcategory-link-item[data-has-subsub]::after {
+    content: attr(data-subsub-count);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    background: #667eea;
+    color: white;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+.subcategory-link-item:hover[data-has-subsub]::after {
+    background: white;
+    color: #667eea;
+}

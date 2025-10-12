@@ -1,17 +1,21 @@
+import './ProductCategory.css';
 import React, { useEffect } from 'react';
 import ReactStars from "react-rating-stars-component";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBlogs } from "../features/blogs/blogSlice";
-import { getAllProducts, addToWishlist } from '../features/products/productSlice';
+import { getAllProducts } from '../features/products/productSlice';
 import Container from '../components/Container';
 import { AiOutlineHeart, AiOutlineShoppingCart } from 'react-icons/ai';
 import { RiEyeLine } from 'react-icons/ri';
-import { addProdToCart, getUserCart } from '../features/user/userSlice';
+import { addProdToCart, getUserCart, toggleProductWishlist } from '../features/user/userSlice';
+import { toast } from 'react-toastify';
+import { useTranslation } from '../contexts/TranslationContext';
 
-const NewInformatique = () => {
+const Femme = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const { t } = useTranslation();
     const productState = useSelector((state) => state.product.product);
     const authState = useSelector(state => state?.auth?.auth); // Get authentication state
 
@@ -25,8 +29,21 @@ const NewInformatique = () => {
         }
     }, [dispatch, authState]);
 
-    const addToWish = (id) => {
-        dispatch(addToWishlist(id));
+    const addToWish = async (id) => {
+        // Vérifier l'authentification
+        if (!authState) {
+            toast.error(t('pleaseLoginForWishlist'));
+            navigate('/login');
+            return;
+        }
+
+        try {
+            await dispatch(toggleProductWishlist(id)).unwrap();
+            toast.success(t('wishlistUpdateSuccess'));
+        } catch (error) {
+            console.error("Erreur wishlist:", error);
+            toast.error(error.message || "Erreur lors de la modification de la wishlist");
+        }
     };
 
     const addToShoppingCart = (productId, color, price) => {
@@ -91,4 +108,4 @@ const NewInformatique = () => {
     );
 }
 
-export default NewInformatique;
+export default Femme;

@@ -18,11 +18,16 @@ export const deleteUser = createAsyncThunk(
   "customer/delete-user",
   async (userId, thunkAPI) => {
     try {
-      await customerService.deleteUser(userId);
-      // Retourne l'ID de l'utilisateur supprimé pour mise à jour ultérieure
-      return userId;
+      const response = await customerService.deleteUser(userId);
+      // Vérifier si la suppression a réussi
+      if (response.success) {
+        // Retourne l'ID de l'utilisateur supprimé pour mise à jour ultérieure
+        return userId;
+      } else {
+        return thunkAPI.rejectWithValue(response);
+      }
     } catch (error) {
-      return thunkAPI.rejectWithValue(error);
+      return thunkAPI.rejectWithValue(error.response || error);
     }
   }
 );
@@ -49,6 +54,23 @@ export const unblockUser = createAsyncThunk(
       return response;
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+// Action asynchrone pour modifier un utilisateur
+export const updateUser = createAsyncThunk(
+  "customer/update-user",
+  async ({ userId, userData }, thunkAPI) => {
+    try {
+      const response = await customerService.updateUser(userId, userData);
+      if (response.success) {
+        return { userId, updatedData: response.user };
+      } else {
+        return thunkAPI.rejectWithValue(response);
+      }
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response || error);
     }
   }
 );
@@ -88,13 +110,17 @@ export const customerSlice = createSlice({
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
+        state.isError = false;
         // Supprimer l'utilisateur de la liste des clients
-        state.customers = state.customers.filter(user => user.id !== action.payload);
+        // Convertir en string pour être sûr de la comparaison
+        const userIdToDelete = String(action.payload);
+        state.customers = state.customers.filter(user => String(user.id) !== userIdToDelete);
       })
       .addCase(deleteUser.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.error.message;
+        state.isSuccess = false;
+        state.message = action.payload?.response?.data?.message || action.error?.message || "Erreur lors de la suppression";
       })
       .addCase(blockUser.pending, (state) => {
         state.isLoading = true;
@@ -119,6 +145,26 @@ export const customerSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.error.message;
+      })
+      .addCase(updateUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        // Mettre à jour l'utilisateur dans la liste
+        const { userId, updatedData } = action.payload;
+        const userIndex = state.customers.findIndex(user => String(user.id) === String(userId));
+        if (userIndex !== -1) {
+          state.customers[userIndex] = { ...state.customers[userIndex], ...updatedData };
+        }
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.payload?.response?.data?.message || action.error?.message || "Erreur lors de la modification";
       });
   },
 });

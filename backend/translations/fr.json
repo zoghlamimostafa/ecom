@@ -1,0 +1,50 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "products": "Produits",
+    "categories": "Catégories",
+    "cart": "Panier",
+    "account": "Mon Compte",
+    "login": "Connexion",
+    "logout": "Déconnexion"
+  },
+  "product": {
+    "name": "Nom du produit",
+    "price": "Prix",
+    "description": "Description",
+    "add_to_cart": "Ajouter au panier",
+    "buy_now": "Acheter maintenant",
+    "out_of_stock": "Rupture de stock"
+  },
+  "cart": {
+    "title": "Mon Panier",
+    "empty": "Votre panier est vide",
+    "total": "Total",
+    "checkout": "Commander"
+  },
+  "form": {
+    "email": "Email",
+    "password": "Mot de passe",
+    "confirm_password": "Confirmer le mot de passe",
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "phone": "Téléphone",
+    "address": "Adresse",
+    "submit": "Envoyer",
+    "cancel": "Annuler"
+  },
+  "message": {
+    "success": "Opération réussie",
+    "error": "Une erreur est survenue",
+    "loading": "Chargement..."
+  },
+  "admin": {
+    "dashboard": "Tableau de bord",
+    "products": "Gestion des produits",
+    "users": "Gestion des utilisateurs",
+    "orders": "Gestion des commandes"
+  },
+  "language": {
+    "changed": "Langue changée vers le français"
+  }
+}

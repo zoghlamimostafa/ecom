@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Polices - Montserrat + Roboto</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --font-headings: 'Montserrat', sans-serif;
+            --font-body: 'Roboto', sans-serif;
+            --sanny-orange: #FF6F00;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-headings);
+            color: #212121;
+            margin-bottom: 1rem;
+        }
+        
+        h1 { font-size: 3rem; font-weight: 600; }
+        h2 { font-size: 2.25rem; font-weight: 600; }
+        h3 { font-size: 1.875rem; font-weight: 500; }
+        h4 { font-size: 1.5rem; font-weight: 500; }
+        
+        p {
+            font-family: var(--font-body);
+            font-size: 1rem;
+            color: #424242;
+            margin-bottom: 1rem;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, var(--sanny-orange), #e6640a);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-headings);
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 8px;
+            display: inline-block;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 111, 0, 0.4);
+        }
+        
+        .test-section {
+            margin: 40px 0;
+            padding: 20px;
+            border-left: 4px solid var(--sanny-orange);
+            background: #fafafa;
+        }
+        
+        .font-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .montserrat-demo {
+            font-family: var(--font-headings);
+        }
+        
+        .roboto-demo {
+            font-family: var(--font-body);
+        }
+        
+        .weight-demo {
+            margin: 10px 0;
+        }
+        
+        .italic { font-style: italic; }
+        .weight-300 { font-weight: 300; }
+        .weight-400 { font-weight: 400; }
+        .weight-500 { font-weight: 500; }
+        .weight-600 { font-weight: 600; }
+        .weight-700 { font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Test des Polices Sanny Store</h1>
+        <p>Vérification de l'implémentation Montserrat (titres) + Roboto (corps)</p>
+        
+        <div class="test-section">
+            <h2>Titres avec Montserrat</h2>
+            <h1>H1 - Titre Principal (Montserrat 600)</h1>
+            <h2>H2 - Sous-titre (Montserrat 600)</h2>
+            <h3>H3 - Section (Montserrat 500)</h3>
+            <h4>H4 - Sous-section (Montserrat 500)</h4>
+        </div>
+        
+        <div class="test-section">
+            <h2>Corps de texte avec Roboto</h2>
+            <p>Ceci est un paragraphe en Roboto normal (400). Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <p><em>Texte en italique Roboto pour accentuer certains éléments importants.</em></p>
+            <p><strong>Texte en gras Roboto (500) pour les éléments importants.</strong></p>
+        </div>
+        
+        <div class="test-section">
+            <h2>Démonstration des Poids</h2>
+            <div class="font-demo">
+                <div class="montserrat-demo">
+                    <h3>Montserrat (Titres)</h3>
+                    <div class="weight-demo weight-400">Montserrat 400 (Normal)</div>
+                    <div class="weight-demo weight-500">Montserrat 500 (Medium)</div>
+                    <div class="weight-demo weight-600">Montserrat 600 (SemiBold)</div>
+                    <div class="weight-demo weight-700">Montserrat 700 (Bold)</div>
+                    <div class="weight-demo weight-400 italic">Montserrat 400 Italic</div>
+                </div>
+                
+                <div class="roboto-demo">
+                    <h3>Roboto (Corps)</h3>
+                    <div class="weight-demo weight-300">Roboto 300 (Light)</div>
+                    <div class="weight-demo weight-400">Roboto 400 (Normal)</div>
+                    <div class="weight-demo weight-500">Roboto 500 (Medium)</div>
+                    <div class="weight-demo weight-700">Roboto 700 (Bold)</div>
+                    <div class="weight-demo weight-400 italic">Roboto 400 Italic</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Boutons et Éléments Interactifs</h2>
+            <button class="button">Ajouter au Panier</button>
+            <button class="button">Acheter Maintenant</button>
+            <button class="button">Voir Plus</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test E-commerce</h2>
+            <h3>Produit Exemple</h3>
+            <p><strong>Prix:</strong> 29,99 €</p>
+            <p><strong>Description:</strong> Ceci est la description d'un produit en Roboto, offrant une excellente lisibilité pour les détails importants. La police Roboto garantit une lecture fluide sur tous les appareils.</p>
+            <button class="button">Ajouter au Panier</button>
+        </div>
+        
+        <p style="text-align: center; margin-top: 40px; color: #666;">
+            ✅ Test réussi ! Montserrat et Roboto sont correctement chargées et appliquées.
+        </p>
+    </div>
+</body>
+</html>

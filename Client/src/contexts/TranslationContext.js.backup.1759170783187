@@ -1,0 +1,1059 @@
+import React, { createContext, useContext, useState } from 'react';
+
+const TranslationContext = createContext();
+
+export const useTranslation = () => {
+  const context = useContext(TranslationContext);
+  if (!context) {
+    throw new Error('useTranslation must be used within a TranslationProvider');
+  }
+  return context;
+};
+
+const translations = {
+  fr: {
+    // Métadonnées du site
+    siteName: "Sanny Store",
+    "site title": "Sanny Store - Votre Destination Shopping",
+    "site description": "Découvrez Sanny Store, votre boutique e-commerce de confiance. Large gamme de produits, livraison rapide, service client exceptionnel.",
+    "site keywords": "boutique en ligne, e-commerce, achat, shopping, mode, électronique, beauté, maison",
+    seo: {
+      author: "Équipe Sanny Store",
+      publisher: "Sanny Store",
+      robots: "index, follow",
+      canonical: "https://sannystore.com",
+      locale: "fr_FR",
+      type: "website",
+      image: "/images/og-image-fr.jpg"
+    },
+    "store pageTitle": "Notre Boutique - Sanny Store | Découvrez tous nos Produits",
+    "store pageDescription": "Explorez notre vaste collection de produits de qualité. Mode, électronique, beauté, maison et plus encore. Livraison rapide et satisfaction garantie.",
+    "store pageKeywords": "boutique en ligne, catalogue produits, shopping mode, électronique, beauté, maison, livraison rapide",
+    "contact pageTitle": "Contact - Sanny Store | Contactez-nous",
+    "contact pageDescription": "Contactez l'équipe Sanny Store. Service client disponible 7 j/7, support technique et assistance pour toutes vos questions e-commerce.",
+    "contact pageKeywords": "contact sanny store, service client, support technique, assistance, aide achat, livraison, retour",
+    "cart pageTitle": "Panier - Sanny Store | Votre Sélection",
+    "cart pageDescription": "Consultez votre panier d'achat Sanny Store. Modifiez vos quantités, appliquez des codes promo et procédez au check out sécurisé.",
+    "cart pageKeywords": "panier achat, check out, commande, paiement sécurisé, livraison, code promo",
+    "log in pageTitle": "Connexion - Sanny Store | Accédez à votre Compte",
+    "log in pageDescription": "Connectez-vous à votre compte Sanny Store. Accédez à vos commandes, wish list, adresses et profitez d'une expérience personnalisée.",
+    "log in pageKeywords": "connexion compte, log in, espace client, commandes, wish list, profil utilisateur",
+    "home pageTitle": "Accueil - Sanny Store",
+    "home pageDescription": "Découvrez nos produits de qualité sur Sanny Store",
+    "home pageKeywords": "accueil, boutique, produits",
+    developedBy: "Développé par Sanny Team",
+    
+    // Navigation et liens
+    home: "Accueil",
+    "our store": "Notre Boutique",
+    shop: "Boutique",
+    store: "Magasin",
+    products: "Produits",
+    "wish list": "Liste de souhaits",
+    favorites: "Favoris",
+    cart: "Panier",
+    basket: "Panier",
+    contact: "Contact",
+    "contact us": "Contactez-nous",
+    about: "À propos",
+    "about us": "À propos de nous",
+    privacy: "Confidentialité",
+    "privacy policy": "Politique de confidentialité",
+    refund: "Remboursement",
+    "refund policy": "Politique de remboursement",
+    shipping: "Livraison",
+    "shipping policy": "Politique de livraison",
+    terms: "Conditions",
+    "terms and conditions": "Conditions d'utilisation",
+    blog: "Blog",
+    blogs: "Articles",
+    news: "Actualités",
+    faq: "FAQ",
+    help: "Aide",
+    support: "Support",
+    compare: "Comparer",
+    comparison: "Comparaison",
+    
+    // Messages spécifiques de la page d'accueil
+    "welcome toSanny": "Bienvenue chez Sanny Store",
+    "buy andSellConfidently": "Achetez et vendez en toute confiance",
+    "best offersOfTheMoment": "Meilleures offres du moment",
+    "no promotionsAvailable": "Aucune promotion disponible",
+    "see allOffers": "Voir toutes les offres",
+    "popular products": "Produits populaires",
+    "discover mostAppreciated": "Découvrez nos produits les plus appréciés",
+    "no productsAvailable": "Aucun produit disponible",
+    "see allProducts": "Voir tous les produits",
+    "new products": "Nouveaux produits",
+    "latest arrivals": "Dernières nouveautés",
+    "no newProducts": "Aucun nouveau produit",
+    "see allNewProducts": "Voir tous les nouveaux produits",
+    "explore categories": "Explorez nos catégories",
+    
+    // Messages spécifiques pour Header
+    welcome: "Bienvenue",
+    account: "Compte",
+    profile: "Profil",
+    orders: "Commandes",
+    "log out": "Déconnexion",
+    "search products": "Rechercher des produits...",
+    customerReviews: "Avis clients",
+    deals: "Offres",
+    
+    // Catégories spécifiques
+    automobiles: "Automobiles",
+    diy: "Bricolage",
+    "women fashion": "Mode Femme",
+    
+    // Menu et navigation
+    menu: "Menu",
+    categories: "Catégories",
+    "all categories": "Toutes les catégories",
+    "popular categories": "Catégories populaires",
+    "featured categories": "Catégories en vedette",
+    newArrivals: "Nouveautés",
+    bestSellers: "Meilleures ventes",
+    promotions: "Promotions",
+    offers: "Offres",
+    specialOffers: "Offres spéciales",
+    discounts: "Remises",
+    sale: "Soldes",
+    clearance: "Liquidation",
+    
+    // Authentification et compte
+    "log in": "Se connecter",
+    signin: "Connexion",
+    register: "S'inscrire",
+    "sign up": "Inscription",
+    "create account": "Créer un compte",
+    signout: "Déconnexion",
+    myAccount: "Mon compte",
+    "my profile": "Mon profil",
+    "account settings": "Paramètres du compte",
+    "edit profile": "Modifier le profil",
+    "change password": "Changer le mot de passe",
+    "forgot password": "Mot de passe oublié ?",
+    "reset password": "Réinitialiser le mot de passe",
+    "remember me": "Se souvenir de moi",
+    "keep me logged in": "Rester connecté",
+    
+    // Messages de connexion spécifiques
+    "welcome back": "Bienvenue 👋",
+    "log in to your account": "Connectez-vous à votre compte Sanny Store",
+    "enter your email": "Entrez votre adresse e-mail",
+    "enter your password": "Entrez votre mot de passe",
+    "logging in": "Connexion en cours...",
+    "no account yet": "Vous n'avez pas encore de compte ?",
+    "already haveAccount": "Vous avez déjà un compte ?",
+    or: "ou",
+    "password required": "Le mot de passe est requis",
+    
+    // Champs de formulaire
+    email: "Email",
+    "email address": "Adresse email",
+    username: "Nom d'utilisateur",
+    password: "Mot de passe",
+    "new password": "Nouveau mot de passe",
+    "current password": "Mot de passe actuel",
+    "confirm password": "Confirmer le mot de passe",
+    "first name": "Prénom",
+    "last name": "Nom",
+    "full name": "Nom complet",
+    name: "Nom",
+    mobile: "Mobile",
+    phone: "Téléphone",
+    "phone number": "Numéro de téléphone",
+    address: "Adresse",
+    "street address": "Adresse rue",
+    city: "Ville",
+    state: "État/Province",
+    country: "Pays",
+    "postal code": "Code postal",
+    "zip code": "Code postal",
+    
+    // Boutons d'action
+    save: "Enregistrer",
+    cancel: "Annuler",
+    edit: "Modifier",
+    delete: "Supprimer",
+    remove: "Retirer",
+    add: "Ajouter",
+    update: "Mettre à jour",
+    confirm: "Confirmer",
+    submit: "Soumettre",
+    send: "Envoyer",
+    back: "Retour",
+    continue: "Continuer",
+    next: "Suivant",
+    previous: "Précédent",
+    finish: "Terminer",
+    complete: "Terminer",
+    close: "Fermer",
+    open: "Ouvrir",
+    view: "Voir",
+    show: "Afficher",
+    hide: "Masquer",
+    more: "Plus",
+    less: "Moins",
+    all: "Tout",
+    none: "Aucun",
+    yes: "Oui",
+    no: "Non",
+    ok: "OK",
+    apply: "Appliquer",
+    reset: "Réinitialiser",
+    clear: "Effacer",
+    search: "Rechercher",
+    find: "Trouver",
+    browse: "Parcourir",
+    explore: "Explorer",
+    discover: "Découvrir",
+    
+    // Catégories détaillées
+    "all products": "Tous les produits",
+    electronics: "Électronique",
+    clothing: "Vêtements",
+    books: "Livres",
+    computers: "Ordinateurs",
+    phones: "Téléphones",
+    smartphones: "Smartphones",
+    tablets: "Tablettes",
+    fashion: "Mode",
+    "mens fashion": "Mode homme",
+    "kids fashion": "Mode enfant",
+    sports: "Sports",
+    fitness: "Fitness",
+    outdoor: "Plein air",
+    health: "Santé",
+    beauty: "Beauté",
+    skincare: "Soins de la peau",
+    makeup: "Maquillage",
+    furniture: "Mobilier",
+    decor: "Décoration",
+    kitchen: "Cuisine",
+    appliances: "Électroménager",
+    garden: "Jardin",
+    automotive: "Automobile",
+    tools: "Outils",
+    babies: "Bébés",
+    toys: "Jouets",
+    pets: "Animaux",
+    games: "Jeux",
+    music: "Musique",
+    movies: "Films",
+    art: "Art",
+    craft: "Artisanat",
+    
+    // Produits et descriptions
+    product: "Produit",
+    item: "Article",
+    sku: "Référence",
+    model: "Modèle",
+    brand: "Marque",
+    manufacturer: "Fabricant",
+    price: "Prix",
+    "original price": "Prix original",
+    "sale price": "Prix soldé",
+    "discount price": "Prix réduit",
+    "regular price": "Prix régulier",
+    unitPrice: "Prix unitaire",
+    priceRange: "Gamme de prix",
+    from: "À partir de",
+    to: "Jusqu'à",
+    currency: "Devise",
+    free: "Gratuit",
+    
+    // Caractéristiques produit
+    rating: "Note",
+    reviews: "Avis",
+    review: "Avis",
+    stars: "étoiles",
+    color: "Couleur",
+    colors: "Couleurs",
+    size: "Taille",
+    sizes: "Tailles",
+    weight: "Poids",
+    dimensions: "Dimensions",
+    material: "Matériau",
+    fabric: "Tissu",
+    style: "Style",
+    category: "Catégorie",
+    subcategory: "Sous-catégorie",
+    tag: "Étiquette",
+    tags: "Étiquettes",
+    
+    // Descriptions et détails
+    description: "Description",
+    details: "Détails",
+    specifications: "Spécifications",
+    features: "Caractéristiques",
+    benefits: "Avantages",
+    overview: "Aperçu",
+    summary: "Résumé",
+    information: "Information",
+    instructions: "Instructions",
+    usage: "Utilisation",
+    care: "Entretien",
+    maintenance: "Maintenance",
+    warranty: "Garantie",
+    guarantee: "Garantie",
+    
+    // Disponibilité et stock
+    availability: "Disponibilité",
+    stock: "Stock",
+    inStock: "En stock",
+    "out ofStock": "Rupture de stock",
+    "low stock": "Stock faible",
+    "limited stock": "Stock limité",
+    "back order": "Commande en attente",
+    preorder: "Précommande",
+    "coming soon": "Bientôt disponible",
+    discontinued: "Produit arrêté",
+    
+    // Actions produits
+    "add toCart": "Ajouter au panier",
+    "buy now": "Acheter maintenant",
+    "purchase now": "Acheter maintenant",
+    "order now": "Commander maintenant",
+    "add toWishlist": "Ajouter aux favoris",
+    "add to favorites": "Ajouter aux favoris",
+    "remove fromWishlist": "Retirer des favoris",
+    "remove from favorites": "Retirer des favoris",
+    viewDetails: "Voir les détails",
+    "more details": "Plus de détails",
+    "full details": "Détails complets",
+    quickView: "Vue rapide",
+    preview: "Aperçu",
+    "compare product": "Comparer le produit",
+    "add to compare": "Ajouter à la comparaison",
+    "share product": "Partager le produit",
+    share: "Partager",
+    
+    // Panier et shopping
+    "cart items": "Articles du panier",
+    "cart summary": "Résumé du panier",
+    "cart empty": "Votre panier est vide",
+    "empty cart": "Panier vide",
+    cartTotal: "Total du panier",
+    "items in cart": "articles dans le panier",
+    subtotal: "Sous-total",
+    tax: "Taxe",
+    taxes: "Taxes",
+    total: "Total",
+    grandTotal: "Total général",
+    "final total": "Total final",
+    "check out": "Passer commande",
+    "proceed to check out": "Procéder au règlement",
+    "continue shopping": "Continuer les achats",
+    "update cart": "Mettre à jour le panier",
+    "remove fromCart": "Retirer du panier",
+    "delete from cart": "Supprimer du panier",
+    "clear cart": "Vider le panier",
+    quantity: "Quantité",
+    qty: "Qté",
+    
+    // Commande et check out
+    order: "Commande",
+    "my orders": "Mes commandes",
+    orderHistory: "Historique des commandes",
+    orderSummary: "Résumé de commande",
+    orderDetails: "Détails de commande",
+    "order number": "Numéro de commande",
+    "order date": "Date de commande",
+    "order status": "Statut de commande",
+    "order tracking": "Suivi de commande",
+    trackOrder: "Suivre la commande",
+    reorder: "Commander à nouveau",
+    "cancel order": "Annuler la commande",
+    "return order": "Retourner la commande",
+    
+    // Statuts de commande
+    pending: "En attente",
+    processing: "En cours de traitement",
+    confirmed: "Confirmée",
+    shipped: "Expédiée",
+    delivered: "Livrée",
+    completed: "Terminée",
+    cancelled: "Annulée",
+    refunded: "Remboursée",
+    returned: "Retournée",
+    failed: "Échouée",
+    
+    // Paiement
+    payment: "Paiement",
+    paymentMethod: "Méthode de paiement",
+    paymentMethods: "Méthodes de paiement",
+    "payment details": "Détails de paiement",
+    "payment info": "Informations de paiement",
+    billing: "Facturation",
+    billingAddress: "Adresse de facturation",
+    "billing info": "Informations de facturation",
+    "credit card": "Carte de crédit",
+    "debit card": "Carte de débit",
+    paypal: "Pay pal",
+    "bank transfer": "Virement bancaire",
+    "cash onDelivery": "Paiement à la livraison",
+    cod: "Paiement à la livraison",
+    "pay now": "Payer maintenant",
+    "pay securely": "Payer en sécurité",
+    "secure payment": "Paiement sécurisé",
+    "card number": "Numéro de carte",
+    "expiry date": "Date d'expiration",
+    cvv: "CVV",
+    "cardholder name": "Nom du titulaire",
+    
+    // Livraison
+    delivery: "Livraison",
+    deliveryAddress: "Adresse de livraison",
+    deliveryInfo: "Informations de livraison",
+    deliveryOptions: "Options de livraison",
+    "delivery time": "Délai de livraison",
+    "delivery date": "Date de livraison",
+    estimatedDelivery: "Livraison estimée",
+    "fast delivery": "Livraison rapide",
+    "standard delivery": "Livraison standard",
+    "express delivery": "Livraison express",
+    "next day delivery": "Livraison le lendemain",
+    freeShipping: "Livraison gratuite",
+    "free delivery": "Livraison gratuite",
+    "shipping cost": "Frais de livraison",
+    
+    // Interface utilisateur
+    "search placeholder": "Rechercher des produits...",
+    "search results": "Résultats de recherche",
+    "no results": "Aucun résultat",
+    "no results found": "Aucun résultat trouvé",
+    filter: "Filtrer",
+    filters: "Filtres",
+    "filter by": "Filtrer par",
+    "sort by": "Trier par",
+    sort: "Trier",
+    "order by": "Classer par",
+    showMore: "Voir plus",
+    showLess: "Voir moins",
+    viewMore: "Voir plus",
+    "view less": "Voir moins",
+    loadMore: "Charger plus",
+    "show all": "Tout afficher",
+    "hide all": "Tout masquer",
+    expand: "Développer",
+    collapse: "Réduire",
+    
+    // Messages de statut
+    loading: "Chargement...",
+    saving: "Enregistrement...",
+    sending: "Envoi...",
+    uploading: "Téléchargement...",
+    downloading: "Téléchargement...",
+    connecting: "Connexion...",
+    error: "Erreur",
+    success: "Succès",
+    warning: "Attention",
+    info: "Information",
+    notice: "Avis",
+    alert: "Alerte",
+    message: "Message",
+    notification: "Notification",
+    
+    // Messages toast et erreurs
+    "please log in": "Veuillez vous connecter",
+    "log in required": "Connexion requise",
+    "please log in for cart": "Veuillez vous connecter pour ajouter au panier",
+    "please log in for wishlist": "Veuillez vous connecter pour ajouter à la wish list",
+    "please log in for wishlistManage": "Veuillez vous connecter pour gérer votre wish list",
+    "product added to cart": "Produit ajouté au panier !",
+    "product removed from wishlist": "Produit retiré de la wish list !",
+    "product added to wishlist": "Produit ajouté à la wish list !",
+    "wish list update success": "liste de souhaits mise à jour avec succès!",
+    "product info missing": "Informations produit manquantes",
+    "product id missing": "ID produit manquant",
+    "cannot display product": "Impossible d'afficher ce produit - Identifiant manquant",
+    "wish list error": "Erreur lors de l'ajout à la wish list",
+    "cart error": "Erreur lors de l'ajout au panier",
+    "please add star rating": "Veuillez ajouter une note étoilée",
+    "please write comment": "Veuillez écrire un commentaire sur le produit",
+    "review added success": "Avis ajouté avec succès!",
+    "link copied": "Lien copié !",
+    "link copied Instagram": "Lien copié! Vous pouvez le partager sur Instagram",
+    "product link copied": "Lien du produit copié!",
+    "redirecting to order": "Redirection vers la commande",
+    
+    // Tooltips et titres pour Product card
+    "remove from wishlistTitle": "Retirer de la liste de souhaits",
+    "add toWishlistTitle": "Ajouter à la liste de souhaits",
+    "remove from wish list tooltip": "Retirer de la wish list",
+    "add to wish list tooltip": "Ajouter à la wish list",
+    "add to cart tooltip": "Ajouter au panier",
+    "quick view tooltip": "Vue rapide",
+    "view product": "Voir le produit",
+    "explore product": "Explorer le produit",
+    productDetails: "Détails du produit",
+    
+    // Formulaires et validation
+    required: "Requis",
+    optional: "Optionnel",
+    invalid: "Invalide",
+    valid: "Valide",
+    "invalid email": "Email invalide",
+    "invalid phone": "Numéro de téléphone invalide",
+    "password tooShort": "Mot de passe trop court",
+    "passwords doNotMatch": "Les mots de passe ne correspondent pas",
+    "field required": "Ce champ est requis",
+    "please enter": "Veuillez saisir",
+    "please select": "Veuillez sélectionner",
+    "please choose": "Veuillez choisir",
+    
+    // Validation spécifique pour les formulaires
+    "name required": "Le nom est requis",
+    "email required": "L'email est requis",
+    "phone required": "Le téléphone est requis",
+    "address required": "L'adresse est requise",
+    "message required": "Le message est requis",
+    "your complete address": "Votre adresse complète",
+    "describe your request": "Décrivez votre demande en détail...",
+    
+    // Footer et informations
+    "follow us": "Suivez-nous",
+    "social media": "Réseaux sociaux",
+    newsletter: "Newsletter",
+    subscribe: "S'abonner",
+    "subscribe message": "Abonnez-vous pour recevoir les dernières offres",
+    "email subscription": "Abonnement email",
+    "stay updated": "Restez informé",
+    "get updates": "Recevoir les mises à jour",
+    
+    // Messages spécifiques footer
+    "stay informed": "Restez informés",
+    "newsletter description": "Abonnez-vous à notre newsletter pour recevoir nos dernières offres et actualités",
+    "email placeholder": "Votre adresse email",
+    "subscribe newsletter": "S'abonner",
+    "back to top": "Retour en haut",
+    support247: "Support 24/7",
+    "all rights reserved": "Tous droits réservés",
+    "legal notice": "Mention légale",
+
+    // Home page sections
+    "why chooseSanny": "Pourquoi Choisir Sanny ?",
+    "why chooseSannySubtitle": "Une expérience de vente et d'achat conçue pour vous, alliant simplicité, confiance et efficacité.",
+    "fast service": "Service Rapide",
+    "fast serviceDescription": "Expéditions rapides et processus de vente optimisé pour ne jamais perdre de temps.",
+    "reliable transactions": "Transactions Fiables",
+    "reliable transactions Description": "Chaque produit est vérifié et chaque transaction est protégée pour votre tranquillité d'esprit.",
+    "secure paymentDescription": "Utilisez notre système de paiement intégré pour des transactions 100% sécurisées.",
+
+    // Product card actions
+    "remove fromWishlistTitle": "Retirer des favoris",
+
+    // Footer
+    "footer description": "Votre marketplace de confiance en Tunisie. Achetez et vendez facilement avec des transactions sécurisées et un service client de qualité.",
+
+    // Store filters
+    "clear all": "Effacer tout",
+    min: "Min",
+    max: "Max",
+    brands: "Marques",
+
+    // Cart and orders
+    "view cart": "Voir le panier",
+    "validate order": "Valider la commande",
+
+    // Signup form validation
+    "firstname tooShort": "Le prénom doit contenir au moins 2 caractères",
+    "firstname required": "Prénom requis",
+    "lastname tooShort": "Le nom doit contenir au moins 2 caractères",
+    "lastname required": "Nom requis",
+    "phone invalid": "Le numéro doit contenir 10 chiffres",
+    "confirm passwordRequired": "Confirmation du mot de passe requise",
+    "account createdSuccessfully": "Compte créé avec succès !",
+    "redirecting toLogin": "Redirection vers la page de connexion...",
+    "creating account": "Création du compte...",
+
+    // Additional UI elements
+    "view reviews": "Voir les avis",
+    "back toHome": "Retour à l'accueil",
+    "name aZ": "Nom (A-Z)",
+    newest: "Plus récents",
+    "grid view": "Vue grille",
+    "list view": "Vue liste",
+
+    // Store messages
+    "no productsFound": "Aucun produit trouvé",
+    "try modifyingSearch": "Essayez de modifier vos critères de recherche ou de filtrage.",
+    "clear allFilters": "Effacer tous les filtres",
+
+    // Payment page
+    "fill allRequiredFields": "Veuillez remplir tous les champs requis",
+    "payment failedTryAgain": "Le paiement a échoué. Veuillez réessayer.",
+    "error processingTryAgain": "Une erreur s'est produite lors du traitement. Veuillez réessayer.",
+    "order numberPlaceholder": "Numéro de votre commande",
+    amount: "Montant",
+    "amount inTnd": "Montant en TND",
+    "payment methodIdPlaceholder": "ID de la méthode de paiement",
+    "processing payment": "Traitement en cours...",
+    "confirm payment": "Confirmer le Paiement",
+
+    // Blog page
+    "blog article": "Article de Blog",
+    "back toArticles": "Retour aux articles",
+    "article image": "Image de l'article",
+    "see moreArticles": "Voir plus d'articles",
+    "article notFound": "L'article que vous recherchez n'existe pas ou a été supprimé.",
+    "discover articles": "Découvrir nos articles",
+
+    // Categories translations
+    "category fashionClothing": "Mode & Vêtements",
+    "category fashionDesc": "Vêtements et accessoires pour homme et femme",
+    "category womenFashion": "Mode Femme",
+    "category womenFashionDesc": "Vêtements pour femme",
+    "category menFashion": "Mode Homme",
+    "category menFashionDesc": "Vêtements pour homme",
+    "category womenShoes": "Chaussures Femme",
+    "category womenShoesDesc": "Chaussures pour femme",
+    "category menShoes": "Chaussures Homme",
+    "category menShoesDesc": "Chaussures pour homme",
+    
+    "category autoMoto": "Auto & Moto",
+    "category autoMotoDesc": "Pièces et accessoires automobiles",
+    "category autoParts": "Pièces Auto",
+    "category autoPartsDesc": "Pièces détachées automobiles",
+    "category autoAccessories": "Accessoires Auto",
+    "category autoAccessoriesDesc": "Accessoires pour voiture",
+    "category tiresWheels": "Pneus & Jantes",
+    "category tiresWheelsDesc": "Pneus et jantes automobiles",
+    "category carMaintenance": "Entretien Auto",
+    "category carMaintenanceDesc": "Produits d'entretien de véhicules",
+    "category motoEquipment": "Équipement Moto",
+    "category motoEquipmentDesc": "Casques, gants, vêtements de moto",
+    "category motoParts": "Pièces Moto",
+    "category motoPartsDesc": "Pièces détachées moto",
+    
+    "category electronics": "Électronique & High-Tech",
+    "category electronicsDesc": "Produits électroniques et technologiques",
+    "category smartphones": "Smartphones",
+    "category smartphonesDesc": "Téléphones mobiles",
+    "category computers": "Ordinateurs",
+    "category computersDesc": "PC et laptops",
+    "category tVAudio": "TV & Audio",
+    "categoryTVAudio desc": "Télévisions et audio",
+    "category tablets": "Tablettes",
+    "category tabletsDesc": "Tablettes et e-readers",
+    "category gaming": "Gaming",
+    "category gamingDesc": "Consoles et jeux vidéo",
+    "category techAccessories": "Accessoires Tech",
+    "category techAccessoriesDesc": "Câbles, chargeurs, housses",
+    "category photoVideo": "Photo & Vidéo",
+    "category photoVideoDesc": "Appareils photo et caméras",
+    
+    "category homeGarden": "Maison & Jardin",
+    "category homeGardenDesc": "Produits pour la maison et le jardin",
+    "category furniture": "Mobilier",
+    "category furnitureDesc": "Meubles pour la maison",
+    "category gardening": "Jardinage",
+    "category gardeningDesc": "Outils et plantes",
+    "category decoration": "Décoration",
+    "category decorationDesc": "Objets déco et arts",
+    "category appliances": "Électroménager",
+    "category appliancesDesc": "Appareils électroménagers",
+    "category bedding": "Literie",
+    "category beddingDesc": "Matelas, oreillers, draps",
+    "category lighting": "Éclairage",
+    "category lightingDesc": "Lampes et luminaires",
+    
+    "category sportLeisure": "Sport & Loisirs",
+    "category sportLeisureDesc": "Articles de sport et loisirs",
+    "category fitness": "Fitness",
+    "category fitnessDesc": "Équipements de fitness",
+    "category teamSports": "Sports d'équipe",
+    "category teamSportsDesc": "Football, basketball, volleyball",
+    "category individualSports": "Sports individuels",
+    "category individual Sports Desc": "Tennis, badminton, golf",
+    "category outdoor": "Outdoor",
+    "category outdoorDesc": "Camping, randonnée, escalade",
+    "category waterSports": "Sports nautiques",
+    "category waterSportsDesc": "Natation, surf, plongée",
+    "category sportsWear": "Vêtements de sport",
+    "category sportsWearDesc": "Tenues et chaussures de sport",
+    
+    "category healthBeauty": "Santé & Beauté",
+    "category healthBeautyDesc": "Produits de santé et cosmétiques",
+    "category cosmetics": "Cosmétiques",
+    "category cosmeticsDesc": "Maquillage et beauté",
+    "category faceCare": "Soins visage",
+    "category faceCareDesc": "Crèmes, sérums, masques",
+    "category perfumes": "Parfums",
+    "category perfumesDesc": "Parfums et eaux de toilette",
+    "category bodyCare": "Soins corps",
+    "category bodyCareDesc": "Gels douche, crèmes corps",
+    "category health": "Santé",
+    "category healthDesc": "Compléments alimentaires",
+    "category hairCare": "Soins des cheveux",
+    "category hairCareDesc": "Shampooings, masques pour cheveux",
+    
+    "category kidsBabies": "Enfants & Bébés",
+    "category kidsBabiesDesc": "Produits pour enfants et bébés",
+    "category babyClothes": "Vêtements Bébé",
+    "category babyClothesDesc": "Vêtements pour bébés",
+    "category toys": "Jouets",
+    "category toysDesc": "Jouets pour enfants",
+    "category babyFood": "Alimentation bébé",
+    "category babyFoodDesc": "Biberons, lait, petits pots",
+    "category kidsFurniture": "Mobilier enfant",
+    "category kidsFurnitureDesc": "Lits, chaises hautes, commodes",
+    "category strollersSeats": "Poussettes & Sièges",
+    "category strollersSeatsDesc": "Poussettes et sièges auto",
+    "category babyHygiene": "Hygiène bébé",
+    "category babyHygieneDesc": "Couches, lingettes, soins",
+    
+    "category pets": "Animaux",
+    "category petsDesc": "Produits pour animaux de compagnie",
+    "category dogs": "Chiens",
+    "category dogsDesc": "Produits pour chiens",
+    "category cats": "Chats",
+    "category catsDesc": "Produits pour chats",
+    "category birds": "Oiseaux",
+    "category birdsDesc": "Produits pour oiseaux",
+    
+    "category food": "Alimentation",
+    "category foodDesc": "Produits alimentaires et boissons",
+    "category grocery": "Épicerie",
+    "category groceryDesc": "Produits de base",
+    "category organic": "Bio & Naturel",
+    "category organicDesc": "Produits biologiques",
+    "category beverages": "Boissons",
+    "category beveragesDesc": "Eaux, sodas, jus",
+    
+    "category books": "Livres & Culture",
+    "category booksDesc": "Livres, films, musique",
+    "category booksOnly": "Livres",
+    "category booksOnlyDesc": "Romans, essais, BD",
+    "category movies": "Films & Séries",
+    "category moviesDesc": "DVD, Blu-ray",
+    "category music": "Musique",
+    "category musicDesc": "CD, vinyles",
+    
+    "category dIY": "Bricolage & Jardinage",
+    "category dIYDesc": "Outils et matériaux pour bricoler",
+    "category tools": "Outillage",
+    "category toolsDesc": "Perceuses, scies, marteaux",
+    "category materials": "Matériaux",
+    "category materialsDesc": "Bois, métal, plastique",
+    "category safety": "Sécurité",
+    "category safetyDesc": "Gants, casques, lunettes",
+    
+    "category office": "Bureautique",
+    "category officeDesc": "Matériel de bureau et informatique pro",
+    "category officeSupplies": "Fournitures bureau",
+    "category officeSuppliesDesc": "Papier, stylos, classeurs",
+    "category officeFurniture": "Mobilier bureau",
+    "category officeFurnitureDesc": "Bureaux, chaises",
+
+    // Header elements
+    "site logo": "Logo Sanny Store",
+
+    // Our store page
+    "products found": "produit(s) trouvé(s)",
+    oldest: "Plus anciens",
+    "alphabetical aZ": "A-Z",
+    "alphabetical zA": "Z-A",
+    "price ascending": "Prix croissant",
+    "price descending": "Prix décroissant",
+
+    // Footer elements
+    location: "Tunis, Tunisie",
+    facebook: "Facebook",
+    Instagram: "Instagram",
+    tiktok: "Tik tok",
+    linkedin: "Linked in",
+
+    // Home page missing keys
+    "our partner brands": "Nos marques partenaires",
+    "our guarantees": "Nos garanties",
+    "fast deliveryCarousel": "Livraison rapide",
+    "secure paymentCarousel": "Paiement sécurisé",
+    "free returnCarousel": "Retour gratuit",
+    support247Carousel: "Support 24 h/7",
+    "express deliveryCarousel": "Livraison express",
+    "quality guaranteeCarousel": "Garantie qualité",
+
+    // About page
+    "about pageTitle": "À propos - Sanny Store | Votre Partenaire E-commerce de Confiance",
+    "about pageDescription": "Découvrez l'histoire de Sanny Store, notre mission et nos valeurs. Plus de 10 ans d'expérience dans le e-commerce, service client exceptionnel et produits de qualité.",
+    "about pageKeywords": "à propos sanny store, histoire entreprise, mission valeurs, e-commerce expérience, équipe sanny, confiance qualité",
+    "about sanny": "À propos de Sanny",
+    "your trustedPartner": "Votre partenaire de confiance",
+    since2024: "Depuis 2024",
+    "revolutionize onlineShopping": "Révolutionnons ensemble l'expérience du commerce en ligne",
+    "sanny description": "Sanny est une plateforme de commerce électronique innovante qui simplifie vos achats grâce à un service rapide, fiable et sécurisé. Nous garantissons la qualité exceptionnelle de chaque produit proposé.",
+    "guaranteed security": "Sécurité garantie",
+    "premium quality": "Qualité premium",
+    
+    // Hero section
+    "discover ourStore": "Découvrir notre boutique",
+    
+    // About page statistics
+    "happy customers": "Clients Satisfaits",
+    "available products": "Produits Disponibles",
+    "satisfaction rate": "Taux de Satisfaction",
+    "customer support": "Support Client",
+    
+    // About page mission/vision
+    "our mission": "Notre Mission",
+    "our vision": "Notre Vision",
+    "mission description": "Démocratiser l'accès aux produits de qualité en offrant une expérience d'achat en ligne simple, sécurisée et agréable pour tous.",
+    "vision description": "Devenir la plateforme de référence du e-commerce en Tunisie, reconnue pour son excellence et son innovation continue."
+  },
+
+  en: {
+    // Site metadata
+    "site name": "Sanny Store",
+    seo: {
+    },
+
+    // Navigation and links
+
+    // Home page specific messages
+
+    // Header specific messages
+
+    // Categories
+
+    // Authentication
+    
+    // Login specific messages
+
+    // Form fields
+
+    // Product details
+
+    // Product characteristics
+
+    // Descriptions and details
+
+    // Availability and stock
+
+    // Product actions
+
+    // Shopping cart
+
+    // Orders
+
+    // Order statuses
+
+    // Payment
+
+    // Shipping
+
+    // UI elements
+    
+    // Our store specific filters
+    "filter by brand": "Filter by brand",
+    "filter by category": "Filter by category",
+    "filter by price": "Filter by price",
+    "filter by rating": "Filter by rating",
+    "price from": "Price from",
+    "price to": "Price to",
+    "min price": "Minimum price",
+    "max price": "Maximum price",
+    "price filter": "Price filter",
+    "brand filter": "Brand filter",
+    "category filter": "Category filter",
+    "clear filters": "Clear filters",
+    "reset filters": "Reset filters",
+    "apply filters": "Apply filters",
+    
+    // Sort options
+    "sort by price": "Sort by price",
+    "sort by rating": "Sort by rating",
+    "sort by date": "Sort by date",
+    "sort by popularity": "Sort by popularity",
+    "sort by relevance": "Sort by relevance",
+    "price high to low": "Price high to low",
+    "price low to high": "Price low to high",
+    "newest first": "Newest first",
+    "oldest first": "Oldest first",
+    "best rated": "Best rated",
+    featured: "Featured",
+    
+    // Views and display
+    "toggle view": "Toggle view",
+    "show filters": "Show filters",
+    "hide filters": "Hide filters",
+
+    // Status messages
+
+    // Toast messages
+
+    // Tooltips for Product card
+
+    // Footer
+
+    // Form validation
+
+    // Action buttons
+
+    // Home page sections
+
+    // Product card actions
+
+    // Footer
+
+    // Store filters
+
+    // Cart and orders
+
+    // Signup form validation
+
+    // Additional UI elements
+
+    // Store messages
+
+    // Payment page
+
+    // Blog page
+
+    // Categories translations
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    // Header elements
+
+    // Our store page
+
+    // Footer elements
+
+    // Home page missing keys
+
+    // About page
+    
+    // Hero section
+    
+    // About page statistics
+    
+    // About page mission/vision
+  },
+
+  ar: {
+    // بيانات الموقع
+    seo: {
+    },
+    
+    // الروابط والتنقل
+    
+    // التصنيفات
+    
+    // المنتجات
+    
+    // إجراءات المنتجات
+    
+    // السلة
+    
+    // الطلب
+    
+    // حالات الطلب
+    
+    // الدفع
+    
+    // التسليم
+    
+    // الواجهة
+    
+    // الحالات
+    
+    // الإجراءات
+
+    // أقسام الصفحة الرئيسية
+
+    // إجراءات بطاقة المنتج
+
+    // التذييل
+
+    // مرشحات المتجر
+
+    // السلة والطلبات
+
+    // التحقق من نموذج التسجيل
+
+    // عناصر واجهة إضافية
+
+    // رسائل المتجر
+
+    // صفحة الدفع
+
+    // صفحة المدونة
+
+    // ترجمات الفئات
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    // عناصر الرأسية
+
+    // صفحة متجرنا
+
+    // Footer elements
+
+    // Home page missing keys
+    "our partnerBrands": "علاماتنا الشريكة",
+
+    // About page
+    
+    // Hero section
+    
+    // Home page keys
+    
+    // About page statistics
+    
+    // About page mission/vision
+  }
+};
+
+export const TranslationProvider = ({ children }) => {
+  const [currentLanguage, setCurrentLanguage] = useState('fr');
+
+  const t = (key) => {
+    return translations[currentLanguage][key] || key;
+  };
+
+  const changeLanguage = (lang) => {
+    if (translations[lang]) {
+      setCurrentLanguage(lang);
+      localStorage.setItem('language', lang);
+    }
+  };
+
+  // Load language from localStorage on mount
+  React.useEffect(() => {
+    const savedLang = localStorage.getItem('language');
+    if (savedLang && translations[savedLang]) {
+      setCurrentLanguage(savedLang);
+    }
+  }, []);
+
+  return (
+    <TranslationContext.Provider value={{ 
+      t, 
+      currentLanguage, 
+      changeLanguage,
+      availableLanguages: Object.keys(translations)
+    }}>
+      {children}
+    </TranslationContext.Provider>
+  );
+};

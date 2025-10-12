@@ -1,0 +1,101 @@
+{
+  "timestamp": "2025-09-26T20:20:00.470Z",
+  "summary": {
+    "totalIssues": 0,
+    "structureOK": true,
+    "dependenciesOK": true,
+    "servicesActive": 0
+  },
+  "issues": [],
+  "recommendations": [
+    {
+      "priority": "medium",
+      "action": "Démarrer le service backend",
+      "command": "cd backend && node index.js"
+    },
+    {
+      "priority": "medium",
+      "action": "Démarrer le service client",
+      "command": "cd Client && npm start"
+    },
+    {
+      "priority": "medium",
+      "action": "Démarrer le service admin",
+      "command": "cd admin-app && npm start"
+    }
+  ],
+  "fullResults": {
+    "structure": {
+      "backend": {
+        "exists": true,
+        "path": "C:\\xampp\\htdocs\\sanny\\san\\ecomerce_sanny\\backend",
+        "description": "Serveur backend Node.js"
+      },
+      "Client": {
+        "exists": true,
+        "path": "C:\\xampp\\htdocs\\sanny\\san\\ecomerce_sanny\\Client",
+        "description": "Interface client React"
+      },
+      "admin-app": {
+        "exists": true,
+        "path": "C:\\xampp\\htdocs\\sanny\\san\\ecomerce_sanny\\admin-app",
+        "description": "Interface admin React"
+      }
+    },
+    "configs": {
+      "backend": {
+        "status": "found",
+        "hasJWT": true
+      },
+      "client": {
+        "hasEnv": true,
+        "path": "C:\\xampp\\htdocs\\sanny\\san\\ecomerce_sanny\\Client\\.env"
+      },
+      "admin": {
+        "hasEnv": true,
+        "path": "C:\\xampp\\htdocs\\sanny\\san\\ecomerce_sanny\\admin-app\\.env"
+      }
+    },
+    "dependencies": {
+      "backend": {
+        "hasNodeModules": true,
+        "hasPackageJson": true,
+        "needsInstall": false
+      },
+      "Client": {
+        "hasNodeModules": true,
+        "hasPackageJson": true,
+        "needsInstall": false
+      },
+      "admin-app": {
+        "hasNodeModules": true,
+        "hasPackageJson": true,
+        "needsInstall": false
+      }
+    },
+    "services": {
+      "backend": {
+        "status": "inactive",
+        "port": 4000,
+        "error": "ECONNREFUSED"
+      },
+      "client": {
+        "status": "inactive",
+        "port": 3000,
+        "error": "ECONNREFUSED"
+      },
+      "admin": {
+        "status": "inactive",
+        "port": 3001,
+        "error": "ECONNREFUSED"
+      }
+    },
+    "issues": [],
+    "database": {
+      "exists": true,
+      "size": 139264,
+      "path": "C:\\xampp\\htdocs\\sanny\\san\\ecomerce_sanny\\backend\\database.sqlite",
+      "lastModified": "2025-09-26T19:24:27.276Z"
+    }
+  }
+}

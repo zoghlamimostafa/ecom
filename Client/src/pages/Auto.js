@@ -1,15 +1,16 @@
+import './ProductCategory.css';
 import React, { useEffect, useState } from 'react';
 import ReactStars from "react-rating-stars-component";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBlogs } from "../features/blogs/blogSlice";
-import { getAllProducts, addToWishlist } from '../features/products/productSlice';
+import { getAllProducts } from '../features/products/productSlice';
 import Container from '../components/Container';
 import { AiOutlineHeart, AiOutlineShoppingCart } from 'react-icons/ai';
 import { RiEyeLine } from 'react-icons/ri';
-import { addProdToCart, getUserCart } from '../features/user/userSlice';
+import { addProdToCart, getUserCart, toggleProductWishlist } from '../features/user/userSlice';
 
-const NewInformatique = () => {
+const Auto = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -35,7 +36,7 @@ const NewInformatique = () => {
     }, [isDataLoaded, dispatch, authState]); // Le useEffect se déclenche uniquement si isDataLoaded est false
 
     const addToWish = (id) => {
-        dispatch(addToWishlist(id));
+        dispatch(toggleProductWishlist(id));
     };
 
     const addToShoppingCart = (productId, color, price) => {
@@ -101,4 +102,4 @@ const NewInformatique = () => {
     );
 };
 
-export default NewInformatique;
+export default Auto;

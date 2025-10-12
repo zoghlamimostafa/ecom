@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Boutons Panier/Wishlist</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test des Boutons Panier/Wishlist</h1>
+    
+    <div class="test-section">
+        <h2>📊 Informations de Debug</h2>
+        <div id="debug-info"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔑 Authentification</h2>
+        <button onclick="testLogin()">Se connecter (test@example.com)</button>
+        <button onclick="checkAuth()">Vérifier Auth</button>
+        <div id="auth-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🛒 Test Panier</h2>
+        <button onclick="testAddToCart()">Ajouter au panier (produit #22)</button>
+        <div id="cart-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>❤️ Test Wishlist</h2>
+        <button onclick="testAddToWishlist()">Toggle wishlist (produit #22)</button>
+        <div id="wishlist-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📱 Action Principale</h2>
+        <button onclick="goToMainApp()" style="background: #007bff; color: white; font-size: 16px;">
+            🚀 Aller à l'Application Principale
+        </button>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:4000/api/';
+        let currentToken = null;
+        
+        // Fonction utilitaire pour afficher les messages
+        function updateStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+        
+        // Vérifier l'état au chargement
+        window.onload = function() {
+            checkAuth();
+            updateDebugInfo();
+        };
+        
+        function updateDebugInfo() {
+            const customer = localStorage.getItem('customer');
+            const accessToken = localStorage.getItem('accessToken');
+            
+            let info = '<ul>';
+            info += `<li>Customer dans localStorage: ${customer ? '✅ Oui' : '❌ Non'}</li>`;
+            info += `<li>AccessToken dans localStorage: ${accessToken ? '✅ Oui' : '❌ Non'}</li>`;
+            info += `<li>URL Backend: ${API_BASE}</li>`;
+            info += `<li>Token actuel: ${currentToken ? '✅ Oui' : '❌ Non'}</li>`;
+            info += '</ul>';
+            
+            document.getElementById('debug-info').innerHTML = info;
+        }
+        
+        async function testLogin() {
+            updateStatus('auth-status', '🔄 Connexion en cours...', 'info');
+            
+            try {
+                const response = await fetch(API_BASE + 'user/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: '123456'
+                    })
+                });
+                
+                if (response.ok) {
+                    const userData = await response.json();
+                    currentToken = userData.token;
+                    
+                    // Sauvegarder dans localStorage comme le fait l'app
+                    localStorage.setItem('customer', JSON.stringify(userData));
+                    
+                    updateStatus('auth-status', `✅ Connexion réussie! Token: ${userData.token.substring(0, 20)}...`, 'success');
+                    updateDebugInfo();
+                } else {
+                    const error = await response.json();
+                    updateStatus('auth-status', `❌ Erreur de connexion: ${error.message}`, 'error');
+                }
+            } catch (error) {
+                updateStatus('auth-status', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        function checkAuth() {
+            const customer = localStorage.getItem('customer');
+            if (customer) {
+                try {
+                    const customerData = JSON.parse(customer);
+                    currentToken = customerData.token;
+                    updateStatus('auth-status', `✅ Authentifié: ${customerData.email}`, 'success');
+                } catch (e) {
+                    updateStatus('auth-status', '❌ Erreur parsing customer data', 'error');
+                }
+            } else {
+                updateStatus('auth-status', '❌ Non authentifié', 'error');
+            }
+            updateDebugInfo();
+        }
+        
+        async function testAddToCart() {
+            if (!currentToken) {
+                updateStatus('cart-status', '❌ Pas de token. Connectez-vous d\'abord.', 'error');
+                return;
+            }
+            
+            updateStatus('cart-status', '🔄 Ajout au panier...', 'info');
+            
+            try {
+                const response = await fetch(API_BASE + 'user/cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({
+                        productId: 22,
+                        quantity: 1,
+                        price: 100
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    updateStatus('cart-status', `✅ Produit ajouté au panier! ${JSON.stringify(result)}`, 'success');
+                } else {
+                    const error = await response.json();
+                    updateStatus('cart-status', `❌ Erreur: ${error.message || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                updateStatus('cart-status', `❌ Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testAddToWishlist() {
+            if (!currentToken) {
+                updateStatus('wishlist-status', '❌ Pas de token. Connectez-vous d\'abord.', 'error');
+                return;
+            }
+            
+            updateStatus('wishlist-status', '🔄 Toggle wishlist...', 'info');
+            
+            try {
+                const response = await fetch(API_BASE + 'product/wishlist', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({
+                        prodId: 22
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    updateStatus('wishlist-status', `✅ Wishlist mise à jour! ${JSON.stringify(result)}`, 'success');
+                } else {
+                    const error = await response.json();
+                    updateStatus('wishlist-status', `❌ Erreur: ${error.message || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                updateStatus('wishlist-status', `❌ Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+        
+        function goToMainApp() {
+            window.open('http://localhost:3000', '_blank');
+        }
+    </script>
+</body>
+</html>

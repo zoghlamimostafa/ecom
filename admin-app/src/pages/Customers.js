@@ -1,43 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Table, Spin, Alert, Button, Space, Popconfirm, message, Input, Select, Card, Tag } from "antd";
-import { SearchOutlined, UserOutlined, BlockOutlined, DeleteOutlined } from "@ant-design/icons";
+import { SearchOutlined, UserOutlined, BlockOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { getUsers, blockUser, unblockUser, deleteUser } from "../features/cutomers/customerSlice";
 
 const { Search } = Input;
 const { Option } = Select;
 
-const columns = [
-  {
-    title: "SNo",
-    dataIndex: "key",
-  },
-  {
-    title: "Name",
-    dataIndex: "name",
-    sorter: (a, b) => a.name.length - b.name.length,
-  },
-  {
-    title: "Email",
-    dataIndex: "email",
-  },
-  {
-    title: "Mobile",
-    dataIndex: "mobile",
-  },
-  {
-    title: "Status",
-    dataIndex: "status",
-    render: (text, record) => (
-      <span style={{ color: record.isBlocked ? 'red' : 'green' }}>
-        {record.isBlocked ? 'Blocked' : 'Active'}
-      </span>
-    ),
-  },
-];
-
 const Customers = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   
@@ -67,12 +40,20 @@ const Customers = () => {
   // Handler for deleting user
   const handleDeleteUser = async (userId) => {
     try {
-      await dispatch(deleteUser(userId));
-      message.success('User deleted successfully');
-      // Refresh the users list
-      dispatch(getUsers());
+      console.log('Deleting user with ID:', userId); // Debug log
+      const result = await dispatch(deleteUser(userId));
+      
+      if (deleteUser.fulfilled.match(result)) {
+        message.success('User deleted successfully');
+        // Ne pas faire dispatch(getUsers()) car le state Redux est déjà mis à jour
+      } else {
+        throw new Error(result.payload?.message || 'Deletion failed');
+      }
     } catch (error) {
-      message.error('Failed to delete user');
+      console.error('Delete user error:', error);
+      message.error('Failed to delete user: ' + (error.message || error));
+      // Rafraîchir en cas d'erreur pour synchroniser avec le serveur
+      dispatch(getUsers());
     }
   };
 
@@ -120,6 +101,14 @@ const Customers = () => {
       render: (text, record) => (
         <Space size="middle">
           <Button
+            type="default"
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => navigate(`/admin/edit-user/${record.userId}`)}
+          >
+            Edit
+          </Button>
+          <Button
             type={record.isBlocked ? "primary" : "default"}
             size="small"
             icon={<BlockOutlined />}
@@ -160,8 +149,8 @@ const Customers = () => {
   }) : [];
 
   const data1 = filteredCustomers.map((customer, index) => ({
-    key: customer._id || `customer-${index}`, // Use customer ID as key
-    userId: customer._id,
+    key: customer.id || `customer-${index}`, // Use customer ID as key - Fixed: use customer.id instead of customer._id
+    userId: customer.id, // Fixed: use customer.id instead of customer._id
     name: `${customer.firstname} ${customer.lastname}`,
     email: customer.email,
     mobile: customer.mobile,
@@ -169,12 +158,24 @@ const Customers = () => {
   }));
 
   if (isError) {
+    // Sécuriser l'affichage du message d'erreur
+    let safeErrorMessage = "Failed to load customers data";
+    if (errorMessage) {
+      if (typeof errorMessage === 'string') {
+        safeErrorMessage = errorMessage;
+      } else if (typeof errorMessage === 'object' && errorMessage.message) {
+        safeErrorMessage = errorMessage.message;
+      } else if (typeof errorMessage === 'object') {
+        safeErrorMessage = JSON.stringify(errorMessage);
+      }
+    }
+    
     return (
       <div>
         <h3 className="mb-4 title">Customers</h3>
         <Alert
           message="Error"
-          description={errorMessage || "Failed to load customers data"}
+          description={safeErrorMessage}
           type="error"
           showIcon
         />

@@ -1,10 +1,16 @@
 import axios from "axios";
 import { base_url } from "../../utils/baseUrl";
-import { config } from "../../utils/axiosconfig";
+import { config } from "../../utils/axiosConfig";
 
 const getProductCategories = async () => {
   const response = await axios.get(`${base_url}category/`);
-
+  
+  // Extraire les catégories de la réponse structurée
+  if (response.data.success && response.data.categories) {
+    return response.data.categories;
+  }
+  
+  // Fallback si la structure est différente
   return response.data;
 };
 const createCategory = async (category) => {
@@ -15,7 +21,13 @@ const createCategory = async (category) => {
 
 const getProductCategory = async (id) => {
   const response = await axios.get(`${base_url}category/${id}`, config);
-
+  
+  // Extraire la catégorie de la réponse structurée
+  if (response.data.success && response.data.category) {
+    return response.data.category;
+  }
+  
+  // Fallback si la structure est différente
   return response.data;
 };
 

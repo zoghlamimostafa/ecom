@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Test Fix Wishlist 400</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .status { padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .btn { padding: 12px 24px; margin: 10px 5px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn:hover { opacity: 0.9; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .test-section { margin: 20px 0; border: 1px solid #ddd; padding: 20px; border-radius: 5px; }
+        .loading { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test de Correction Wishlist 400</h1>
+        <p>Cette page teste la correction de l'erreur 400 sur l'API wishlist.</p>
+        
+        <div class="test-section">
+            <h3>1. Vérification de connexion</h3>
+            <button class="btn btn-primary" onclick="checkLogin()">Vérifier Connexion</button>
+            <div id="login-status"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>2. Test API Produits</h3>
+            <button class="btn btn-primary" onclick="testProducts()">Récupérer Produits</button>
+            <div id="products-status"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>3. Test Wishlist avec Validation</h3>
+            <button class="btn btn-warning" onclick="testWishlistFormats()">Test Formats Différents</button>
+            <div id="wishlist-test-status"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>4. Test de Correction</h3>
+            <button class="btn btn-success" onclick="testWishlistFixed()">Test avec Fix</button>
+            <div id="fixed-test-status"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>5. Logs en Temps Réel</h3>
+            <div id="live-logs" style="background: #f8f9fa; padding: 15px; border-radius: 5px; height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px;">
+                Logs apparaîtront ici...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:4000/api/';
+        let authToken = null;
+        let testProductId = null;
+        
+        // Fonction pour logger
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logArea = document.getElementById('live-logs');
+            const symbols = { info: '📋', success: '✅', error: '❌', warning: '⚠️' };
+            logArea.innerHTML += `<div>[${timestamp}] ${symbols[type]} ${message}</div>`;
+            logArea.scrollTop = logArea.scrollHeight;
+            console.log(message);
+        }
+        
+        // Fonction pour afficher le statut
+        function showStatus(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${isSuccess ? 'success' : 'error'}">${message}</div>`;
+        }
+        
+        // 1. Vérifier la connexion
+        function checkLogin() {
+            log('Vérification de la connexion...', 'info');
+            
+            const customer = localStorage.getItem('customer');
+            if (!customer) {
+                showStatus('login-status', '❌ Pas de token de connexion. Connectez-vous d\'abord sur l\'application principale.', false);
+                log('Pas de token trouvé', 'error');
+                return false;
+            }
+            
+            try {
+                const parsedCustomer = JSON.parse(customer);
+                authToken = parsedCustomer.token;
+                
+                if (authToken) {
+                    showStatus('login-status', `✅ Connecté en tant que: ${parsedCustomer.firstname || 'Utilisateur'} (ID: ${parsedCustomer.id})`);
+                    log(`Token trouvé pour utilisateur ID: ${parsedCustomer.id}`, 'success');
+                    return true;
+                } else {
+                    showStatus('login-status', '❌ Token manquant dans les données utilisateur', false);
+                    log('Token manquant', 'error');
+                    return false;
+                }
+            } catch (error) {
+                showStatus('login-status', '❌ Erreur de parsing des données utilisateur', false);
+                log(`Erreur parsing: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        // 2. Test des produits
+        async function testProducts() {
+            log('Récupération des produits...', 'info');
+            
+            try {
+                const response = await fetch(API_BASE + 'product');
+                const products = await response.json();
+                
+                if (products && products.length > 0) {
+                    testProductId = products[0].id;
+                    showStatus('products-status', `✅ ${products.length} produits récupérés. Premier produit ID: ${testProductId}`);
+                    log(`${products.length} produits récupérés, premier ID: ${testProductId}`, 'success');
+                    return true;
+                } else {
+                    showStatus('products-status', '❌ Aucun produit trouvé', false);
+                    log('Aucun produit trouvé', 'error');
+                    return false;
+                }
+            } catch (error) {
+                showStatus('products-status', `❌ Erreur: ${error.message}`, false);
+                log(`Erreur récupération produits: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        // 3. Test avec différents formats
+        async function testWishlistFormats() {
+            if (!authToken) {
+                alert('Veuillez d\'abord vérifier votre connexion');
+                return;
+            }
+            
+            if (!testProductId) {
+                alert('Veuillez d\'abord récupérer les produits');
+                return;
+            }
+            
+            log('Test avec différents formats d\'ID...', 'info');
+            
+            const formats = [
+                { name: 'String ID', payload: { prodId: String(testProductId) } },
+                { name: 'Number ID', payload: { prodId: Number(testProductId) } },
+                { name: 'ID original', payload: { prodId: testProductId } }
+            ];
+            
+            let results = '';
+            
+            for (const format of formats) {
+                log(`Test ${format.name}...`, 'info');
+                
+                try {
+                    const response = await fetch(API_BASE + 'product/wishlist', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(format.payload)
+                    });
+                    
+                    const responseText = await response.text();
+                    
+                    results += `<div class="status ${response.ok ? 'success' : 'error'}">
+                        <strong>${format.name}:</strong> ${response.status} ${response.statusText}<br>
+                        Payload: ${JSON.stringify(format.payload)}<br>
+                        Réponse: ${responseText.substring(0, 200)}...
+                    </div>`;
+                    
+                    log(`${format.name}: ${response.status} - ${response.ok ? 'Succès' : 'Échec'}`, response.ok ? 'success' : 'error');
+                    
+                } catch (error) {
+                    results += `<div class="status error">
+                        <strong>${format.name}:</strong> Erreur réseau<br>
+                        ${error.message}
+                    </div>`;
+                    log(`${format.name}: Erreur réseau - ${error.message}`, 'error');
+                }
+            }
+            
+            document.getElementById('wishlist-test-status').innerHTML = results;
+        }
+        
+        // 4. Test avec la correction
+        async function testWishlistFixed() {
+            if (!authToken || !testProductId) {
+                alert('Veuillez d\'abord exécuter les tests précédents');
+                return;
+            }
+            
+            log('Test avec correction appliquée...', 'info');
+            
+            try {
+                // Utiliser le format corrigé (string vers number)
+                const payload = { prodId: Number(testProductId) };
+                
+                const response = await fetch(API_BASE + 'product/wishlist', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.text();
+                
+                if (response.ok) {
+                    try {
+                        const jsonResult = JSON.parse(result);
+                        showStatus('fixed-test-status', `✅ CORRECTION RÉUSSIE! Status: ${response.status}<br>Message: ${jsonResult.message}<br>Action: ${jsonResult.action}`);
+                        log(`✅ Fix réussi: ${jsonResult.message}`, 'success');
+                    } catch (e) {
+                        showStatus('fixed-test-status', `✅ CORRECTION RÉUSSIE! Status: ${response.status}<br>Réponse: ${result}`);
+                        log(`✅ Fix réussi, status: ${response.status}`, 'success');
+                    }
+                } else {
+                    showStatus('fixed-test-status', `❌ Encore une erreur: ${response.status}<br>${result}`, false);
+                    log(`❌ Fix échoué: ${response.status} - ${result}`, 'error');
+                }
+                
+            } catch (error) {
+                showStatus('fixed-test-status', `❌ Erreur réseau: ${error.message}`, false);
+                log(`❌ Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-vérification au chargement
+        window.onload = function() {
+            log('Page de test chargée', 'info');
+            setTimeout(() => {
+                if (checkLogin()) {
+                    setTimeout(() => testProducts(), 1000);
+                }
+            }, 500);
+        };
+    </script>
+</body>
+</html>

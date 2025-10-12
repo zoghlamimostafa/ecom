@@ -1,295 +1,294 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import BrandCrumb from '../components/BrandCrumb';
 import Meta from '../components/Meta';
-import ReactStars from "react-rating-stars-component";
-import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
-import { CgGames } from "react-icons/cg";
-import { SiMakerbot } from "react-icons/si";
-import { FaCodeCompare } from "react-icons/fa6";
+import SEOEnhancer from '../components/SEOEnhancer';
 import ProductCard from '../components/ProductCard';
-import { MdOutlineFavorite, MdOutlineOtherHouses } from "react-icons/md";
-import Color from '../components/Color';
-import Container from '../components/Container';
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from '../contexts/TranslationContext';
 import { getAllProducts } from '../features/products/productSlice';
+import { FaFilter, FaTimes, FaSearch, FaTh, FaList, FaSort } from 'react-icons/fa';
+import './OurStore.css';
 
 const OurStore = () => {
-  const location = useLocation();
-  const [brands, setBrands] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [tags, setTags] = useState([]);
-  const productState = useSelector((state) => state?.product?.product);
-  const [selectedBrand, setSelectedBrand] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedTag, setSelectedTag] = useState('');
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(10000); // Par défaut, le prix maximum est fixé à 10000
-  const [grid, setGrid] = useState(4);
-  const [sort, setSort] = useState(''); // Ajout de l'état pour le tri
-
-  const dispatch = useDispatch();
-
-  // Parse URL parameters on component mount and when location changes
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const categoryParam = searchParams.get('category');
-    const brandParam = searchParams.get('brand');
-    const tagParam = searchParams.get('tag');
+    const { t } = useTranslation();
+    const dispatch = useDispatch();
+    const productState = useSelector((state) => state?.product?.product);
     
-    if (categoryParam) {
-      setSelectedCategory(categoryParam);
-    }
-    if (brandParam) {
-      setSelectedBrand(brandParam);
-    }
-    if (tagParam) {
-      setSelectedTag(tagParam);
-    }
-  }, [location.search]);
+    const [brands, setBrands] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [tags, setTags] = useState([]);
+    const [showFilters, setShowFilters] = useState(false);
+    const [gridView, setGridView] = useState(true);
+    
+    const [selectedBrand, setSelectedBrand] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedTag, setSelectedTag] = useState(null);
+    const [minPrice, setMinPrice] = useState('');
+    const [maxPrice, setMaxPrice] = useState('');
+    const [sort, setSort] = useState('-createdAt');
+    const [searchTerm, setSearchTerm] = useState('');
 
-  const handleMinPriceChange = (e) => {
-    setMinPrice(parseInt(e.target.value));
-  };
+    useEffect(() => {
+        getProducts();
+    }, [sort, selectedBrand, selectedCategory, selectedTag, minPrice, maxPrice]);
 
-  const handleMaxPriceChange = (e) => {
-    setMaxPrice(parseInt(e.target.value));
-  };
+    // Fermer les filtres avec la touche Escape
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && showFilters) {
+                setShowFilters(false);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+        return () => document.removeEventListener('keydown', handleEscape);
+    }, [showFilters]);
 
-  const handleBrandClick = (brand) => {
-    setSelectedBrand(brand);
-  };
+    const getProducts = () => {
+        dispatch(getAllProducts({sort, brand: selectedBrand, category: selectedCategory, tag: selectedTag, minPrice, maxPrice}));
+    };
 
-  const handleCategoryClick = (category) => {
-    setSelectedCategory(category);
-  };
+    useEffect(() => {
+        if (productState) {
+            const allBrands = [...new Set(productState.map(p => p.brand))].filter(Boolean);
+            const allCategories = [...new Set(productState.map(p => p.category))].filter(Boolean);
+            const allTags = [...new Set(productState.flatMap(p => p.tags))].filter(Boolean);
+            setBrands(allBrands);
+            setCategories(allCategories);
+            setTags(allTags);
+        }
+    }, [productState]);
 
-  const handleTagClick = (tag) => {
-    setSelectedTag(tag);
-  };
+    const clearFilters = () => {
+        setSelectedBrand(null);
+        setSelectedCategory(null);
+        setSelectedTag(null);
+        setMinPrice('');
+        setMaxPrice('');
+        setSearchTerm('');
+    };
 
-  const clearFilters = () => {
-    setSelectedBrand('');
-    setSelectedCategory('');
-    setSelectedTag('');
-    setMinPrice(0);
-    setMaxPrice(10000);
-    setSort('');
-    dispatch(getAllProducts());
-  };
+    const filteredProducts = productState?.filter(product => {
+        if (searchTerm) {
+            return product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                   product.brand.toLowerCase().includes(searchTerm.toLowerCase());
+        }
+        return true;
+    }) || [];
 
-  useEffect(() => {
-    let newBrands = [];
-    let category = [];
-    let newTags = [];
-    for (let index = 0; index < productState.length; index++) {
-      const element = productState[index];
-      newBrands.push(element.brand);
-      category.push(element.category);
-      newTags.push(element.tags);
-    }
+    const activeFiltersCount = [selectedBrand, selectedCategory, selectedTag, minPrice, maxPrice].filter(Boolean).length;
 
-    setBrands(newBrands);
-    setCategories(category);
-    setTags(newTags);
-  }, [productState]);
+    return (
+        <>
+            <SEOEnhancer 
+                title={t('storePageTitle')}
+                description={t('storePageDescription')}
+                keywords={t('storePageKeywords')}
+                pageType="product-list"
+            />
+            <Meta title={t('ourStore')} />
+            <BrandCrumb title={t('ourStore')} />
+            <div className="store-wrapper py-5">
+                <div className="container-xxl">
+                    {/* Barre de recherche et contrôles */}
+                    <div className="store-header mb-4">
+                        <div className="row align-items-center">
+                            <div className="col-lg-6">
+                                <div className="search-wrapper">
+                                    <div className="search-input-container">
+                                        <FaSearch className="search-icon" />
+                                        <input
+                                            type="text"
+                                            placeholder={t('searchProducts')}
+                                            className="search-input"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-lg-6">
+                                <div className="store-controls">
+                                    <button 
+                                        className={`filter-toggle-btn ${showFilters ? 'active' : ''}`}
+                                        onClick={() => setShowFilters(!showFilters)}
+                                    >
+                                        <FaFilter /> {t('filters')} {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+                                    </button>
+                                    <div className="view-toggle">
+                                        <button 
+                                            className={`view-btn ${gridView ? 'active' : ''}`}
+                                            onClick={() => setGridView(true)}
+                                        >
+                                            <FaTh />
+                                        </button>
+                                        <button 
+                                            className={`view-btn ${!gridView ? 'active' : ''}`}
+                                            onClick={() => setGridView(false)}
+                                        >
+                                            <FaList />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-  // Appel initial de l'API pour récupérer les produits
-  useEffect(() => {
-    dispatch(getAllProducts());
-  }, [dispatch]);
+                    <div className="row">
+                        {/* Overlay pour mobile */}
+                        {showFilters && (
+                            <div 
+                                className="mobile-filter-overlay d-lg-none"
+                                onClick={() => setShowFilters(false)}
+                            ></div>
+                        )}
+                        
+                        {/* Sidebar des filtres */}
+                        <div className={`col-lg-3 ${showFilters ? 'show-filters' : 'hide-filters'}`}>
+                            <div className={`filters-sidebar ${showFilters ? 'active' : ''}`}>
+                                {/* Bouton de fermeture mobile */}
+                                <button 
+                                    className="mobile-filter-close d-lg-none"
+                                    onClick={() => setShowFilters(false)}
+                                >
+                                    <FaTimes />
+                                </button>
+                                
+                                <div className="filters-header">
+                                    <h4>{t('filters')}</h4>
+                                    <button className="clear-filters-btn" onClick={clearFilters}>
+                                        <FaTimes /> {t('clearAll')}
+                                    </button>
+                                </div>
 
-  // Fonction pour récupérer les produits en fonction des filtres
-  const getProducts = useCallback(() => {
-    const filters = {};
-    if (selectedBrand) filters.brand = selectedBrand;
-    if (selectedCategory) filters.category = selectedCategory;
-    if (selectedTag) filters.tags = selectedTag;
-    if (minPrice > 0) filters.minPrice = minPrice;
-    if (maxPrice < 10000) filters.maxPrice = maxPrice;
-    if (sort) filters.sort = sort;
+                                {/* Catégories */}
+                                <div className="filter-section">
+                                    <h5 className="filter-title">{t('categories')}</h5>
+                                    <div className="filter-options">
+                                        {categories.map((cat, i) => (
+                                            <div 
+                                                key={i} 
+                                                className={`filter-option ${selectedCategory === cat ? 'selected' : ''}`}
+                                                onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
+                                            >
+                                                <span>{cat}</span>
+                                                {selectedCategory === cat && <FaTimes style={{ marginLeft: 'auto', fontSize: '0.8rem' }} />}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
 
-    dispatch(getAllProducts(filters));
-  }, [dispatch, selectedBrand, selectedCategory, selectedTag, minPrice, maxPrice, sort]);
+                                {/* Prix */}
+                                <div className="filter-section">
+                                    <h5 className="filter-title">{t('price')}</h5>
+                                    <div className="price-range">
+                                        <div className="price-input">
+                                            <input 
+                                                type="number" 
+                                                placeholder={t('min')} 
+                                                value={minPrice}
+                                                onChange={(e) => setMinPrice(e.target.value)}
+                                            />
+                                        </div>
+                                        <span className="price-separator">-</span>
+                                        <div className="price-input">
+                                            <input 
+                                                type="number" 
+                                                placeholder={t('max')} 
+                                                value={maxPrice}
+                                                onChange={(e) => setMaxPrice(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
 
-  // Gérer les changements dans les filtres
-  useEffect(() => {
-    if (selectedBrand || selectedCategory || selectedTag || minPrice > 0 || maxPrice < 10000 || sort) {
-      getProducts();
-    }
-  }, [selectedBrand, selectedCategory, selectedTag, minPrice, maxPrice, sort, getProducts]);
+                                {/* Marques */}
+                                <div className="filter-section">
+                                    <h5 className="filter-title">{t('brands')}</h5>
+                                    <div className="filter-tags">
+                                        {brands.map((brand, i) => (
+                                            <span 
+                                                key={i} 
+                                                className={`filter-tag ${selectedBrand === brand ? 'selected' : ''}`}
+                                                onClick={() => setSelectedBrand(selectedBrand === brand ? null : brand)}
+                                            >
+                                                {brand}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
 
-  return (
-    <div>
-      <Meta title={"Our Store"} />
-      <BrandCrumb title="Notre Magasin" />
-      <Container class1="store-wrapper home-wrapper-2 py-5">
-        <div className="row">
-          <div className="col-3">
-            <div className="filter-card mb-3">
-              <div className="d-flex justify-content-between align-items-center">
-                <h3 className="filter-title mb-0">Filters</h3>
-                <button 
-                  className="btn btn-sm btn-outline-danger" 
-                  onClick={clearFilters}
-                >
-                  Clear All
-                </button>
-              </div>
-            </div>
-            
-            <div className="filter-card mb-3">
-              <h3 className="filter-title">Product Categories</h3>
-              <div>
-                <div className="product-tags d-flex flex-wrap align-items-center gap-10">
-                  {categories &&
-                    [...new Set(categories)].map((item, index) => {
-                      return (
-                        <span
-                          onClick={() => handleCategoryClick(item)}
-                          key={index}
-                          className={`text-capitalize badge rounded-3 py-2 px-3 ${selectedCategory === item ? 'bg-primary text-white' : 'bg-light text-secondary'}`}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          {item}
-                        </span>
-                      );
-                    })}
+                                {/* Tags */}
+                                <div className="filter-section">
+                                    <h5 className="filter-title">{t('tags')}</h5>
+                                    <div className="filter-tags">
+                                        {tags.map((tag, i) => (
+                                            <span 
+                                                key={i} 
+                                                className={`filter-tag ${selectedTag === tag ? 'selected' : ''}`}
+                                                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Zone des produits */}
+                        <div className={`${showFilters ? 'col-lg-9' : 'col-lg-12'}`}>
+                            {/* Barre de tri */}
+                            <div className="sort-bar mb-4">
+                                <div className="d-flex justify-content-between align-items-center">
+                                    <span className="results-count">
+                                        {filteredProducts.length} {t('productsFound')}
+                                    </span>
+                                    <div className="sort-dropdown">
+                                        <FaSort style={{ marginRight: '8px', color: '#6c757d' }} />
+                                        <select 
+                                            value={sort} 
+                                            onChange={(e) => setSort(e.target.value)}
+                                            className="sort-select"
+                                        >
+                                            <option value="-createdAt">{t('newest')}</option>
+                                            <option value="createdAt">{t('oldest')}</option>
+                                            <option value="title">{t('alphabeticalAZ')}</option>
+                                            <option value="-title">{t('alphabeticalZA')}</option>
+                                            <option value="price">{t('priceAscending')}</option>
+                                            <option value="-price">{t('priceDescending')}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Liste des produits */}
+                            <div className="products-grid">
+                                <div className={`row ${gridView ? 'grid-view' : 'list-view'}`}>
+                                    {filteredProducts && filteredProducts.map((item, index) => (
+                                        <div key={index}>
+                                            <ProductCard data={item} gridView={gridView} />
+                                        </div>
+                                    ))}
+                                </div>
+                                {filteredProducts.length === 0 && (
+                                    <div className="no-products">
+                                        <div style={{ fontSize: '4rem', marginBottom: '1rem', opacity: 0.3 }}>🔍</div>
+                                        <h4>{t('noProductsFound')}</h4>
+                                        <p>{t('tryModifyingSearch')}</p>
+                                        {(selectedBrand || selectedCategory || selectedTag || minPrice || maxPrice) && (
+                                            <button className="btn btn-outline-primary mt-3" onClick={clearFilters}>
+                                                {t('clearAllFilters')}
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-
-            <div className="filter-card mb-3">
-              <h3 className="filter-title">Product Tags</h3>
-              <div>
-                <div className="product-tags d-flex flex-wrap align-items-center gap-10">
-                  {tags &&
-                    [...new Set(tags)].map((item, index) => {
-                      return (
-                        <span
-                          onClick={() => handleTagClick(item)}
-                          key={index}
-                          className={`text-capitalize badge rounded-3 py-2 px-3 ${selectedTag === item ? 'bg-primary text-white' : 'bg-light text-secondary'}`}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          {item}
-                        </span>
-                      );
-                    })}
-                </div>
-              </div>
-            </div>
-
-            <div className="filter-card mb-3">
-              <h3 className="filter-title">Product Brand</h3>
-              <div>
-                <div className="product-tags d-flex flex-wrap align-items-center gap-10">
-                  {brands &&
-                    [...new Set(brands)].map((item, index) => {
-                      return (
-                        <span
-                          onClick={() => handleBrandClick(item)}
-                          key={index}
-                          className={`text-capitalize badge rounded-3 py-2 px-3 ${selectedBrand === item ? 'bg-primary text-white' : 'bg-light text-secondary'}`}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          {item}
-                        </span>
-                      );
-                    })}
-                </div>
-              </div>
-            </div>
-
-            <div className="filter-card mb-3">
-              <h3 className="filter-title">Filtrer par</h3>
-              <div>
-                <h5 className="sub-title">Prix</h5>
-                <input
-                  type="number"
-                  id="minPriceRange"
-                  name="minPriceRange"
-                  min={0}
-                  max={10000}
-                  value={minPrice}
-                  onChange={handleMinPriceChange}
-                  placeholder="Min Price"
-                />
-                -
-                <input
-                  type="number"
-                  id="maxPriceRange"
-                  name="maxPriceRange"
-                  min={0}
-                  max={10000}
-                  value={maxPrice}
-                  onChange={handleMaxPriceChange}
-                  placeholder="Max Price"
-                />
-
-                <h5 className="sub-title">Couleurs</h5>
-                <div>
-                  <Color />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-9">
-            <div className="filter-sort-grid mb-4">
-              <div className="d-flex justify-content-between align-items-center">
-                <div className="d-flex align-items-center gap-10">
-                  <p className="mb-0 d-block" style={{ width: '100px' }}>
-                    Sort By:
-                  </p>
-                  <select
-                    name=""
-                    className="form-control form-select"
-                    onChange={(e) => setSort(e.target.value)} // Utilisation de la fonction handleSortChange pour mettre à jour sortOption
-                  >
-                    <option value="manual">En vedette</option>
-                    <option value="best-selling">Les plus vendus</option>
-                    <option value="title-ascending">Par ordre alphabétique, A-Z</option>
-                    <option value="title-descending">Par ordre alphabétique, Z-A</option>
-                    <option value="price-ascending">Prix, du plus bas au plus élevé</option>
-                    <option value="price-descending">Prix, du plus élevé au plus bas</option>
-                    <option value="created-ascending">Date, de la plus ancienne à la plus récente</option>
-                    <option value="created-descending">Date, de la plus récente à la plus ancienne</option>
-                  </select>
-                </div>
-
-                <div className="d-flex gap-10 align-items-center grid">
-                  <img
-                    onClick={() => setGrid(3)}
-                    src="images/gr4.svg"
-                    className="d-block img-fluid"
-                    alt="grid"
-                  />
-                  <img
-                    onClick={() => setGrid(4)}
-                    src="images/gr3.svg"
-                    className="d-block img-fluid"
-                    alt="grid"
-                  />
-                  <img
-                    onClick={() => setGrid(6)}
-                    src="images/gr2.svg"
-                    className="d-block img-fluid"
-                    alt="grid"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="products-list pb-5">
-              <div className="d-flex gap-10 flex-wrap">
-                <ProductCard data={productState ? productState : []} grid={grid} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </Container>
-    </div>
-  );
+        </>
+    );
 };
 
 export default OurStore;

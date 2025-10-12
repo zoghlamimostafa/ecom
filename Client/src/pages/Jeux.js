@@ -3,15 +3,20 @@ import ReactStars from "react-rating-stars-component";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBlogs } from "../features/blogs/blogSlice";
-import { getAllProducts, addToWishlist } from '../features/products/productSlice';
+import { getAllProducts } from '../features/products/productSlice';
 import Container from '../components/Container';
 import { AiOutlineHeart, AiOutlineShoppingCart } from 'react-icons/ai';
 import { RiEyeLine } from 'react-icons/ri';
-import { addProdToCart, getUserCart } from '../features/user/userSlice';
+import { addProdToCart, getUserCart, toggleProductWishlist } from '../features/user/userSlice';
+import { toast } from 'react-toastify';
+import { useTranslation } from '../contexts/TranslationContext';
+import { getProductImageUrl } from '../utils/imageHelper';
+import './ProductCategory.css';
 
-const NewInformatique = () => {
+const Jeux = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const { t } = useTranslation();
     const productState = useSelector((state) => state.product.product);
     const authState = useSelector(state => state?.auth?.auth); // Get authentication state
 
@@ -25,8 +30,21 @@ const NewInformatique = () => {
         }
     }, [dispatch, authState]);
 
-    const addToWish = (id) => {
-        dispatch(addToWishlist(id));
+    const addToWish = async (id) => {
+        // Vérifier l'authentification
+        if (!authState) {
+            toast.error(t('pleaseLoginForWishlist'));
+            navigate('/login');
+            return;
+        }
+
+        try {
+            await dispatch(toggleProductWishlist(id)).unwrap();
+            toast.success(t('wishlistUpdateSuccess'));
+        } catch (error) {
+            console.error("Erreur wishlist:", error);
+            toast.error(error.message || "Erreur lors de la modification de la wishlist");
+        }
     };
 
     const addToShoppingCart = (productId, color, price) => {
@@ -58,29 +76,33 @@ const NewInformatique = () => {
                     <div key={index} className={"new-informatique-card"}>
                         <div className='new-informatique-card-inner'>
                             <div className='new-informatique-image' onClick={() => navigate("/product/" + (item?.slug || item?._id))} style={{ cursor: 'pointer' }}>
-                                <img src={item?.images[0]?.url} alt="product" />
+                                <img 
+                                    src={getProductImageUrl(item?.images)} 
+                                    alt="product"
+                                    onError={(e) => e.target.src = '/images/default-product.jpg'}
+                                />
                             </div>
                             <div className='new-informatique-details'>
                                 <h6 className='new-informatique-brand'>{item?.brand}</h6>
                                 <h5 className='new-informatique-title'>{item?.title}</h5>
                                 <ReactStars
                                     count={5}
-                                    size={24}
-                                    value={parseFloat(item?.totalrating)}
+                                    size={20}
+                                    value={parseFloat(item?.totalrating) || 0}
                                     edit={false}
                                     activeColor="#ffd700"
                                 />
-                                <p className='new-informatique-price'>{item?.price}</p>
+                                <p className='new-informatique-price'>{item?.price?.toFixed(2)} TND</p>
                             </div>
                             <div className='new-informatique-actions'>
                                 <button className='new-informatique-wishlist-button' onClick={() => addToWish(item?._id)}>
-                                    <AiOutlineHeart size={24} />
+                                    <AiOutlineHeart size={20} />
                                 </button>
                                 <button className='new-informatique-cart-button' onClick={() => addToShoppingCart(item?._id, item?.color, item?.price)}>
-                                    <AiOutlineShoppingCart size={24} />
+                                    <AiOutlineShoppingCart size={20} />
                                 </button>
                                 <button className='new-informatique-view-button' onClick={() => navigate("/product/" + (item?.slug || item?._id))}>
-                                    <RiEyeLine size={24} />
+                                    <RiEyeLine size={20} />
                                 </button>
                             </div>
                         </div>
@@ -91,4 +113,4 @@ const NewInformatique = () => {
     );
 }
 
-export default NewInformatique;
+export default Jeux;

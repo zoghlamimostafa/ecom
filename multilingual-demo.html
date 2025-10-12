@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="fr" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Sanny Store - Boutique Multilingue</title>
+    
+    <!-- Styles pour les langues RTL/LTR -->
+    <style>
+        /* Styles de base */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Arial', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+        
+        /* Support RTL pour l'arabe */
+        [dir="rtl"] {
+            text-align: right;
+        }
+        
+        [dir="rtl"] .navbar-nav {
+            margin-left: 0;
+            margin-right: auto;
+        }
+        
+        /* Container principal */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header et navigation */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .navbar-brand {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .navbar-nav {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Sélecteur de langue */
+        .language-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .lang-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            min-width: 45px;
+        }
+        
+        .lang-btn:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+        
+        .lang-btn.active {
+            background: #4c51bf;
+            box-shadow: 0 2px 8px rgba(76, 81, 191, 0.3);
+        }
+        
+        /* Section principale */
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Grille de produits */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+        
+        .product-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .product-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .product-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #48bb78;
+        }
+        
+        .btn-success:hover {
+            background: #38a169;
+        }
+        
+        /* Messages de statut */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: #c6f6d5;
+            color: #2f855a;
+            border: 1px solid #9ae6b4;
+        }
+        
+        .alert-error {
+            background: #fed7d7;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+        
+        /* Statistiques de traduction */
+        .translation-stats {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .navbar-nav {
+                justify-content: center;
+            }
+            
+            .language-selector {
+                justify-content: center;
+            }
+            
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Animation de chargement */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header avec navigation -->
+        <header class="header">
+            <nav class="navbar">
+                <a href="#" class="navbar-brand" id="brand-title">🛍️ Sanny Store</a>
+                
+                <ul class="navbar-nav">
+                    <li><a href="#" class="nav-link" data-translate="nav.home">Accueil</a></li>
+                    <li><a href="#" class="nav-link" data-translate="nav.products">Produits</a></li>
+                    <li><a href="#" class="nav-link" data-translate="nav.categories">Catégories</a></li>
+                    <li><a href="#" class="nav-link" data-translate="nav.cart">Panier (0)</a></li>
+                    <li><a href="#" class="nav-link" data-translate="nav.account">Mon Compte</a></li>
+                </ul>
+                
+                <!-- Sélecteur de langue -->
+                <div class="language-selector">
+                    <button class="lang-btn active" data-lang="fr" title="Français">🇫🇷 FR</button>
+                    <button class="lang-btn" data-lang="en" title="English">🇺🇸 EN</button>
+                    <button class="lang-btn" data-lang="ar" title="العربية">🇸🇦 AR</button>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Contenu principal -->
+        <main class="main-content">
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p data-translate="message.loading">Chargement...</p>
+            </div>
+            
+            <div id="main-section">
+                <h1 id="welcome-title" data-translate="welcome.title">Bienvenue sur Sanny Store</h1>
+                <p id="welcome-description" data-translate="welcome.description">
+                    Découvrez notre collection de produits dans votre langue préférée
+                </p>
+                
+                <!-- Statistiques de traduction -->
+                <div class="translation-stats">
+                    <h3 data-translate="stats.title">Statistiques de traduction</h3>
+                    <div class="stats-grid" id="translation-stats-grid">
+                        <!-- Les statistiques seront chargées ici -->
+                    </div>
+                </div>
+                
+                <!-- Messages -->
+                <div id="messages"></div>
+                
+                <!-- Grille de produits exemple -->
+                <div class="products-grid">
+                    <div class="product-card">
+                        <h3 class="product-title" data-translate="product.example1.name">T-shirt Premium</h3>
+                        <div class="product-price">25.99 €</div>
+                        <p class="product-description" data-translate="product.example1.description">
+                            Un t-shirt confortable et élégant pour toutes les occasions.
+                        </p>
+                        <button class="btn" data-translate="product.add_to_cart">Ajouter au panier</button>
+                    </div>
+                    
+                    <div class="product-card">
+                        <h3 class="product-title" data-translate="product.example2.name">Jeans Classic</h3>
+                        <div class="product-price">45.99 €</div>
+                        <p class="product-description" data-translate="product.example2.description">
+                            Jean classique de haute qualité avec coupe parfaite.
+                        </p>
+                        <button class="btn" data-translate="product.add_to_cart">Ajouter au panier</button>
+                    </div>
+                    
+                    <div class="product-card">
+                        <h3 class="product-title" data-translate="product.example3.name">Sneakers Sport</h3>
+                        <div class="product-price">79.99 €</div>
+                        <p class="product-description" data-translate="product.example3.description">
+                            Chaussures de sport modernes avec technologie de confort avancée.
+                        </p>
+                        <button class="btn btn-success" data-translate="product.buy_now">Acheter maintenant</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        class MultilingualDemo {
+            constructor() {
+                this.currentLanguage = 'fr';
+                this.translations = {};
+                this.supportedLanguages = ['fr', 'en', 'ar'];
+                
+                this.init();
+            }
+            
+            async init() {
+                // Initialiser les traductions par défaut
+                this.initializeTranslations();
+                
+                // Configurer les événements
+                this.setupEventListeners();
+                
+                // Charger les statistiques
+                await this.loadTranslationStats();
+                
+                // Détecter la langue depuis l'URL ou localStorage
+                this.detectLanguage();
+                
+                console.log('🌐 Système multilingue initialisé');
+            }
+            
+            initializeTranslations() {
+                this.translations = {
+                    fr: {
+                        "nav.home": "Accueil",
+                        "nav.products": "Produits",
+                        "nav.categories": "Catégories", 
+                        "nav.cart": "Panier",
+                        "nav.account": "Mon Compte",
+                        "welcome.title": "Bienvenue sur Sanny Store",
+                        "welcome.description": "Découvrez notre collection de produits dans votre langue préférée",
+                        "product.add_to_cart": "Ajouter au panier",
+                        "product.buy_now": "Acheter maintenant",
+                        "product.example1.name": "T-shirt Premium",
+                        "product.example1.description": "Un t-shirt confortable et élégant pour toutes les occasions.",
+                        "product.example2.name": "Jeans Classic",
+                        "product.example2.description": "Jean classique de haute qualité avec coupe parfaite.",
+                        "product.example3.name": "Sneakers Sport",
+                        "product.example3.description": "Chaussures de sport modernes avec technologie de confort avancée.",
+                        "message.loading": "Chargement...",
+                        "message.language_changed": "Langue changée avec succès!",
+                        "stats.title": "Statistiques de traduction"
+                    },
+                    en: {
+                        "nav.home": "Home",
+                        "nav.products": "Products", 
+                        "nav.categories": "Categories",
+                        "nav.cart": "Cart",
+                        "nav.account": "My Account",
+                        "welcome.title": "Welcome to Sanny Store",
+                        "welcome.description": "Discover our product collection in your preferred language",
+                        "product.add_to_cart": "Add to cart",
+                        "product.buy_now": "Buy now",
+                        "product.example1.name": "Premium T-shirt",
+                        "product.example1.description": "A comfortable and elegant t-shirt for all occasions.",
+                        "product.example2.name": "Classic Jeans",
+                        "product.example2.description": "High-quality classic jeans with perfect fit.",
+                        "product.example3.name": "Sport Sneakers",
+                        "product.example3.description": "Modern sports shoes with advanced comfort technology.",
+                        "message.loading": "Loading...",
+                        "message.language_changed": "Language changed successfully!",
+                        "stats.title": "Translation Statistics"
+                    },
+                    ar: {
+                        "nav.home": "الرئيسية",
+                        "nav.products": "المنتجات",
+                        "nav.categories": "الفئات",
+                        "nav.cart": "السلة", 
+                        "nav.account": "حسابي",
+                        "welcome.title": "مرحباً بكم في متجر ساني",
+                        "welcome.description": "اكتشفوا مجموعة منتجاتنا بلغتكم المفضلة",
+                        "product.add_to_cart": "أضف للسلة",
+                        "product.buy_now": "اشتري الآن",
+                        "product.example1.name": "تيشيرت فاخر",
+                        "product.example1.description": "تيشيرت مريح وأنيق لجميع المناسبات.",
+                        "product.example2.name": "جينز كلاسيكي",
+                        "product.example2.description": "جينز كلاسيكي عالي الجودة بقصة مثالية.",
+                        "product.example3.name": "حذاء رياضي",
+                        "product.example3.description": "أحذية رياضية عصرية بتقنية راحة متقدمة.",
+                        "message.loading": "جاري التحميل...",
+                        "message.language_changed": "تم تغيير اللغة بنجاح!",
+                        "stats.title": "إحصائيات الترجمة"
+                    }
+                };
+            }
+            
+            setupEventListeners() {
+                // Boutons de langue
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const lang = e.target.getAttribute('data-lang');
+                        this.changeLanguage(lang);
+                    });
+                });
+            }
+            
+            detectLanguage() {
+                // Détecter depuis l'URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlLang = urlParams.get('lang');
+                
+                if (urlLang && this.supportedLanguages.includes(urlLang)) {
+                    this.changeLanguage(urlLang);
+                    return;
+                }
+                
+                // Détecter depuis localStorage
+                const savedLang = localStorage.getItem('language');
+                if (savedLang && this.supportedLanguages.includes(savedLang)) {
+                    this.changeLanguage(savedLang);
+                    return;
+                }
+                
+                // Détecter depuis le navigateur
+                const browserLang = navigator.language.split('-')[0];
+                if (this.supportedLanguages.includes(browserLang)) {
+                    this.changeLanguage(browserLang);
+                }
+            }
+            
+            async changeLanguage(language) {
+                if (!this.supportedLanguages.includes(language)) {
+                    console.warn('Langue non supportée:', language);
+                    return;
+                }
+                
+                this.showLoading();
+                
+                // Simuler un délai de chargement
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                this.currentLanguage = language;
+                
+                // Sauvegarder le choix
+                localStorage.setItem('language', language);
+                
+                // Mettre à jour l'URL
+                const url = new URL(window.location);
+                url.searchParams.set('lang', language);
+                window.history.replaceState({}, '', url);
+                
+                // Appliquer les traductions
+                this.applyTranslations();
+                
+                // Mettre à jour la direction du texte
+                this.updateTextDirection();
+                
+                // Mettre à jour les boutons de langue
+                this.updateLanguageButtons();
+                
+                // Afficher un message de succès
+                this.showMessage(this.translate('message.language_changed'), 'success');
+                
+                this.hideLoading();
+                
+                console.log(`🌐 Langue changée: ${language}`);
+            }
+            
+            translate(key) {
+                const translation = this.translations[this.currentLanguage] && 
+                                 this.translations[this.currentLanguage][key];
+                
+                if (!translation) {
+                    console.warn(`Traduction manquante: ${key} (${this.currentLanguage})`);
+                    return key;
+                }
+                
+                return translation;
+            }
+            
+            applyTranslations() {
+                // Traduire tous les éléments avec data-translate
+                document.querySelectorAll('[data-translate]').forEach(element => {
+                    const key = element.getAttribute('data-translate');
+                    const translation = this.translate(key);
+                    
+                    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                        element.placeholder = translation;
+                    } else {
+                        element.textContent = translation;
+                    }
+                });
+                
+                // Mettre à jour le titre de la page
+                document.title = this.currentLanguage === 'fr' ? 'Sanny Store - Boutique Multilingue' :
+                               this.currentLanguage === 'en' ? 'Sanny Store - Multilingual Shop' :
+                               'متجر ساني - متجر متعدد اللغات';
+            }
+            
+            updateTextDirection() {
+                const htmlRoot = document.getElementById('html-root');
+                const isRtl = this.currentLanguage === 'ar';
+                
+                if (isRtl) {
+                    htmlRoot.setAttribute('dir', 'rtl');
+                    htmlRoot.setAttribute('lang', 'ar');
+                } else {
+                    htmlRoot.setAttribute('dir', 'ltr');
+                    htmlRoot.setAttribute('lang', this.currentLanguage);
+                }
+            }
+            
+            updateLanguageButtons() {
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    const lang = btn.getAttribute('data-lang');
+                    
+                    if (lang === this.currentLanguage) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+            
+            showMessage(message, type = 'info') {
+                const messagesContainer = document.getElementById('messages');
+                const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+                
+                messagesContainer.innerHTML = `
+                    <div class="alert ${alertClass}">
+                        ${message}
+                    </div>
+                `;
+                
+                // Auto-masquer après 3 secondes
+                setTimeout(() => {
+                    messagesContainer.innerHTML = '';
+                }, 3000);
+            }
+            
+            showLoading() {
+                document.getElementById('loading').classList.add('show');
+                document.getElementById('main-section').style.opacity = '0.5';
+            }
+            
+            hideLoading() {
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('main-section').style.opacity = '1';
+            }
+            
+            async loadTranslationStats() {
+                // Simuler le chargement des statistiques
+                const stats = {
+                    fr: { totalKeys: 23, completeness: 100 },
+                    en: { totalKeys: 23, completeness: 100 },
+                    ar: { totalKeys: 23, completeness: 100 }
+                };
+                
+                const statsGrid = document.getElementById('translation-stats-grid');
+                
+                statsGrid.innerHTML = Object.entries(stats).map(([lang, data]) => {
+                    const langName = {
+                        'fr': 'Français',
+                        'en': 'English', 
+                        'ar': 'العربية'
+                    }[lang];
+                    
+                    return `
+                        <div class="stat-card">
+                            <div class="stat-value">${data.completeness}%</div>
+                            <div class="stat-label">${langName}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+        
+        // Initialiser le système multilingue au chargement de la page
+        document.addEventListener('DOMContentLoaded', () => {
+            window.multilingual = new MultilingualDemo();
+        });
+    </script>
+</body>
+</html>

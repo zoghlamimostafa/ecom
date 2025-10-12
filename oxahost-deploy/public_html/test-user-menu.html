@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Menu Utilisateur - Sanny Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --font-headings: 'Montserrat', sans-serif;
+            --font-body: 'Roboto', sans-serif;
+            --sanny-orange: #FF6F00;
+            --sanny-yellow: #FFC107;
+            --sanny-dark: #212121;
+            --sanny-white: #FFFFFF;
+            --sanny-text: #333333;
+            --font-size-base: 1rem;
+            --font-size-sm: 0.875rem;
+        }
+
+        body {
+            font-family: var(--font-body);
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+            color: var(--sanny-text);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .header-demo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: white;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-family: var(--font-headings);
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--sanny-orange);
+        }
+
+        /* User Menu Styles */
+        .user-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .user-menu-trigger {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .user-menu-trigger:hover {
+            background: rgba(255, 111, 0, 0.1);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--sanny-orange), #e66400);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-family: var(--font-headings);
+        }
+
+        .user-avatar-large {
+            width: 50px;
+            height: 50px;
+        }
+
+        .caret {
+            transition: transform 0.3s ease;
+            color: var(--sanny-orange);
+        }
+
+        .caret.open {
+            transform: rotate(180deg);
+        }
+
+        /* Dropdown Styles */
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            background: var(--sanny-white);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            padding: 1rem;
+            z-index: 10001;
+            min-width: 280px;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto;
+            border: 1px solid rgba(255, 111, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .user-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            width: 16px;
+            height: 16px;
+            background: var(--sanny-white);
+            border: 1px solid rgba(255, 111, 0, 0.1);
+            border-bottom: none;
+            border-right: none;
+            transform: rotate(45deg);
+            z-index: -1;
+        }
+
+        /* User Info Section */
+        .user-info {
+            padding: 0.75rem;
+            background: linear-gradient(135deg, rgba(255, 111, 0, 0.05), rgba(255, 111, 0, 0.02));
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 111, 0, 0.1);
+        }
+
+        .user-avatar-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .user-name {
+            font-family: var(--font-headings);
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--sanny-dark);
+            margin: 0;
+        }
+
+        .user-email {
+            font-family: var(--font-body);
+            font-size: 0.875rem;
+            color: #666;
+            margin: 0;
+        }
+
+        /* Dropdown Links */
+        .dropdown-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--sanny-text);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-weight: 400;
+            text-decoration: none;
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: left;
+            font-size: var(--font-size-sm);
+        }
+
+        .dropdown-link:hover {
+            background: rgba(255, 111, 0, 0.1);
+            color: var(--sanny-orange);
+            transform: translateX(3px);
+        }
+
+        .user-dropdown hr {
+            border: none;
+            border-top: 1px solid #e9ecef;
+            margin: 0.25rem 0;
+        }
+
+        .logout-btn {
+            color: #dc3545 !important;
+        }
+
+        .logout-btn:hover {
+            background: rgba(220, 53, 69, 0.1) !important;
+            color: #dc3545 !important;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--sanny-orange);
+        }
+
+        .test-section h2 {
+            color: var(--sanny-dark);
+            font-family: var(--font-headings);
+            margin-bottom: 1rem;
+        }
+
+        .status {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: var(--sanny-orange); font-family: var(--font-headings);">
+            🔧 Test du Menu Utilisateur
+        </h1>
+        
+        <div class="test-section">
+            <h2>🎯 Test Interactif du Menu</h2>
+            <div class="header-demo">
+                <div class="logo">SANNY STORE</div>
+                <div class="user-menu">
+                    <button class="user-menu-trigger" onclick="toggleUserMenu()">
+                        <div class="user-avatar">MS</div>
+                        <i class="fas fa-caret-down caret" id="caretIcon"></i>
+                    </button>
+                    <div class="user-dropdown hidden" id="userDropdown">
+                        <div class="user-info">
+                            <div class="user-avatar-section">
+                                <div class="user-avatar user-avatar-large">MS</div>
+                                <div class="user-details">
+                                    <span class="user-name">Bienvenue, Mustapha Sanny</span>
+                                    <span class="user-email">mustapha@sannystore.com</span>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <a href="#" class="dropdown-link" onclick="testAction('Profil')">
+                            <i class="fas fa-user"></i> Mon Profil
+                        </a>
+                        <a href="#" class="dropdown-link" onclick="testAction('Commandes')">
+                            <i class="fas fa-shopping-cart"></i> Mes Commandes
+                        </a>
+                        <a href="#" class="dropdown-link" onclick="testAction('Favoris')">
+                            <i class="fas fa-heart"></i> Favoris
+                        </a>
+                        <hr>
+                        <button class="dropdown-link logout-btn" onclick="testAction('Déconnexion')">
+                            <i class="fas fa-sign-out-alt"></i> Déconnexion
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="testStatus" class="status info">
+                👆 Cliquez sur l'avatar pour tester le menu déroulant
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 Instructions de Test</h2>
+            <ol style="font-family: var(--font-body); line-height: 1.6;">
+                <li><strong>Clic sur l'avatar</strong> : Le menu doit s'ouvrir/fermer</li>
+                <li><strong>Flèche</strong> : Doit tourner quand le menu est ouvert</li>
+                <li><strong>Liens du menu</strong> : Doivent être cliquables et afficher un message</li>
+                <li><strong>Hover effects</strong> : Les liens doivent changer de couleur au survol</li>
+                <li><strong>Z-index</strong> : Le menu doit s'afficher au-dessus de tout</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Vérifications CSS</h2>
+            <div style="font-family: var(--font-body); line-height: 1.6;">
+                <p><strong>Position :</strong> <code>absolute</code> ✅</p>
+                <p><strong>Z-index :</strong> <code>10001</code> ✅</p>
+                <p><strong>Opacity :</strong> <code>1</code> ✅</p>
+                <p><strong>Pointer Events :</strong> <code>auto</code> ✅</p>
+                <p><strong>Min-width :</strong> <code>280px</code> ✅</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <p style="color: #666; font-family: var(--font-body);">
+                Si le menu fonctionne ici, le problème est dans l'application React.<br>
+                Sinon, il faut ajuster les styles CSS.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let isMenuOpen = false;
+
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            const caret = document.getElementById('caretIcon');
+            const status = document.getElementById('testStatus');
+            
+            isMenuOpen = !isMenuOpen;
+            
+            if (isMenuOpen) {
+                dropdown.classList.remove('hidden');
+                caret.classList.add('open');
+                status.innerHTML = '✅ Menu ouvert avec succès !';
+                status.className = 'status success';
+            } else {
+                dropdown.classList.add('hidden');
+                caret.classList.remove('open');
+                status.innerHTML = '❌ Menu fermé';
+                status.className = 'status info';
+            }
+        }
+
+        function testAction(action) {
+            const status = document.getElementById('testStatus');
+            status.innerHTML = `🎯 Action "${action}" cliquée !`;
+            status.className = 'status success';
+            
+            // Fermer le menu après l'action
+            setTimeout(() => {
+                document.getElementById('userDropdown').classList.add('hidden');
+                document.getElementById('caretIcon').classList.remove('open');
+                isMenuOpen = false;
+            }, 1000);
+        }
+
+        // Fermer le menu si on clique ailleurs
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            
+            if (!userMenu.contains(event.target) && isMenuOpen) {
+                toggleUserMenu();
+            }
+        });
+
+        // Test automatique au chargement
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const status = document.getElementById('testStatus');
+                status.innerHTML = '🚀 Page de test chargée. CSS et JavaScript prêts !';
+                status.className = 'status success';
+            }, 500);
+        });
+    </script>
+</body>
+</html>

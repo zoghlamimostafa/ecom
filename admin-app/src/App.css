@@ -4,6 +4,25 @@ body{
   font-family: "Rubik",sans-serif;
 }
 
+/* Dropzone styles */
+.dropzone {
+  border: 2px dashed #d9d9d9;
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dropzone:hover {
+  border-color: #1890ff;
+  background-color: #f0f8ff;
+}
+
+.dropzone.active {
+  border-color: #52c41a;
+  background-color: #f6ffed;
+}
+
 /* Header */
 .header {
   display: flex;

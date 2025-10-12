@@ -1,0 +1,124 @@
+{
+  "score": 0,
+  "critical": 5,
+  "warning": 6,
+  "info": 0,
+  "vulnerabilities": [
+    {
+      "level": "critical",
+      "title": "Mots de passe non hashés",
+      "description": "Utilisation possible de mots de passe en clair",
+      "solution": "Implémenter bcrypt"
+    },
+    {
+      "level": "warning",
+      "title": "JWT non utilisé",
+      "description": "Authentification JWT non implémentée",
+      "solution": "Ajouter génération JWT"
+    },
+    {
+      "level": "warning",
+      "title": "Validation manquante: routes/authRoute.js",
+      "description": "Pas de validation d'entrée détectée",
+      "solution": "Ajouter middleware validation"
+    },
+    {
+      "level": "warning",
+      "title": "Validation manquante: routes/productRoute.js",
+      "description": "Pas de validation d'entrée détectée",
+      "solution": "Ajouter middleware validation"
+    },
+    {
+      "level": "critical",
+      "title": "Aucune validation d'entrée",
+      "description": "XSS et injection possibles",
+      "solution": "Implémenter express-validator"
+    },
+    {
+      "level": "warning",
+      "title": "Upload non sécurisé",
+      "description": "Middleware upload manquant",
+      "solution": "Utiliser multer avec restrictions"
+    },
+    {
+      "level": "critical",
+      "title": "Types fichiers non filtrés",
+      "description": "Risque upload fichiers malveillants",
+      "solution": "Ajouter fileFilter strict"
+    },
+    {
+      "level": "warning",
+      "title": "Taille fichiers illimitée",
+      "description": "Risque saturation serveur",
+      "solution": "Limiter taille uploads"
+    },
+    {
+      "level": "critical",
+      "title": "Headers sécurité manquants",
+      "description": "Vulnérabilité clickjacking, XSS",
+      "solution": "Ajouter helmet.js"
+    },
+    {
+      "level": "warning",
+      "title": "Rate limiting absent",
+      "description": "Risque attaque bruteforce/DDoS",
+      "solution": "Ajouter express-rate-limit"
+    },
+    {
+      "level": "critical",
+      "title": "HTTPS non configuré",
+      "description": "Communications non chiffrées",
+      "solution": "Configurer certificat SSL/TLS"
+    }
+  ],
+  "recommendations": [
+    {
+      "title": "Expiration JWT courte",
+      "description": "Configurer expiration 15 minutes + refresh token"
+    },
+    {
+      "title": "Blacklist tokens",
+      "description": "Implémenter révocation de tokens"
+    },
+    {
+      "title": "Chiffrement base",
+      "description": "Considérer SQLCipher pour chiffrer la base"
+    },
+    {
+      "title": "Sauvegarde chiffrée",
+      "description": "Implémenter sauvegarde automatique chiffrée"
+    },
+    {
+      "title": "Sanitisation XSS",
+      "description": "Ajouter DOMPurify côté client"
+    },
+    {
+      "title": "Rate limiting",
+      "description": "Limiter requêtes par IP"
+    },
+    {
+      "title": "Scan antivirus",
+      "description": "Intégrer ClamAV pour scan fichiers"
+    },
+    {
+      "title": "Stockage sécurisé",
+      "description": "Stocker uploads hors webroot"
+    },
+    {
+      "title": "Variables sensibles",
+      "description": "Vérifier aucune clé en dur dans le code"
+    },
+    {
+      "title": "Logs sécurité",
+      "description": "Implémenter logging tentatives d'intrusion"
+    },
+    {
+      "title": "Audit npm",
+      "description": "Exécuter npm audit régulièrement"
+    },
+    {
+      "title": "Mise à jour sécurité",
+      "description": "Automatiser updates sécurité"
+    }
+  ]
+}

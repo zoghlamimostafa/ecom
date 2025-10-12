@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Nouvelle Page Produit - Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #FF6F00 0%, #e66400 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .header p {
+            margin: 0.5rem 0 0;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 2rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border-left: 4px solid #FF6F00;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #FF6F00;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .comparison-card {
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .old-design {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+        }
+        
+        .new-design {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #FF6F00;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+        
+        .btn:hover {
+            background: #e66400;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,111,0,0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .preview-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+            margin: 0.5rem 0;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+        }
+        
+        .instructions h3 {
+            color: #FF6F00;
+            margin-top: 0;
+        }
+        
+        .instructions ol {
+            padding-left: 1.5rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.8rem;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Nouvelle Page Produit</h1>
+            <p>Design moderne et expérience utilisateur améliorée</p>
+            <div class="status status-success">✅ Activé avec succès</div>
+        </div>
+        
+        <div class="content">
+            <h2>🚀 Nouveautés et Améliorations</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🖼️</div>
+                    <div class="feature-title">Galerie Images Avancée</div>
+                    <p>Zoom interactif, navigation par thumbnails, images en haute définition avec prévisualisation fluide.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">Système d'Onglets</div>
+                    <p>Organisation claire : Description, Spécifications, Avis clients, et Informations de livraison.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">❤️</div>
+                    <div class="feature-title">Interactions Modernes</div>
+                    <p>Boutons favoris animés, sélection de quantité intuitive, actions rapides avec feedback visuel.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-title">Design Responsive</div>
+                    <p>Parfaitement adapté à tous les écrans : desktop, tablette, et mobile avec animations fluides.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🏷️</div>
+                    <div class="feature-title">Badges et Labels</div>
+                    <p>Mise en valeur des produits spéciaux, nouveautés, et promotions avec des badges attractifs.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📤</div>
+                    <div class="feature-title">Partage Social</div>
+                    <p>Partage facile sur WhatsApp, Facebook, Instagram avec génération automatique de liens.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🚚</div>
+                    <div class="feature-title">Info Livraison Détaillées</div>
+                    <p>Informations complètes sur les options de livraison, délais, et garanties avec icônes.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">⭐</div>
+                    <div class="feature-title">Système d'Avis Amélioré</div>
+                    <p>Interface intuitive pour laisser des avis avec notation étoilée et commentaires détaillés.</p>
+                </div>
+            </div>
+            
+            <h2>📋 Comparaison Avant/Après</h2>
+            
+            <div class="comparison">
+                <div class="comparison-card old-design">
+                    <h3>🔸 Ancien Design</h3>
+                    <ul style="text-align: left;">
+                        <li>Design basique</li>
+                        <li>Galerie d'images simple</li>
+                        <li>Informations mélangées</li>
+                        <li>Peu d'interactions</li>
+                        <li>Responsive limité</li>
+                    </ul>
+                </div>
+                
+                <div class="comparison-card new-design">
+                    <h3>✨ Nouveau Design</h3>
+                    <ul style="text-align: left;">
+                        <li>Design moderne et professionnel</li>
+                        <li>Galerie avec zoom et navigation</li>
+                        <li>Organisation par onglets</li>
+                        <li>Interactions riches et fluides</li>
+                        <li>Fully responsive avec animations</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <h3>🔧 Comment Tester le Nouveau Design</h3>
+                <ol>
+                    <li><strong>Démarrez votre serveur React :</strong>
+                        <br><code>cd Client && npm start</code></li>
+                    <li><strong>Ouvrez votre navigateur :</strong>
+                        <br>Allez sur <a href="http://localhost:3002" target="_blank">http://localhost:3002</a></li>
+                    <li><strong>Naviguez vers un produit :</strong>
+                        <br>Cliquez sur n'importe quel produit pour voir le nouveau design</li>
+                    <li><strong>Explorez les nouvelles fonctionnalités :</strong>
+                        <ul>
+                            <li>Testez le zoom sur les images</li>
+                            <li>Naviguez entre les onglets</li>
+                            <li>Essayez les boutons d'action</li>
+                            <li>Testez sur mobile/tablette</li>
+                        </ul>
+                    </li>
+                </ol>
+                
+                <h3>⚡ Actions Rapides</h3>
+                <a href="http://localhost:3002" class="btn" target="_blank">🌐 Ouvrir l'application</a>
+                <button class="btn btn-secondary" onclick="window.location.reload()">🔄 Actualiser cette page</button>
+            </div>
+            
+            <div class="status-info" style="padding: 1.5rem; border-radius: 10px; margin: 2rem 0;">
+                <h3>📝 Notes Techniques</h3>
+                <ul>
+                    <li><strong>Fichiers modifiés :</strong> SingleProduct.js remplacé par la version moderne</li>
+                    <li><strong>Styles ajoutés :</strong> CSS moderne intégré dans App.css</li>
+                    <li><strong>Sauvegarde :</strong> Ancien design sauvegardé dans SingleProduct-backup.js</li>
+                    <li><strong>Compatibilité :</strong> 100% compatible avec votre backend existant</li>
+                    <li><strong>Performance :</strong> Optimisé pour le chargement rapide</li>
+                </ul>
+                
+                <h4>🛠️ Commandes de Gestion</h4>
+                <p><code>node enable-modern-product.js</code> - Activer le design moderne</p>
+                <p><code>node disable-modern-product.js</code> - Restaurer l'ancien design</p>
+            </div>
+            
+            <div style="text-align: center; margin: 2rem 0;">
+                <h2>🎉 Profitez de votre nouvelle page produit !</h2>
+                <p style="font-size: 1.1rem; color: #666;">
+                    Un design moderne qui va impressionner vos clients et améliorer l'expérience d'achat.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Animation d'entrée pour les cartes
+        const cards = document.querySelectorAll('.feature-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+        
+        // Auto-refresh de l'état
+        setInterval(() => {
+            const statusElements = document.querySelectorAll('.status-success');
+            statusElements.forEach(status => {
+                status.style.animation = 'pulse 2s infinite';
+            });
+        }, 5000);
+        
+        // CSS pour l'animation pulse
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

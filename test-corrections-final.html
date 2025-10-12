@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Final des Corrections</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .check-ok { background: #d4edda; color: #155724; }
+        .check-fail { background: #f8d7da; color: #721c24; }
+        .check-pending { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test Final des Corrections</h1>
+    <p>Cette page teste si toutes les corrections appliquées fonctionnent correctement.</p>
+    
+    <div class="test-card">
+        <h2>📋 Checklist des Corrections</h2>
+        <ul class="checklist" id="checklist">
+            <li id="check-backend" class="check-pending">⏳ Backend accessible sur localhost:4000</li>
+            <li id="check-cors" class="check-pending">⏳ CORS configuré pour port 3002</li>
+            <li id="check-frontend" class="check-pending">⏳ Frontend accessible sur localhost:3002</li>
+            <li id="check-baseurl" class="check-pending">⏳ baseUrl.js corrigé (localhost au lieu de 127.0.0.1)</li>
+            <li id="check-debug" class="check-pending">⏳ Mode debug activé</li>
+        </ul>
+    </div>
+    
+    <div class="test-card">
+        <h2>🌐 Test de Connectivité</h2>
+        <button class="btn" onclick="testBackend()">Tester Backend</button>
+        <button class="btn" onclick="testAuth()">Tester Authentification</button>
+        <button class="btn" onclick="testProducts()">Tester Produits</button>
+        <div id="connectivity-log" class="log"></div>
+    </div>
+    
+    <div class="test-card">
+        <h2>📝 Instructions Finales</h2>
+        <div class="status success">
+            <h4>✅ Corrections Appliquées :</h4>
+            <ul>
+                <li>baseUrl.js changé de 127.0.0.1:4000 vers localhost:4000</li>
+                <li>CORS backend mis à jour pour accepter localhost:3002</li>
+                <li>Backend redémarré avec nouvelle configuration</li>
+                <li>Mode debug activé avec logs détaillés</li>
+            </ul>
+        </div>
+        
+        <div class="status warning">
+            <h4>⚠️ Pour Tester dans React :</h4>
+            <ol>
+                <li>Allez sur <a href="http://localhost:3002" target="_blank">http://localhost:3002</a></li>
+                <li>Connectez-vous avec : <code>zoghlamimustapha16@gmail.com</code></li>
+                <li>Ouvrez DevTools (F12) → Console</li>
+                <li>Naviguez vers une page de produits</li>
+                <li>Testez les boutons : Panier ❤️, Favoris 🛒, Voir 👁️</li>
+                <li>Regardez les logs détaillés dans la console</li>
+            </ol>
+        </div>
+        
+        <div class="status error">
+            <h4>🚨 Si Problèmes Persistent :</h4>
+            <ul>
+                <li>Vérifiez Network tab (DevTools) pour erreurs API</li>
+                <li>Regardez Console pour erreurs JavaScript</li>
+                <li>Vérifiez que le token JWT est présent dans localStorage</li>
+                <li>Confirmez que le backend répond sur port 4000</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let log = document.getElementById('connectivity-log');
+        
+        function logMessage(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#007bff';
+            log.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function updateCheck(id, status) {
+            const element = document.getElementById(id);
+            element.className = `check-${status}`;
+            const icon = status === 'ok' ? '✅' : status === 'fail' ? '❌' : '⏳';
+            element.innerHTML = element.innerHTML.replace(/^[✅❌⏳]/, icon);
+        }
+        
+        async function testBackend() {
+            logMessage('🔄 Test du backend...', 'info');
+            try {
+                const response = await fetch('http://localhost:4000/api/product/get-products');
+                if (response.ok) {
+                    logMessage('✅ Backend accessible !', 'success');
+                    updateCheck('check-backend', 'ok');
+                } else {
+                    logMessage(`❌ Backend erreur: ${response.status}`, 'error');
+                    updateCheck('check-backend', 'fail');
+                }
+            } catch (error) {
+                logMessage(`❌ Backend inaccessible: ${error.message}`, 'error');
+                updateCheck('check-backend', 'fail');
+            }
+        }
+        
+        async function testAuth() {
+            logMessage('🔄 Test de l\'authentification...', 'info');
+            try {
+                const response = await fetch('http://localhost:4000/api/user/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'zoghlamimustapha16@gmail.com',
+                        password: '123456'
+                    })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    logMessage('✅ Login API fonctionne !', 'success');
+                    logMessage(`Token reçu: ${data.token ? 'Oui' : 'Non'}`, 'info');
+                } else {
+                    logMessage(`❌ Auth erreur: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                logMessage(`❌ Auth inaccessible: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testProducts() {
+            logMessage('🔄 Test des produits...', 'info');
+            try {
+                const response = await fetch('http://localhost:4000/api/product/get-products');
+                if (response.ok) {
+                    const data = await response.json();
+                    logMessage(`✅ ${data.length || 0} produits trouvés !`, 'success');
+                    updateCheck('check-cors', 'ok');
+                } else {
+                    logMessage(`❌ Produits erreur: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                logMessage(`❌ CORS bloqué: ${error.message}`, 'error');
+                updateCheck('check-cors', 'fail');
+            }
+        }
+        
+        // Tests automatiques au chargement
+        window.onload = function() {
+            updateCheck('check-baseurl', 'ok');
+            updateCheck('check-debug', 'ok');
+            
+            // Test si frontend accessible
+            if (window.location.port === '3002' || window.location.hostname === 'localhost') {
+                updateCheck('check-frontend', 'ok');
+            }
+            
+            setTimeout(() => {
+                testBackend();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

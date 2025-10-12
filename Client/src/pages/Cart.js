@@ -1,161 +1,351 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { MdDelete, MdShoppingCart } from "react-icons/md";
-import { getUserCart, deleteCartProduct, updateCartProduct } from "../features/user/userSlice";
+import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
+import { useTranslation } from '../contexts/TranslationContext';
+import { getUserCart, deleteCartProduct, updateCartProduct, toggleProductWishlist } from "../features/user/userSlice";
+import { getWishlist } from "../features/products/productSlice";
 import Container from '../components/Container';
 import Meta from '../components/Meta';
+import SEOEnhancer from '../components/SEOEnhancer';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const Cart = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const userCartState = useSelector(state => state.auth.cartProducts);
-  const authState = useSelector(state => state?.auth?.auth); // Get authentication state
-  const [quantity, setQuantity] = useState({});  // Pour gérer les quantités
-  const hasFetchedCart = useRef(false); // Empêcher le rechargement multiple du panier
+  const wishlistState = useSelector(state => state.product.wishlist);
+  const authState = useSelector(state => state?.auth?.auth);
+  const [quantity, setQuantity] = useState({});
+  const [wishlistLoading, setWishlistLoading] = useState({});
+  const hasFetchedCart = useRef(false);
 
-  // Récupérer le panier uniquement une fois lors du montage du composant
   useEffect(() => {
     if (!hasFetchedCart.current && authState) {
       dispatch(getUserCart());
+      dispatch(getWishlist());
       hasFetchedCart.current = true;
     }
   }, [dispatch, authState]);
 
-  // Mettre à jour les quantités lorsque le panier change
   useEffect(() => {
     if (userCartState && userCartState.length > 0) {
       const updatedQuantity = {};
       userCartState.forEach(item => {
-        updatedQuantity[item._id] = item.quantity; // Remplir l'état quantity avec les valeurs initiales
+        const itemId = item.id || item._id; // Support SQLite et MongoDB
+        updatedQuantity[itemId] = item.quantity;
       });
       setQuantity(updatedQuantity);
     }
   }, [userCartState]);
 
-  // Fonction pour gérer le changement de quantité
-  const handleQuantityChange = (e, itemId) => {
-    const newQuantity = parseInt(e.target.value);
-    if (newQuantity < 1 || newQuantity > 10) return; // Empêcher les valeurs invalides
+  const handleQuantityChange = (itemId, newQuantity) => {
+    if (newQuantity < 1 || newQuantity > 10) return;
 
     setQuantity(prevState => ({
       ...prevState,
       [itemId]: newQuantity,
     }));
 
-    // Mise à jour du produit dans le panier via Redux
     dispatch(updateCartProduct({ cartItemId: itemId, quantity: newQuantity }));
   };
 
-  // Fonction pour supprimer un produit du panier
   const handleDeleteCartItem = (itemId) => {
-    dispatch(deleteCartProduct(itemId)); // Suppression immédiate via Redux
-    
-    // Récupérer de nouveau le panier après suppression si authentifié
-    if (authState) {
+    dispatch(deleteCartProduct(itemId));
+    setTimeout(() => {
       dispatch(getUserCart());
+    }, 200);
+  };
+
+  const handleToggleWishlist = async (productId) => {
+    if (!authState) {
+      toast.error(t('pleaseLoginForWishlistManage'));
+      return;
+    }
+
+    setWishlistLoading(prev => ({ ...prev, [productId]: true }));
+    
+    try {
+      await dispatch(toggleProductWishlist(productId)).unwrap();
+      const isInWishlist = wishlistState?.some(item => item._id === productId);
+      
+      if (isInWishlist) {
+        toast.success(t('productRemovedFromWishlist'));
+      } else {
+        toast.success(t('productAddedToWishlist'));
+      }
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+      toast.error("Erreur lors de la modification de la wishlist");
+    } finally {
+      setWishlistLoading(prev => ({ ...prev, [productId]: false }));
     }
   };
 
-  // Calcul du prix total du panier
-  let totalPrice = 0;
-  if (userCartState && Array.isArray(userCartState) && userCartState.length > 0) {
-    totalPrice = userCartState.reduce((acc, item) => acc + (item.price * (quantity[item._id] || item.quantity)), 0);
-  }
+  const isInWishlist = (productId) => {
+    return wishlistState?.some(item => (item.id || item._id) === productId);
+  };
+
+  // Frais de livraison
+  const SHIPPING_COST = 7.00; // 7 TND frais de livraison standard
+  const FREE_SHIPPING_THRESHOLD = 100.00; // Livraison gratuite à partir de 100 TND
+
+  const subtotalPrice = (userCartState && Array.isArray(userCartState)) 
+    ? userCartState.reduce((acc, item) => {
+        if (!item) return acc;
+        const product = item.product || item.productId;
+        const itemPrice = item.price || product?.price || 0;
+        if (!itemPrice) return acc;
+        const itemId = item.id || item._id;
+        return acc + (itemPrice * (quantity[itemId] || item.quantity || 1));
+      }, 0) 
+    : 0;
+
+  // Calcul des frais de livraison (gratuit si > 100 TND)
+  const shippingCost = subtotalPrice >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+  
+  // Calcul du total avec livraison
+  const totalPrice = subtotalPrice > 0 ? subtotalPrice + shippingCost : 0;
+
+  // Vérification de sécurité pour userCartState
+  const safeUserCartState = Array.isArray(userCartState) ? userCartState : [];
 
   return (
     <>
+      <SEOEnhancer 
+        title={t('cartPageTitle')}
+        description={t('cartPageDescription')}
+        keywords={t('cartPageKeywords')}
+        pageType="cart"
+      />
       <Meta title={"Panier"} />
-      <Container class1='cart-wrapper home-wrapper-2 py-5'>
-        <div className='row'>
-          <div className='col-12'>
-            <div className='cart-header py-3'>
-              <h4 className='text-center'>Votre Panier</h4>
-            </div>
-            {userCartState && Array.isArray(userCartState) && userCartState.length > 0 ? (
-              <>
-                {userCartState.map((item, index) => (
-                  <div key={index} className='cart-item py-3 border-bottom'>
-                    <div className='row align-items-center'>
-                      <div className='col-md-2 col-6'>
-                        {item.productId && item.productId.images && (
-                          <img src={item.productId.images[0]?.url} alt="Produit" className="img-fluid" style={{maxHeight: '100px'}} />
-                        )}
-                      </div>
-                      <div className='col-md-3 col-6'>
-                        <h5>{item.productId?.title}</h5>
-                        {item.color && <p>Couleur: <span style={{ backgroundColor: item.color.title }} className='color-badge'></span></p>}
-                      </div>
-                      <div className='col-md-3 col-6'>
-                        <div className='d-flex flex-column align-items-center'>
-                          <h5>Prix: {item.price} TND</h5>
-                          <div className='quantity-container'>
-                            <label htmlFor={`quantity-${index}`} className="form-label">Quantité:</label>
-                            <div className="d-flex align-items-center">
-                              <button 
-                                type="button" 
-                                className="btn btn-outline-secondary btn-sm me-2"
-                                onClick={() => handleQuantityChange({target: {value: Math.max(1, (quantity[item._id] || item.quantity) - 1)}}, item._id)}
-                                disabled={(quantity[item._id] || item.quantity) <= 1}
-                              >
-                                -
-                              </button>
-                              <input 
-                                type="number" 
-                                min={1} 
-                                max={10} 
-                                value={quantity[item._id] || item.quantity} 
-                                onChange={(e) => handleQuantityChange(e, item._id)} 
-                                id={`quantity-${index}`} 
-                                className="form-control mx-1" 
-                                style={{width: '70px'}}
-                              />
-                              <button 
-                                type="button" 
-                                className="btn btn-outline-secondary btn-sm ms-2"
-                                onClick={() => handleQuantityChange({target: {value: Math.min(10, (quantity[item._id] || item.quantity) + 1)}}, item._id)}
-                                disabled={(quantity[item._id] || item.quantity) >= 10}
-                              >
-                                +
-                              </button>
+      <div className="page-wrapper cart-page-wrapper">
+        <Container class1='cart-wrapper home-wrapper-2 py-5'>
+          <div className='row'>
+            <div className='col-12'>
+              {safeUserCartState && safeUserCartState.length > 0 ? (
+                <>
+                  <div className="cart-header-section">
+                    <MdShoppingCart className="cart-header-icon" />
+                    <h2 className="cart-main-title">Votre Panier</h2>
+                    <p className="cart-subtitle">{safeUserCartState.length} {safeUserCartState.length > 1 ? 'articles' : 'article'} dans votre panier</p>
+                  </div>
+                  <div className="row">
+                  <div className="col-lg-8">
+                    <div className="cart-items-container">
+                    {safeUserCartState.map((item) => {
+                      // Vérifications de sécurité pour éviter les erreurs
+                      if (!item) {
+                        console.warn('Cart item is null or undefined');
+                        return null;
+                      }
+
+                      // Pour Sequelize, les données du produit sont dans item.product
+                      // Pour MongoDB, les données sont dans item.productId
+                      const product = item.product || item.productId;
+                      
+                      if (!product) {
+                        console.warn('Cart item missing product data:', item);
+                        return null;
+                      }
+
+                      // Gestion des images - support SQLite/MongoDB
+                      let imageUrl = '/images/default-product.jpg';
+                      if (product.images) {
+                        if (Array.isArray(product.images) && product.images.length > 0) {
+                          // Si c'est un tableau d'objets avec url
+                          imageUrl = product.images[0]?.url || product.images[0] || imageUrl;
+                        } else if (typeof product.images === 'string') {
+                          // Si c'est une chaîne directe
+                          imageUrl = product.images;
+                        }
+                      }
+                      
+                      const productTitle = product.title || 'Produit sans nom';
+                      const productPrice = item.price || product.price || 0;
+                      const itemId = item.id || item._id; // Support SQLite et MongoDB
+                      // ID du produit pour wishlist
+                      const productId = product.id || product._id || item.productId;
+
+                      return (
+                        <div key={itemId} className='cart-item-modern mb-4'>
+                          <div className='cart-item-content'>
+                            <div className='cart-item-image-section'>
+                              <div className='cart-item-image-wrapper'>
+                                <img 
+                                  src={imageUrl} 
+                                  alt={productTitle} 
+                                  className="cart-item-image"
+                                  onError={(e) => {
+                                    e.target.src = '/images/default-product.jpg';
+                                  }}
+                                />
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className='col-md-4 col-12'>
-                        <div className='d-flex flex-column align-items-center'>
-                          <h5>Total: {item.price * (quantity[item._id] || item.quantity)} TND</h5>
+                            
+                            <div className='cart-item-details'>
+                              <h5 className="cart-item-title">{productTitle}</h5>
+                              {item.color && (
+                                <div className="cart-item-color-info">
+                                  <span className="color-label">Couleur:</span>
+                                  <span className="color-value">{item.color.title}</span>
+                                </div>
+                              )}
+                              <div className="cart-item-price-mobile">
+                                <span className="price-label">Prix unitaire:</span>
+                                <span className="price-value">{productPrice} TND</span>
+                              </div>
+                            </div>
+
+                            <div className='cart-item-price-section'>
+                              <p className="cart-item-unit-price">{productPrice} TND</p>
+                              <span className="price-unit-label">prix unitaire</span>
+                            </div>
+                            
+                            <div className='cart-item-quantity-section'>
+                              <label className="quantity-label">Quantité</label>
+                              <div className='cart-quantity-controls'>
+                                <button className="cart-quantity-btn-modern" onClick={() => handleQuantityChange(itemId, (quantity[itemId] || item.quantity) - 1)}>-</button>
+                                <input type="number" value={quantity[itemId] || item.quantity} readOnly className="cart-quantity-display" />
+                                <button className="cart-quantity-btn-modern" onClick={() => handleQuantityChange(itemId, (quantity[itemId] || item.quantity) + 1)}>+</button>
+                              </div>
+                            </div>
+                            
+                            <div className='cart-item-total-section'>
+                              <p className="cart-item-total-price">{(productPrice * (quantity[itemId] || item.quantity)).toFixed(2)} TND</p>
+                              <span className="total-label">total</span>
+                            </div>
+                            
+                            <div className='cart-item-actions'>
                           <button 
-                            className="btn btn-danger btn-sm mt-2"
-                            onClick={() => handleDeleteCartItem(item._id)}
-                            title="Supprimer cet article"
+                            className={`cart-action-btn cart-wishlist-btn-modern ${isInWishlist(productId) ? 'active' : ''}`}
+                            onClick={() => handleToggleWishlist(productId)}
+                            disabled={wishlistLoading[productId]}
+                            title={isInWishlist(productId) ? t('removeFromWishlistTitle') : t('addToWishlistTitle')}
                           >
-                            <MdDelete size={16} /> Supprimer
+                            {wishlistLoading[productId] ? (
+                              <div className="spinner-border cart-spinner" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                              </div>
+                            ) : isInWishlist(productId) ? (
+                              <AiFillHeart />
+                            ) : (
+                              <AiOutlineHeart />
+                            )}
+                          </button>
+                          <button className="cart-action-btn cart-delete-btn-modern" onClick={() => handleDeleteCartItem(itemId)}>
+                            <MdDelete />
                           </button>
                         </div>
-                      </div>
+                          </div>
+                        </div>
+                      );
+                    }).filter(Boolean)}
                     </div>
                   </div>
-                ))}
-                <div className='cart-total py-3'>
-                  <div className='d-flex justify-content-between align-items-center'>
-                    <Link to="/" className="btn btn-primary">Continuer vos achats</Link>
-                    <div>
-                      <h4>Total: {totalPrice} TND</h4>
-                      <Link to="/checkout" className='btn btn-success checkout-btn'> Valider la commande</Link>
+                  <div className="col-lg-4">
+                    <div className="cart-summary-modern">
+                      <div className="cart-summary-header">
+                        <h4 className="cart-summary-title">Récapitulatif de la commande</h4>
+                      </div>
+                      
+                      <div className="cart-summary-body">
+                        <div className="summary-line">
+                          <span className="summary-label">Sous-total ({safeUserCartState.length} articles)</span>
+                          <span className="summary-value">{subtotalPrice.toFixed(2)} TND</span>
+                        </div>
+                        
+                        <div className="summary-line">
+                          <span className="summary-label">Livraison standard</span>
+                          {shippingCost === 0 ? (
+                            <span className="summary-value shipping-free">
+                              <span className="free-badge">GRATUIT</span>
+                              <span className="original-price">{SHIPPING_COST.toFixed(2)} TND</span>
+                            </span>
+                          ) : (
+                            <span className="summary-value shipping-value">{shippingCost.toFixed(2)} TND</span>
+                          )}
+                        </div>
+                        
+                        {shippingCost > 0 && (
+                          <div className="summary-line summary-shipping-progress">
+                            <div className="shipping-progress-info">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shipping-icon">
+                                <rect x="1" y="3" width="15" height="13"></rect>
+                                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                                <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                                <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                              </svg>
+                              <span className="shipping-progress-text">
+                                Plus que <strong>{(FREE_SHIPPING_THRESHOLD - subtotalPrice).toFixed(2)} TND</strong> pour la livraison gratuite
+                              </span>
+                            </div>
+                            <div className="shipping-progress-bar">
+                              <div 
+                                className="shipping-progress-fill" 
+                                style={{ width: `${Math.min((subtotalPrice / FREE_SHIPPING_THRESHOLD) * 100, 100)}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {shippingCost === 0 && (
+                          <div className="summary-line summary-free-shipping-info">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shipping-icon">
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span className="free-shipping-text">Vous bénéficiez de la livraison gratuite !</span>
+                          </div>
+                        )}
+                        
+                        <div className="summary-divider"></div>
+                        
+                        <div className="summary-line summary-total">
+                          <span className="summary-total-label">Total TTC</span>
+                          <span className="summary-total-value">{totalPrice.toFixed(2)} TND</span>
+                        </div>
+                      </div>
+                      
+                      <div className="cart-summary-actions">
+                        <Link to="/checkout" className='btn-checkout-modern'>
+                          <span>Valider la commande</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                          </svg>
+                        </Link>
+                        <Link to="/product" className="btn-continue-shopping">Continuer les achats</Link>
+                      </div>
+                      
+                      <div className="cart-payment-badges">
+                        <img src="/images/payment-secure.svg" alt="Paiement sécurisé" className="payment-badge" onError={(e) => e.target.style.display = 'none'} />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </>
-            ) : (
-              <div className='empty-cart'>
-                <MdShoppingCart className='cart-icon' />
-                <p className='text-center'>Votre panier est vide.</p>
-                <Link to="/" className='btn btn-primary'>Commencez vos achats</Link>
-              </div>
-            )}
+                </>
+              ) : (
+                <div className='empty-cart-section'>
+                  <div className="empty-cart-content">
+                    <div className="empty-cart-icon-wrapper">
+                      <MdShoppingCart className='empty-cart-icon-modern' />
+                      <div className="empty-cart-circle"></div>
+                    </div>
+                    <h3 className='empty-cart-title'>Votre panier est vide</h3>
+                    <p className='empty-cart-message'>Découvrez nos produits et ajoutez vos articles préférés à votre panier pour commencer vos achats.</p>
+                    <Link to="/product" className='btn-start-shopping'>
+                      <span>Découvrir nos produits</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </Container>
+        </Container>
+      </div>
     </>
   );
 };

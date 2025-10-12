@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Menu Catégories</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 50px;
+            background: #f5f5f5;
+        }
+
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #ff6b35;
+            margin-bottom: 30px;
+        }
+
+        /* Menu catégories */
+        .categories-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .categories-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+        }
+
+        .categories-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+        }
+
+        .categories-mega-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            min-width: 280px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .categories-menu:hover .categories-mega-menu {
+            display: block;
+        }
+
+        .categories-list-vertical {
+            padding: 8px 0;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .category-item-with-subs {
+            position: relative;
+        }
+
+        .category-main-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .category-main-item:hover {
+            background-color: #fff5f0;
+            border-left-color: #ff6b35;
+        }
+
+        .category-main-item i:first-child {
+            color: #ff6b35;
+            font-size: 18px;
+            width: 24px;
+        }
+
+        .arrow-down {
+            margin-left: auto;
+            font-size: 10px;
+            color: #999;
+        }
+
+        /* Panel horizontal des sous-catégories */
+        .subcategories-horizontal-panel {
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            min-width: 650px;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+            margin-left: 10px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .category-item-with-subs:hover .subcategories-horizontal-panel {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        .subcategories-header {
+            color: #ff6b35;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #ff6b35;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .subcategories-horizontal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .subcategory-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .subcategory-title-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #fff5f0 0%, #ffe8dc 100%);
+            border-left: 3px solid #ff6b35;
+            transition: all 0.2s ease;
+        }
+
+        .subcategory-title-link:hover {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .sub-subcategories-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-left: 8px;
+        }
+
+        .sub-subcategory-item {
+            color: #666;
+            font-size: 12px;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .sub-subcategory-item:hover {
+            background-color: #fff5f0;
+            color: #ff6b35;
+            padding-left: 15px;
+        }
+
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Test du Menu Catégories Horizontal</h1>
+        
+        <div class="info">
+            <strong>Instructions:</strong> Survolez le bouton "Catégories" puis survolez une catégorie pour voir ses sous-catégories s'afficher horizontalement.
+        </div>
+
+        <div class="categories-menu">
+            <button class="categories-btn">
+                <i class="fas fa-th-large"></i>
+                <span>Catégories</span>
+            </button>
+            
+            <div class="categories-mega-menu">
+                <div class="categories-list-vertical">
+                    <!-- Animaux -->
+                    <div class="category-item-with-subs">
+                        <a href="#" class="category-main-item">
+                            <i class="fas fa-paw"></i>
+                            <span>Animaux</span>
+                            <i class="fas fa-chevron-down arrow-down"></i>
+                        </a>
+                        <div class="subcategories-horizontal-panel">
+                            <h4 class="subcategories-header">
+                                <i class="fas fa-paw"></i>
+                                Animaux
+                            </h4>
+                            <div class="subcategories-horizontal-grid">
+                                <div class="subcategory-column">
+                                    <a href="#" class="subcategory-title-link">
+                                        <i class="fas fa-dog"></i>
+                                        <span>Chiens</span>
+                                    </a>
+                                    <div class="sub-subcategories-vertical">
+                                        <a href="#" class="sub-subcategory-item">• Nourriture pour chiens</a>
+                                        <a href="#" class="sub-subcategory-item">• Accessoires pour chiens</a>
+                                        <a href="#" class="sub-subcategory-item">• Jouets pour chiens</a>
+                                    </div>
+                                </div>
+                                <div class="subcategory-column">
+                                    <a href="#" class="subcategory-title-link">
+                                        <i class="fas fa-cat"></i>
+                                        <span>Chats</span>
+                                    </a>
+                                    <div class="sub-subcategories-vertical">
+                                        <a href="#" class="sub-subcategory-item">• Nourriture pour chats</a>
+                                        <a href="#" class="sub-subcategory-item">• Litière</a>
+                                        <a href="#" class="sub-subcategory-item">• Griffoirs</a>
+                                    </div>
+                                </div>
+                                <div class="subcategory-column">
+                                    <a href="#" class="subcategory-title-link">
+                                        <i class="fas fa-fish"></i>
+                                        <span>Aquariophilie</span>
+                                    </a>
+                                    <div class="sub-subcategories-vertical">
+                                        <a href="#" class="sub-subcategory-item">• Aquariums</a>
+                                        <a href="#" class="sub-subcategory-item">• Filtres</a>
+                                        <a href="#" class="sub-subcategory-item">• Poissons</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Électronique -->
+                    <div class="category-item-with-subs">
+                        <a href="#" class="category-main-item">
+                            <i class="fas fa-laptop"></i>
+                            <span>Électronique</span>
+                            <i class="fas fa-chevron-down arrow-down"></i>
+                        </a>
+                        <div class="subcategories-horizontal-panel">
+                            <h4 class="subcategories-header">
+                                <i class="fas fa-laptop"></i>
+                                Électronique
+                            </h4>
+                            <div class="subcategories-horizontal-grid">
+                                <div class="subcategory-column">
+                                    <a href="#" class="subcategory-title-link">
+                                        <i class="fas fa-mobile-alt"></i>
+                                        <span>Téléphones</span>
+                                    </a>
+                                    <div class="sub-subcategories-vertical">
+                                        <a href="#" class="sub-subcategory-item">• Smartphones</a>
+                                        <a href="#" class="sub-subcategory-item">• Accessoires</a>
+                                    </div>
+                                </div>
+                                <div class="subcategory-column">
+                                    <a href="#" class="subcategory-title-link">
+                                        <i class="fas fa-laptop"></i>
+                                        <span>Ordinateurs</span>
+                                    </a>
+                                    <div class="sub-subcategories-vertical">
+                                        <a href="#" class="sub-subcategory-item">• PC Portables</a>
+                                        <a href="#" class="sub-subcategory-item">• PC Bureaux</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Jeux et Jouets -->
+                    <div class="category-item-with-subs">
+                        <a href="#" class="category-main-item">
+                            <i class="fas fa-gamepad"></i>
+                            <span>Jeux et Jouets</span>
+                            <i class="fas fa-chevron-down arrow-down"></i>
+                        </a>
+                        <div class="subcategories-horizontal-panel">
+                            <h4 class="subcategories-header">
+                                <i class="fas fa-gamepad"></i>
+                                Jeux et Jouets
+                            </h4>
+                            <div class="subcategories-horizontal-grid">
+                                <div class="subcategory-column">
+                                    <a href="#" class="subcategory-title-link">
+                                        <i class="fas fa-puzzle-piece"></i>
+                                        <span>Jeux de Société</span>
+                                    </a>
+                                </div>
+                                <div class="subcategory-column">
+                                    <a href="#" class="subcategory-title-link">
+                                        <i class="fas fa-cubes"></i>
+                                        <span>Figurines</span>
+                                    </a>
+                                </div>
+                                <div class="subcategory-column">
+                                    <a href="#" class="subcategory-title-link">
+                                        <i class="fas fa-gamepad"></i>
+                                        <span>Jeux Vidéo</span>
+                                    </a>
+                                    <div class="sub-subcategories-vertical">
+                                        <a href="#" class="sub-subcategory-item">• PlayStation</a>
+                                        <a href="#" class="sub-subcategory-item">• Xbox</a>
+                                        <a href="#" class="sub-subcategory-item">• Nintendo</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+            <strong>⚠️ Note:</strong> Ce fichier HTML de test montre comment le menu devrait fonctionner. Si le menu ne fonctionne pas dans votre application, assurez-vous de vider le cache du navigateur (Ctrl+Shift+R ou Cmd+Shift+R).
+        </div>
+    </div>
+</body>
+</html>

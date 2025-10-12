@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SANNY STORE - Test de Diagnostic</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #FF6B35, #FF8E53);
+            color: white;
+            margin: 0;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 { color: #FFE5B4; text-align: center; font-size: 2.5em; margin-bottom: 30px; }
+        .status { 
+            background: rgba(255,255,255,0.2); 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 8px;
+            border-left: 5px solid #FFE5B4;
+        }
+        .test-btn {
+            background: #FF6B35;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .test-btn:hover { background: #FF8E53; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 SANNY STORE - Test Diagnostic 🎉</h1>
+        
+        <div class="status">
+            <strong>✅ HTML/CSS</strong> : Fonctionne correctement
+        </div>
+        
+        <div class="status">
+            <strong>🔧 Backend</strong> : <span id="backend-status">Test en cours...</span>
+        </div>
+        
+        <div class="status">
+            <strong>⚛️ React App</strong> : <a href="http://localhost:3000" style="color: #FFE5B4;">Cliquez ici pour tester</a>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="test-btn" onclick="testBackend()">Tester Backend</button>
+            <button class="test-btn" onclick="openReactApp()">Ouvrir React App</button>
+            <button class="test-btn" onclick="window.location.reload()">Actualiser</button>
+        </div>
+        
+        <div id="debug-info" style="background: rgba(0,0,0,0.3); padding: 15px; margin-top: 20px; border-radius: 8px; font-family: monospace; font-size: 14px;">
+            <strong>Informations de Debug :</strong><br>
+            URL Actuelle: <span id="current-url"></span><br>
+            User Agent: <span id="user-agent"></span><br>
+            Timestamp: <span id="timestamp"></span>
+        </div>
+    </div>
+
+    <script>
+        // Informations de debug
+        document.getElementById('current-url').textContent = window.location.href;
+        document.getElementById('user-agent').textContent = navigator.userAgent;
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Test du backend
+        async function testBackend() {
+            try {
+                const response = await fetch('http://localhost:4000/api/user/all-users');
+                if (response.ok) {
+                    document.getElementById('backend-status').innerHTML = '✅ Backend accessible';
+                } else {
+                    document.getElementById('backend-status').innerHTML = '⚠️ Backend répond mais erreur ' + response.status;
+                }
+            } catch (error) {
+                document.getElementById('backend-status').innerHTML = '❌ Backend inaccessible: ' + error.message;
+            }
+        }
+        
+        function openReactApp() {
+            window.open('http://localhost:3000', '_blank');
+        }
+        
+        // Test automatique au chargement
+        window.onload = function() {
+            setTimeout(testBackend, 1000);
+        }
+    </script>
+</body>
+</html>

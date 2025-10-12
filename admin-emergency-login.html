@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion d'urgence - Sanny Store Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo h1 {
+            color: #333;
+            margin: 0;
+            font-size: 28px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type="email"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .btn-quick {
+            background: #28a745;
+        }
+        .btn-quick:hover {
+            background: #218838;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🛒 Sanny Store</h1>
+            <p>Administration - Connexion d'urgence</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" value="admin@sanny.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" value="admin123" required>
+            </div>
+
+            <button type="submit" class="btn">Se connecter</button>
+            <button type="button" class="btn btn-quick" onclick="quickLogin()">🚀 Connexion rapide</button>
+        </form>
+
+        <div id="status"></div>
+
+        <div style="margin-top: 30px; text-align: center; font-size: 14px; color: #666;">
+            <p><strong>Services:</strong></p>
+            <p>• Backend API: <span id="backendStatus">🔄 Test...</span></p>
+            <p>• Interface: <span id="interfaceStatus">🔄 Test...</span></p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:4000/api';
+        const ADMIN_URL = 'http://localhost:3002/admin';
+
+        // Test de connectivité au démarrage
+        window.onload = function() {
+            testServices();
+        };
+
+        async function testServices() {
+            // Test Backend
+            try {
+                const response = await fetch(`${API_URL}/product/`);
+                if (response.ok) {
+                    document.getElementById('backendStatus').innerHTML = '✅ OK';
+                } else {
+                    document.getElementById('backendStatus').innerHTML = '❌ Erreur';
+                }
+            } catch (error) {
+                document.getElementById('backendStatus').innerHTML = '❌ Hors ligne';
+            }
+
+            // Test Interface
+            try {
+                const response = await fetch('http://localhost:3002');
+                if (response.ok) {
+                    document.getElementById('interfaceStatus').innerHTML = '✅ OK';
+                } else {
+                    document.getElementById('interfaceStatus').innerHTML = '❌ Erreur';
+                }
+            } catch (error) {
+                document.getElementById('interfaceStatus').innerHTML = '❌ Hors ligne';
+            }
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        async function login(email, password) {
+            showStatus('🔄 Connexion en cours...', 'info');
+            
+            try {
+                const response = await fetch(`${API_URL}/user/admin-login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': 'http://localhost:3002'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.token) {
+                    showStatus('✅ Connexion réussie ! Redirection...', 'success');
+                    
+                    // Sauvegarder dans localStorage
+                    localStorage.setItem('user', JSON.stringify(data));
+                    
+                    // Redirection
+                    setTimeout(() => {
+                        window.location.href = ADMIN_URL;
+                    }, 1500);
+                    
+                } else {
+                    throw new Error(data.message || 'Connexion échouée');
+                }
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatus(`❌ ${error.message}`, 'error');
+            }
+        }
+
+        // Connexion rapide avec identifiants pré-remplis
+        async function quickLogin() {
+            await login('admin@sanny.com', 'admin123');
+        }
+
+        // Soumission du formulaire
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            await login(email, password);
+        });
+    </script>
+</body>
+</html>

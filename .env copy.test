@@ -1,0 +1,10 @@
+# Test configuration for E-Commerce Sanny
+TEST_PROJECT=ecomerce_sanny
+MONGODB_URI=mongodb://localhost:27017/ecomerce_sanny_test
+BASE_URL=http://localhost:4000
+ADMIN_URL=http://localhost:3001
+CLIENT_URL=http://localhost:3000
+
+
+JWT_SECRET=test_jwt_secret_ecomerce_sanny
+NODE_ENV=test

@@ -4,6 +4,7 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { base_url } from "../utils/baseUrl";
 
 let schema = yup.object().shape({
   firstname: yup.string().required("First Name is Required"),
@@ -31,7 +32,7 @@ const CreateAdmin = () => {
     onSubmit: async (values, { resetForm }) => {
       setLoading(true);
       try {
-        const response = await axios.post("http://localhost:4000/api/user/create-admin", values);
+        const response = await axios.post(base_url + "user/create-admin", values);
         toast.success("Admin user created successfully!");
         resetForm();
       } catch (error) {

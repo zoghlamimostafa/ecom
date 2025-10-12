@@ -3,12 +3,14 @@ import BrandCrumb from '../components/BrandCrumb';
 import Meta from '../components/Meta';
 import Color from '../components/Color';
 import Container from '../components/Container';
+import { useTranslation } from '../contexts/TranslationContext';
 
 const CompareProduct = () => {
+  const { t } = useTranslation();
   return (
     <>
       <Meta title={" Compare Products"} />
-      <BrandCrumb title="Compare Products" />
+      <BrandCrumb title={t('compareProducts')} />
       <Container class1='compare-product-wrapper py-5 home-wrapper-2'>
         <div className='row'>
           {/* Première Carte Produit */}

@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactStars from "react-rating-stars-component";
 import { Link } from 'react-router-dom';
+import { useTranslation } from '../contexts/TranslationContext';
 
 const SpecialProduct = (props) => {
   const { title, brand, totalrating, price, sold, quantity, id } = props;
+  const { t } = useTranslation();
 
   return (
     
@@ -27,7 +29,7 @@ const SpecialProduct = (props) => {
               <span className='red-p'>{price}TND</span>&nbsp;<strike>200TND</strike>
             </p>
             <div className='discount-till'>
-              <p><b>5 days</b></p>
+              <p><b>5 {t('days')}</b></p>
               <div className='timer'>
                 <span className='badge rounded-circle bg-danger'>1</span>:
                 <span className='badge rounded-circle bg-danger'>1</span>:
@@ -35,12 +37,12 @@ const SpecialProduct = (props) => {
               </div>
             </div>
             <div className='prod-count my-3'>
-              <p>Product: {quantity}</p>
+              <p>{t('product')}: {quantity}</p>
               <div className="progress">
                 <div className="progress-bar" role="progressbar" style={{ width: (quantity / (quantity + sold)) * 100 + "%" }} aria-valuenow={quantity / (quantity + sold) * 100} aria-valuemin={quantity} aria-valuemax={quantity + sold}></div>
               </div>
             </div>
-            <Link className='button' to={`/product/${id}`}>view</Link>
+            <Link className='button' to={`/product/${id}`}>{t('view')}</Link>
           </div>
         </div>
       </div>

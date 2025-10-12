@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Design Contact - Aperçu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+        }
+
+        .demo-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .demo-section h2 {
+            color: #ff6b35;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        /* Icônes Circulaires */
+        .icons-demo {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .icon-item {
+            text-align: center;
+        }
+
+        .label-icon {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            border-radius: 50%;
+            color: white;
+            font-size: 1rem;
+            box-shadow: 0 6px 18px rgba(255, 107, 53, 0.4);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .label-icon:hover {
+            transform: scale(1.15) rotate(10deg);
+            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.5);
+        }
+
+        .info-icon {
+            width: 60px;
+            height: 60px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .info-icon:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 12px 28px rgba(255, 107, 53, 0.4);
+        }
+
+        .info-icon:hover::before {
+            opacity: 1;
+        }
+
+        .icon-label {
+            margin-top: 0.5rem;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Formulaire */
+        .form-demo {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: -0.3px;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            background: #ffffff;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #2d3748;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .form-input:hover,
+        .form-textarea:hover {
+            border-color: rgba(255, 107, 53, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.1);
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.15), 0 4px 16px rgba(255, 107, 53, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 140px;
+            line-height: 1.6;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            color: white;
+            border: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .submit-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 16px 40px rgba(255, 107, 53, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .btn-icon {
+            font-size: 1.4rem;
+            position: relative;
+            z-index: 1;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .submit-btn:hover .btn-icon {
+            transform: translateX(10px) scale(1.2) rotate(-15deg);
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+        }
+
+        /* Cartes d'Information */
+        .cards-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-card {
+            background: #ffffff;
+            padding: 1.8rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border: 2px solid #f0f0f0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #ff6b35, #ff8c42);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-6px) translateX(4px);
+            box-shadow: 0 12px 32px rgba(255, 107, 53, 0.2);
+            border-color: rgba(255, 107, 53, 0.3);
+        }
+
+        .info-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .info-card.highlight-card {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            color: white;
+            border-color: #ff6b35;
+            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
+        }
+
+        .info-card.highlight-card:hover {
+            box-shadow: 0 16px 40px rgba(255, 107, 53, 0.5);
+            transform: translateY(-8px) scale(1.02);
+        }
+
+        .info-card.highlight-card .info-icon {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .info-card.highlight-card .info-content h4,
+        .info-card.highlight-card .info-content p {
+            color: white;
+        }
+
+        .info-content h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .info-content p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .before, .after {
+            text-align: center;
+        }
+
+        .before h3 {
+            color: #e53e3e;
+        }
+
+        .after h3 {
+            color: #22c55e;
+        }
+
+        .old-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .cards-demo {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Aperçu des Améliorations - Page Contact</h1>
+
+        <!-- Comparaison Avant/Après -->
+        <div class="demo-section">
+            <h2>📊 Comparaison Icônes : Avant vs Après</h2>
+            <div class="comparison">
+                <div class="before">
+                    <h3>❌ Avant (Carré)</h3>
+                    <div class="old-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <p style="margin-top: 1rem; color: #64748b;">Icône carrée simple</p>
+                </div>
+                <div class="after">
+                    <h3>✅ Après (Cercle)</h3>
+                    <div class="label-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <p style="margin-top: 1rem; color: #64748b;">Icône circulaire + animation</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Icônes Circulaires -->
+        <div class="demo-section">
+            <h2>🔵 1. Icônes Circulaires Oranges (hover pour animation)</h2>
+            
+            <h3 style="margin: 1.5rem 0 1rem; color: #64748b;">Icônes Formulaire (40px)</h3>
+            <div class="icons-demo">
+                <div class="icon-item">
+                    <div class="label-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="icon-label">Utilisateur</div>
+                </div>
+                <div class="icon-item">
+                    <div class="label-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="icon-label">Email</div>
+                </div>
+                <div class="icon-item">
+                    <div class="label-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="icon-label">Téléphone</div>
+                </div>
+                <div class="icon-item">
+                    <div class="label-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="icon-label">Adresse</div>
+                </div>
+                <div class="icon-item">
+                    <div class="label-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="icon-label">Message</div>
+                </div>
+            </div>
+
+            <h3 style="margin: 2rem 0 1rem; color: #64748b;">Icônes Information (60px)</h3>
+            <div class="icons-demo">
+                <div class="icon-item">
+                    <div class="info-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="icon-label">Localisation</div>
+                </div>
+                <div class="icon-item">
+                    <div class="info-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="icon-label">Téléphone</div>
+                </div>
+                <div class="icon-item">
+                    <div class="info-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="icon-label">Email</div>
+                </div>
+                <div class="icon-item">
+                    <div class="info-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="icon-label">Horaires</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire -->
+        <div class="demo-section">
+            <h2>📝 2. Formulaire Amélioré</h2>
+            <div class="form-demo">
+                <div class="form-group">
+                    <label class="form-label">
+                        <div class="label-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        Nom Complet
+                    </label>
+                    <input type="text" class="form-input" placeholder="Votre nom complet">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <div class="label-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        Adresse Email
+                    </label>
+                    <input type="email" class="form-input" placeholder="votre@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <div class="label-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        Votre Message
+                    </label>
+                    <textarea class="form-textarea" placeholder="Décrivez votre demande..."></textarea>
+                </div>
+
+                <button class="submit-btn">
+                    <span>Envoyer</span>
+                    <i class="fas fa-paper-plane btn-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Cartes d'Information -->
+        <div class="demo-section">
+            <h2>💳 3. Cartes d'Information</h2>
+            <div class="cards-demo">
+                <div class="info-card highlight-card">
+                    <div class="info-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="info-content">
+                        <h4>Adresse Principale</h4>
+                        <p>Avenue Habib Bourguiba<br>Tunis, Tunisie 1000</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="info-content">
+                        <h4>Téléphone</h4>
+                        <p>+216 99 249 987<br>+216 12 345 678</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="info-content">
+                        <h4>Email</h4>
+                        <p>Sannyshop02@gmail.com<br>support@sanny.com</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="info-content">
+                        <h4>Horaires</h4>
+                        <p>Lun-Ven: 9h - 18h<br>Sam: 9h - 14h</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résumé -->
+        <div class="demo-section" style="background: linear-gradient(135deg, #ff6b35, #ff8c42); color: white;">
+            <h2 style="color: white;">✨ Résumé des Améliorations</h2>
+            <ul style="line-height: 2; font-size: 1.1rem; list-style-position: inside;">
+                <li>✅ Icônes circulaires oranges (40px et 60px)</li>
+                <li>✅ Icônes blanches à l'intérieur</li>
+                <li>✅ Ombres oranges autour des icônes</li>
+                <li>✅ Animations au survol fluides</li>
+                <li>✅ Formulaire avec effets focus</li>
+                <li>✅ Bouton submit pilule avec gradient</li>
+                <li>✅ Cartes avec barre latérale animée</li>
+                <li>✅ Design cohérent et professionnel</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

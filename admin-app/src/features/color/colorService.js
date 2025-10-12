@@ -1,10 +1,16 @@
 import axios from "axios";
 import { base_url } from "../../utils/baseUrl";
-import { config } from "../../utils/axiosconfig";
+import { config } from "../../utils/axiosConfig";
 
 const getColors = async () => {
   const response = await axios.get(`${base_url}color/`);
-
+  
+  // Extraire les couleurs de la réponse structurée
+  if (response.data.success && response.data.colors) {
+    return response.data.colors;
+  }
+  
+  // Fallback si la structure est différente
   return response.data;
 };
 const createColor = async (color) => {

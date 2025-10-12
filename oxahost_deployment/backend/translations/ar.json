@@ -1,0 +1,50 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "products": "المنتجات",
+    "categories": "الفئات",
+    "cart": "السلة",
+    "account": "حسابي",
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج"
+  },
+  "product": {
+    "name": "اسم المنتج",
+    "price": "السعر",
+    "description": "الوصف",
+    "add_to_cart": "أضف للسلة",
+    "buy_now": "اشتري الآن",
+    "out_of_stock": "غير متوفر"
+  },
+  "cart": {
+    "title": "سلتي",
+    "empty": "سلتك فارغة",
+    "total": "المجموع",
+    "checkout": "إتمام الطلب"
+  },
+  "form": {
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirm_password": "تأكيد كلمة المرور",
+    "first_name": "الاسم الأول",
+    "last_name": "اسم العائلة",
+    "phone": "الهاتف",
+    "address": "العنوان",
+    "submit": "إرسال",
+    "cancel": "إلغاء"
+  },
+  "message": {
+    "success": "تمت العملية بنجاح",
+    "error": "حدث خطأ",
+    "loading": "جاري التحميل..."
+  },
+  "admin": {
+    "dashboard": "لوحة التحكم",
+    "products": "إدارة المنتجات",
+    "users": "إدارة المستخدمين",
+    "orders": "إدارة الطلبات"
+  },
+  "language": {
+    "changed": "تم تغيير اللغة إلى العربية"
+  }
+}

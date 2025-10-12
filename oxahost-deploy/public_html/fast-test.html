@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 SANNY STORE - TEST RAPIDE</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .test-card { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            border-radius: 15px; 
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-fast { 
+            background: #ff6b35; 
+            color: white; 
+            border: none; 
+            padding: 15px 25px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            margin: 5px;
+            transition: all 0.1s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .btn-fast:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .btn-cart { background: #28a745; }
+        .btn-wishlist { background: #dc3545; }
+        .btn-main { background: #007bff; font-size: 18px; padding: 20px 30px; }
+        .status { 
+            margin-top: 10px; 
+            padding: 10px; 
+            border-radius: 5px; 
+            background: rgba(0,0,0,0.2);
+            min-height: 50px;
+        }
+        .product-demo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        .product-img {
+            width: 60px;
+            height: 60px;
+            background: #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 SANNY STORE - TEST ULTRA RAPIDE</h1>
+            <p>Testez tous les boutons panier et wishlist en un clic !</p>
+            <div id="auth-status" style="font-size: 18px; margin: 10px 0;"></div>
+        </div>
+        
+        <div class="test-grid">
+            <div class="test-card">
+                <h3>🔑 Connexion Express</h3>
+                <button class="btn-fast" onclick="autoLogin()">Connexion Automatique</button>
+                <button class="btn-fast" onclick="checkStatus()">Vérifier Status</button>
+                <div id="login-status" class="status"></div>
+            </div>
+            
+            <div class="test-card">
+                <h3>🛒 Test Panier Direct</h3>
+                <div class="product-demo">
+                    <div class="product-img">💻</div>
+                    <div>
+                        <strong>MacBook Pro M3</strong><br>
+                        <small>7635.97 TND</small>
+                    </div>
+                </div>
+                <button class="btn-fast btn-cart" onclick="testCartDirect()">Ajouter au Panier</button>
+                <button class="btn-fast" onclick="viewCart()">Voir Panier</button>
+                <div id="cart-status" class="status"></div>
+            </div>
+            
+            <div class="test-card">
+                <h3>❤️ Test Wishlist Direct</h3>
+                <div class="product-demo">
+                    <div class="product-img">💻</div>
+                    <div>
+                        <strong>MacBook Pro M3</strong><br>
+                        <small>Produit #22</small>
+                    </div>
+                </div>
+                <button class="btn-fast btn-wishlist" onclick="testWishlistDirect()">Toggle Wishlist</button>
+                <button class="btn-fast" onclick="viewWishlist()">Voir Wishlist</button>
+                <div id="wishlist-status" class="status"></div>
+            </div>
+            
+            <div class="test-card">
+                <h3>📱 Actions Principales</h3>
+                <button class="btn-fast btn-main" onclick="goToMainApp()">🏠 Application Principale</button>
+                <button class="btn-fast" onclick="openTestPage()">🧪 Page de Test API</button>
+                <button class="btn-fast" onclick="clearStorage()">🗑️ Reset Storage</button>
+                <div id="main-status" class="status"></div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+            <h3>🎯 Instructions Rapides</h3>
+            <p>1. Cliquez "Connexion Automatique" ✅</p>
+            <p>2. Testez "Ajouter au Panier" 🛒</p>
+            <p>3. Testez "Toggle Wishlist" ❤️</p>
+            <p>4. Allez à l'application principale 🚀</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:4000/api/';
+        let authToken = null;
+        
+        // Données utilisateur pour connexion rapide
+        const fastUserData = {
+            id: 6,
+            firstname: "Client",
+            lastname: "Test", 
+            email: "test@example.com",
+            mobile: "12345678",
+            role: "user",
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiaWF0IjoxNzU5MTUwODU4LCJleHAiOjE3NTkyMzcyNTh9.0IZi_F2zY60lUY_QrzlB7ZqEFwf5pZXFmKyIXHd1eX0"
+        };
+        
+        function updateStatus(elementId, message, success = true) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div style="color: ${success ? '#90EE90' : '#FF6B6B'}">${message}</div>`;
+        }
+        
+        function autoLogin() {
+            localStorage.setItem('customer', JSON.stringify(fastUserData));
+            localStorage.setItem('accessToken', fastUserData.token);
+            authToken = fastUserData.token;
+            
+            updateStatus('login-status', '✅ Connexion automatique réussie !');
+            updateStatus('auth-status', `🟢 Connecté: ${fastUserData.email}`);
+            
+            setTimeout(checkStatus, 500);
+        }
+        
+        function checkStatus() {
+            const customer = localStorage.getItem('customer');
+            if (customer) {
+                try {
+                    const userData = JSON.parse(customer);
+                    authToken = userData.token;
+                    updateStatus('auth-status', `🟢 Connecté: ${userData.email}`);
+                    updateStatus('login-status', '✅ Status: Authentifié et prêt !');
+                } catch (e) {
+                    updateStatus('auth-status', '🔴 Erreur parsing user data');
+                }
+            } else {
+                updateStatus('auth-status', '🔴 Non connecté');
+                updateStatus('login-status', '❌ Pas de données utilisateur');
+            }
+        }
+        
+        async function testCartDirect() {
+            if (!authToken) {
+                updateStatus('cart-status', '❌ Connectez-vous d\'abord !', false);
+                return;
+            }
+            
+            updateStatus('cart-status', '🔄 Ajout au panier en cours...');
+            
+            try {
+                const response = await fetch(API_BASE + 'user/cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        productId: 22,
+                        quantity: 1,
+                        price: 7635.97
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    updateStatus('cart-status', '🛒 ✅ Produit ajouté au panier !');
+                } else {
+                    const error = await response.json();
+                    updateStatus('cart-status', `❌ Erreur: ${error.message}`, false);
+                }
+            } catch (error) {
+                updateStatus('cart-status', `❌ Erreur réseau: ${error.message}`, false);
+            }
+        }
+        
+        async function testWishlistDirect() {
+            if (!authToken) {
+                updateStatus('wishlist-status', '❌ Connectez-vous d\'abord !', false);
+                return;
+            }
+            
+            updateStatus('wishlist-status', '🔄 Toggle wishlist en cours...');
+            
+            try {
+                const response = await fetch(API_BASE + 'product/wishlist', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        prodId: 22
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    updateStatus('wishlist-status', '❤️ ✅ Wishlist mise à jour !');
+                } else {
+                    const error = await response.json();
+                    updateStatus('wishlist-status', `❌ Erreur: ${error.message}`, false);
+                }
+            } catch (error) {
+                updateStatus('wishlist-status', `❌ Erreur réseau: ${error.message}`, false);
+            }
+        }
+        
+        async function viewCart() {
+            if (!authToken) {
+                updateStatus('cart-status', '❌ Connectez-vous d\'abord !', false);
+                return;
+            }
+            
+            try {
+                const response = await fetch(API_BASE + 'user/cart', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    const cart = await response.json();
+                    updateStatus('cart-status', `📦 Panier: ${cart.length} articles`);
+                }
+            } catch (error) {
+                updateStatus('cart-status', '❌ Erreur lecture panier', false);
+            }
+        }
+        
+        async function viewWishlist() {
+            if (!authToken) {
+                updateStatus('wishlist-status', '❌ Connectez-vous d\'abord !', false);
+                return;
+            }
+            
+            try {
+                const response = await fetch(API_BASE + 'user/wishlist', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    const wishlist = await response.json();
+                    updateStatus('wishlist-status', `💖 Wishlist: ${wishlist.length} articles`);
+                }
+            } catch (error) {
+                updateStatus('wishlist-status', '❌ Erreur lecture wishlist', false);
+            }
+        }
+        
+        function goToMainApp() {
+            updateStatus('main-status', '🚀 Ouverture application principale...');
+            window.open('http://localhost:3000', '_blank');
+        }
+        
+        function openTestPage() {
+            updateStatus('main-status', '🧪 Ouverture page test API...');
+            window.open('http://localhost:3000/test-boutons.html', '_blank');
+        }
+        
+        function clearStorage() {
+            localStorage.clear();
+            authToken = null;
+            updateStatus('main-status', '🗑️ Storage effacé');
+            updateStatus('auth-status', '🔴 Déconnecté');
+            checkStatus();
+        }
+        
+        // Initialisation
+        window.onload = function() {
+            checkStatus();
+            updateStatus('main-status', '⚡ Application de test prête !');
+        };
+    </script>
+</body>
+</html>

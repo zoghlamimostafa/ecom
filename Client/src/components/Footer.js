@@ -1,61 +1,133 @@
-// Footer.jsx
-import React from 'react';
-import { FaLinkedin, FaFacebook, FaYoutube, FaInstagram } from "react-icons/fa";
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
+import { FaFacebookF, FaInstagram, FaTiktok, FaLinkedinIn, FaArrowUp } from 'react-icons/fa';
+import { useTranslation } from '../contexts/TranslationContext';
+import logosanny from "../images/logosanny.png";
 
 const Footer = () => {
+  const { t } = useTranslation();
+  
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <footer className='footer-container'>
-      <div className='container'>
-        <div className='row'>
-          <div className='col-md-4 mb-4'>
-            <h4 className='footer-title'>Contactez-nous</h4>
-            <address className="footer-text">
-              Tunis<br />
-              <a href="tel:+216789654" className='footer-link'>+25369741</a><br />
-              <a href="mailto:sannyshop02@gmail.com" className='footer-link'>Sannyshop02@gmail.com</a>
-            </address>
-            <div className='social-icons mt-4'>
-              <a href="#" className="footer-link"><FaLinkedin /></a>
-              <a href="#" className="footer-link"><FaInstagram /></a>
-              <a href="#" className="footer-link"><FaFacebook /></a>
-              <a href="#" className="footer-link"><FaYoutube /></a>
+    <footer className="footer">
+      {/* Décoration du haut */}
+      <div className="footer-decoration"></div>
+      
+      <div className="container-xxl">
+        <div className="footer-content">
+          {/* Section principale */}
+          <div className="footer-main">
+            <div className="footer-column footer-brand">
+              <img src={logosanny} alt="Logo Sanny" className="footer-logo" />
+              <p className="footer-brand-description">
+                {t('footerDescription')}
+              </p>
+            </div>
+
+            <div className="footer-column">
+              <h5>{t('categories')}</h5>
+              <ul className="footer-links">
+                <li><Link to="/products?category=Auto">{t('automobiles')}</Link></li>
+                <li><Link to="/products?category=Beauté">{t('beauty')}</Link></li>
+                <li><Link to="/products?category=Informatique">{t('computers')}</Link></li>
+                <li><Link to="/products?category=Mode">{t('womenFashion')}</Link></li>
+              </ul>
+            </div>
+
+            <div className="footer-column">
+              <h5>{t('help')}</h5>
+              <ul className="footer-links">
+                <li><Link to="/contact">{t('contact')}</Link></li>
+                <li><Link to="/faq">{t('faq')}</Link></li>
+                <li><Link to="/about">{t('about')}</Link></li>
+                <li><Link to="/mentions-legales">{t('legalNotice')}</Link></li>
+              </ul>
+            </div>
+
+            <div className="footer-column footer-contact">
+              <h5>{t('contactUs')}</h5>
+              <div className="contact-info">
+                <div className="contact-item">
+                  <span>{t('location')}</span>
+                </div>
+                <div className="contact-item">
+                  <span>+216 99 249 987</span>
+                </div>
+                <div className="contact-item">
+                  <span>Sannyshop02@gmail.com</span>
+                </div>
+              </div>
+              
+              <div className="footer-social-section">
+                <h6>{t('followUs')}</h6>
+                <div className="footer-socials">
+                  <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="social-link">
+                    <FaFacebookF />
+                    <span>{t('facebook')}</span>
+                  </a>
+                  <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="social-link">
+                    <FaInstagram />
+                    <span>{t('instagram')}</span>
+                  </a>
+                  <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" aria-label="Tiktok" className="social-link">
+                    <FaTiktok />
+                    <span>{t('tiktok')}</span>
+                  </a>
+                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="social-link">
+                    <FaLinkedinIn />
+                    <span>{t('linkedin')}</span>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-          <div className='col-md-3 mb-4'>
-            <h4 className='footer-title'>Informations</h4>
-            <ul className='footer-list'>
-              <li><Link to="/privacy-policy" className="footer-link">Politique de confidentialité</Link></li>
-              <li><Link to="/refund-policy" className="footer-link">Politique de remboursement</Link></li>
-              <li><Link to="/shipping-policy" className="footer-link">Politique d'expédition</Link></li>
-              <li><Link to="/term-conditions" className="footer-link">Termes et conditions</Link></li>
-            </ul>
+
+          {/* Newsletter */}
+          <div className="footer-newsletter">
+            <div className="newsletter-content">
+              <h4>📧 {t('stayInformed')}</h4>
+              <p>{t('newsletterDescription')}</p>
+              <div className="newsletter-form">
+                <input 
+                  type="email" 
+                  placeholder={t('emailPlaceholder')} 
+                  className="newsletter-input"
+                />
+                <button className="newsletter-btn">{t('subscribeNewsletter')}</button>
+              </div>
+            </div>
           </div>
-          <div className='col-md-3 mb-4'>
-            <h4 className='footer-title'>Compte</h4>
-            <ul className='footer-list'>
-              <li><Link to="/proprs" className="footer-link">À propos</Link></li>
-              <li><Link to="/FAQ" className="footer-link">FAQ</Link></li>
-              <li><Link to="/contact" className="footer-link">Contact</Link></li>
-            </ul>
-          </div>
-          <div className='col-md-2 mb-4'>
-            <h4 className='footer-title'>Liens rapides</h4>
-            <ul className='footer-list'>
-              <li><Link to="/product" className="footer-link">Produits</Link></li>
-              <li><Link to="/cart" className="footer-link">Panier</Link></li>
-              <li><Link to="/checkout" className="footer-link">Commander</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div className='row'>
-          <div className='col-12 text-center'>
-            <p className='footer-text'>&copy;{new Date().getFullYear()} Sanny_Shop. Tous droits réservés.</p>
+
+          {/* Footer bottom */}
+          <div className="footer-bottom">
+            <div className="footer-bottom-content">
+              <div className="footer-copyright">
+                <p>&copy; {new Date().getFullYear()} Sanny Marketplace. {t('allRightsReserved')}</p>
+                <p className="developer-credit">
+                  <a href="https://el-makina.tn" target="_blank" rel="noopener noreferrer" className="developer-link">el-makina.tn</a>
+                </p>
+              </div>
+              <div className="footer-bottom-links">
+                <span>{t('securePayment')}</span>
+                <span>•</span>
+                <span>{t('fastDelivery')}</span>
+                <span>•</span>
+                <span>{t('support247')}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Bouton retour en haut */}
+      <button className="scroll-to-top" onClick={scrollToTop} aria-label={t('backToTop')}>
+        <FaArrowUp />
+      </button>
     </footer>
   );
-}
+};
 
 export default Footer;

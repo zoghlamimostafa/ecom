@@ -1,0 +1,27 @@
+/* CSS DE DEBUG POUR LE MENU - À ajouter temporairement dans App.css */
+
+/* Forcer l'affichage du panel pour débugger */
+.subcategories-horizontal-panel {
+  border: 5px solid red !important; /* Bordure rouge pour voir le panel */
+  background: yellow !important; /* Fond jaune pour le rendre très visible */
+}
+
+/* Toujours afficher le panel (pour débugger) */
+.category-item-with-subs .subcategories-horizontal-panel {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateX(0) !important;
+  pointer-events: auto !important;
+}
+
+/* Vérifier que le wrapper est visible */
+.subcategories-wrapper {
+  border: 3px solid blue !important;
+  background: lightblue !important;
+}
+
+/* Vérifier que la grille est visible */
+.subcategories-horizontal-grid {
+  border: 2px solid green !important;
+  background: lightgreen !important;
+}

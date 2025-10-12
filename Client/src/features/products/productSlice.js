@@ -27,13 +27,26 @@ export const getAProduct = createAsyncThunk(
 );
 
 // Action asynchrone pour ajouter un produit à la liste de souhaits
-export const addToWishlist = createAsyncThunk(
-  "product/wishlist",
-  async (prodId, thunkAPI) => {
+// DÉSACTIVÉ - Utiliser toggleProductWishlist dans userSlice à la place
+// export const addToWishlist = createAsyncThunk(
+//   "product/wishlist",
+//   async (prodId, thunkAPI) => {
+//     try {
+//       return await productService.addToWishlist(prodId);
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue('Failed to add product to wishlist');
+//     }
+//   }
+// );
+
+// Action asynchrone pour récupérer la wishlist
+export const getWishlist = createAsyncThunk(
+  "product/get-wishlist",
+  async (_, thunkAPI) => {
     try {
-      return await productService.addToWishlist(prodId);
+      return await productService.getWishlist();
     } catch (error) {
-      return thunkAPI.rejectWithValue('Failed to add product to wishlist');
+      return thunkAPI.rejectWithValue('Failed to fetch wishlist');
     }
   }
 );
@@ -53,6 +66,11 @@ export const addRating = createAsyncThunk(
 // État initial
 const productState = {
   product: [], // Changed from "" to [] to ensure it's always an array
+  featured: [],
+  popular: [],
+  special: [],
+  supermarket: [],
+  wishlist: [],
   isError: false,
   isSuccess: false,
   isLoading: false,
@@ -79,22 +97,68 @@ export const productSlice = createSlice({
       .addCase(getAllProducts.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload || action.error.message; // Utilisation de `payload` pour l'erreur personnalisée
+        state.isSuccess = false;
+        state.message = action.error;
       })
-      .addCase(addToWishlist.pending, (state) => {
+      .addCase(getFeaturedProducts.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(addToWishlist.fulfilled, (state, action) => {
+      .addCase(getFeaturedProducts.fulfilled, (state, action) => {
         state.isLoading = false;
+        state.isError = false;
         state.isSuccess = true;
-        state.message = "Product Added to Wishlist";
-        toast.success("Product Added to Wishlist");
+        state.featured = action.payload;
       })
-      .addCase(addToWishlist.rejected, (state, action) => {
+      .addCase(getFeaturedProducts.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload || action.error.message;
-        toast.error(state.message);
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(getPopularProducts.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getPopularProducts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.popular = action.payload;
+      })
+      .addCase(getPopularProducts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(getSpecialProducts.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getSpecialProducts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.special = action.payload;
+      })
+      .addCase(getSpecialProducts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(getSupermarketProducts.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getSupermarketProducts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.supermarket = action.payload;
+      })
+      .addCase(getSupermarketProducts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
       })
       .addCase(getAProduct.pending, (state) => {
         state.isLoading = true;
@@ -127,8 +191,85 @@ export const productSlice = createSlice({
         state.isSuccess = false;
         state.message = action.payload || action.error.message;
         toast.error(state.message);
+      })
+      // DÉSACTIVÉ - Utiliser toggleProductWishlist dans userSlice à la place
+      // .addCase(addToWishlist.pending, (state) => {
+      //   state.isLoading = true;
+      // })
+      // .addCase(addToWishlist.fulfilled, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isSuccess = true;
+      //   state.message = "Product Added to Wishlist";
+      //   // Refresh wishlist after adding
+      //   if (action.payload && action.payload.wishlist) {
+      //     state.wishlist = action.payload.wishlist;
+      //   }
+      //   toast.success("Product Added to Wishlist");
+      // })
+      // .addCase(addToWishlist.rejected, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isError = true;
+      //   state.message = action.payload || action.error.message;
+      //   toast.error(state.message);
+      // })
+      .addCase(getWishlist.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getWishlist.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.wishlist = action.payload || [];
+      })
+      .addCase(getWishlist.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload || action.error.message;
       });
   }
 });
+
+export const getFeaturedProducts = createAsyncThunk(
+  "product/get-featured",
+  async (thunkAPI) => {
+    try {
+      return await productService.getProducts({ tags: "featured" });
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getPopularProducts = createAsyncThunk(
+  "product/get-popular",
+  async (thunkAPI) => {
+    try {
+      return await productService.getProducts({ tags: "popular" });
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getSpecialProducts = createAsyncThunk(
+  "product/get-special",
+  async (thunkAPI) => {
+    try {
+      return await productService.getProducts({ tags: "special" });
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getSupermarketProducts = createAsyncThunk(
+  "product/get-supermarket",
+  async (thunkAPI) => {
+    try {
+      return await productService.getProducts({ tags: "supermarcher" });
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
 
 export default productSlice.reducer;

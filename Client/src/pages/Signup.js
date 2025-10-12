@@ -1,52 +1,47 @@
-import React from 'react';
-import BrandCrumb from '../components/BrandCrumb';
-import Meta from '../components/Meta';
+import React, { useEffect, useState } from 'react';
 import { useFormik } from "formik";
 import * as yup from "yup";
-import CustomInput from '../components/CustomInput';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from '../contexts/TranslationContext';
 import { registerUser } from '../features/user/userSlice';
-import Container from '../components/Container';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import PhoneInput, { validateInternationalPhone } from '../components/PhoneInput';
+import logo from '../images/logosanny.png';
 
 const Signup = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { isLoading, isError, errorMessage, isSuccess } = useSelector((state) => state.auth);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
-  // Validation schema using Yup
-  const personSchema = yup.object({
-    firstname: yup.string().required("First Name is Required"),
-    lastname: yup.string().required("Last Name is Required"),
-    email: yup.string().nullable().email("Email Should be valid").required("Email Adress is Required"),
-    mobile: yup.string().required("Mobile No is Required"),
-    password: yup.string().required("Password is Required"),
+  // Schema de validation
+  const signupSchema = yup.object({
+    firstname: yup.string()
+      .min(2, t('firstnameTooShort'))
+      .required(t('firstnameRequired')),
+    lastname: yup.string()
+      .min(2, t('lastnameTooShort'))
+      .required(t('lastnameRequired')),
+    email: yup.string()
+      .email(t('invalidEmail'))
+      .required(t('emailRequired')),
+    mobile: yup.string()
+      .test('international-phone', 'Format de numéro de téléphone invalide', function(value) {
+        if (!value) return false;
+        return validateInternationalPhone(value);
+      })
+      .required(t('phoneRequired')),
+    password: yup.string()
+      .min(6, t('passwordTooShort'))
+      .required(t('passwordRequired')),
+    confirmPassword: yup.string()
+      .oneOf([yup.ref('password'), null], t('passwordsDoNotMatch'))
+      .required(t('confirmPasswordRequired')),
   });
 
-  // Handle form submission
-  const onSubmit = async (values) => {
-    try {
-      // Validation before dispatching the form data
-      await personSchema.validate(values, { abortEarly: false });
-
-      const formData = {
-        firstname: values.firstname,
-        lastname: values.lastname,
-        email: values.email,
-        mobile: values.mobile,
-        password: values.password
-      };
-
-      // Dispatch the register action
-      await dispatch(registerUser(formData)); // Assurez-vous que `registerUser` est une fonction asynchrone
-
-      // Redirect to the login page after successful registration
-      navigate('/login'); // Redirection vers la page de connexion
-    } catch (error) {
-      console.error('Error during form submission:', error);
-      // Vous pouvez gérer l'affichage d'une erreur ici si la validation échoue
-    }
-  };
-
+  // Formik configuration
   const formik = useFormik({
     initialValues: {
       firstname: "",
@@ -54,98 +49,208 @@ const Signup = () => {
       email: "",
       mobile: "",
       password: "",
+      confirmPassword: "",
     },
-    validationSchema: personSchema,
-    onSubmit: onSubmit, // Submit handler
+    validationSchema: signupSchema,
+    onSubmit: (values) => {
+      const { confirmPassword, ...formData } = values;
+      dispatch(registerUser(formData));
+    },
   });
 
+  useEffect(() => {
+    if (isSuccess) {
+      setShowSuccessMessage(true);
+      toast.success('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
+      setTimeout(() => {
+        navigate('/my-Profile');
+      }, 2000);
+    }
+    if (isError) {
+      toast.error(errorMessage || 'Erreur lors de la création du compte. Veuillez réessayer.');
+    }
+  }, [isSuccess, isError, errorMessage, navigate]);
+
   return (
-    <>
-      <Meta title={"SignUp"} />
-      <BrandCrumb title="SignUp" />
-      <Container class1='login-wrapper py-5 home-wrapper-2'>
-        <div className='row justify-content-center'>
-          <div className='col-md-6'>
-            <div className='auth-card p-4'>
-              <h3 className='text-center mb-3'>S'inscrire</h3>
-              <form onSubmit={formik.handleSubmit} className='d-flex flex-column gap-3'>
-                <CustomInput
-                  type='text'
+    <div className="signup-bg">
+      <div className="signup-card modern-signup-card">
+        <div className="modern-signup-header">
+          <img 
+            src={logo} 
+            alt="Logo Sanny" 
+            className="modern-signup-logo"
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
+          />
+          <h2 className="modern-signup-title">{t('createAccount')}</h2>
+          <p className="modern-signup-subtitle">Rejoignez la communauté Sanny</p>
+        </div>
+
+        {showSuccessMessage ? (
+          <div className="success-message">
+            <div className="success-icon">
+              <i className="fas fa-check-circle"></i>
+            </div>
+            <h3>{t('accountCreatedSuccessfully')}</h3>
+            <p>{t('redirectingToLogin')}</p>
+            <div className="loading-spinner"></div>
+          </div>
+        ) : (
+          <form onSubmit={formik.handleSubmit} className="modern-signup-form">
+            <div className="modern-form-row">
+              <div className="modern-form-group">
+                <label htmlFor="firstname" className="modern-label">
+                  <i className="fas fa-user"></i>
+                  {t('firstname')}
+                </label>
+                <input
+                  type="text"
+                  id="firstname"
                   name="firstname"
-                  placeholder='Prénom'
-                  className='form-control'
+                  placeholder="Votre prénom"
                   value={formik.values.firstname}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
+                  className={`modern-input ${formik.touched.firstname && formik.errors.firstname ? 'error' : ''}`}
                 />
-                {formik.touched.firstname && formik.errors.firstname ? (
-                  <div className='error'>{formik.errors.firstname}</div>
-                ) : null}
+                {formik.touched.firstname && formik.errors.firstname && (
+                  <div className="modern-error">
+                    <i className="fas fa-exclamation-circle"></i>
+                    {formik.errors.firstname}
+                  </div>
+                )}
+              </div>
 
-                <CustomInput
-                  type='text'
+              <div className="modern-form-group">
+                <label htmlFor="lastname" className="modern-label">
+                  <i className="fas fa-user"></i>
+                  Nom
+                </label>
+                <input
+                  type="text"
+                  id="lastname"
                   name="lastname"
-                  placeholder='Nom de famille'
-                  className='form-control'
+                  placeholder="Votre nom"
                   value={formik.values.lastname}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
+                  className={`modern-input ${formik.touched.lastname && formik.errors.lastname ? 'error' : ''}`}
                 />
-                {formik.touched.lastname && formik.errors.lastname ? (
-                  <div className='error'>{formik.errors.lastname}</div>
-                ) : null}
+                {formik.touched.lastname && formik.errors.lastname && (
+                  <div className="modern-error">
+                    <i className="fas fa-exclamation-circle"></i>
+                    {formik.errors.lastname}
+                  </div>
+                )}
+              </div>
+            </div>
 
-                <CustomInput
-                  type='email'
-                  name="email"
-                  placeholder='E-mail'
-                  className='form-control'
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                {formik.touched.email && formik.errors.email ? (
-                  <div className='error'>{formik.errors.email}</div>
-                ) : null}
+            <div className="modern-form-group">
+              <label htmlFor="email" className="modern-label">
+                <i className="fas fa-envelope"></i>
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="votre@email.com"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className={`modern-input ${formik.touched.email && formik.errors.email ? 'error' : ''}`}
+              />
+              {formik.touched.email && formik.errors.email && (
+                <div className="modern-error">
+                  <i className="fas fa-exclamation-circle"></i>
+                  {formik.errors.email}
+                </div>
+              )}
+            </div>
 
-                <CustomInput
-                  type='tel'
-                  name="mobile"
-                  placeholder='Mobile'
-                  className='form-control'
-                  value={formik.values.mobile}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                {formik.touched.mobile && formik.errors.mobile ? (
-                  <div className='error'>{formik.errors.mobile}</div>
-                ) : null}
+            <div className="modern-form-group">
+              <label htmlFor="mobile" className="modern-label">
+                <i className="fas fa-phone"></i>
+                Téléphone
+              </label>
+              <PhoneInput
+                name="mobile"
+                value={formik.values.mobile}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.errors.mobile}
+                touched={formik.touched.mobile}
+                placeholder="Entrez votre numéro"
+              />
+            </div>
 
-                <CustomInput
-                  type='password'
+            <div className="modern-form-row">
+              <div className="modern-form-group">
+                <label htmlFor="password" className="modern-label">
+                  <i className="fas fa-lock"></i>
+                  Mot de passe
+                </label>
+                <input
+                  type="password"
+                  id="password"
                   name="password"
-                  placeholder='Mot de passe'
-                  className='form-control'
+                  placeholder="••••••••"
                   value={formik.values.password}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
+                  className={`modern-input ${formik.touched.password && formik.errors.password ? 'error' : ''}`}
                 />
-                {formik.touched.password && formik.errors.password ? (
-                  <div className='error'>{formik.errors.password}</div>
-                ) : null}
+                {formik.touched.password && formik.errors.password && (
+                  <div className="modern-error">
+                    <i className="fas fa-exclamation-circle"></i>
+                    {formik.errors.password}
+                  </div>
+                )}
+              </div>
 
-                <div className='mt-3 d-flex justify-content-center'>
-                  <button type="submit" className='button border-0'>S'inscrire</button>
-                </div>
-                <div className='text-center'>
-                  <p className='mb-0 mt-3'>Vous avez déjà un compte ? <Link className='signup-link' to="/login">Se connecter</Link></p>
-                </div>
-              </form>
+              <div className="modern-form-group">
+                <label htmlFor="confirmPassword" className="modern-label">
+                  <i className="fas fa-lock"></i>
+                  {t('confirm')}
+                </label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="••••••••"
+                  value={formik.values.confirmPassword}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={`modern-input ${formik.touched.confirmPassword && formik.errors.confirmPassword ? 'error' : ''}`}
+                />
+                {formik.touched.confirmPassword && formik.errors.confirmPassword && (
+                  <div className="modern-error">
+                    <i className="fas fa-exclamation-circle"></i>
+                    {formik.errors.confirmPassword}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
-      </Container>
-    </>
+
+            <button type="submit" className="modern-signup-btn" disabled={isLoading}>
+              <i className="fas fa-user-plus"></i>
+              {isLoading ? t('creatingAccount') : t('createAccount')}
+            </button>
+
+            <div className="modern-login-section">
+              <div className="modern-divider">
+                <span>{t('alreadyHaveAccount')}</span>
+              </div>
+              <Link to="/my-Profile" className="modern-login-link">
+                <i className="fas fa-sign-in-alt"></i>
+                {t('login')}
+              </Link>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
   );
 };
 

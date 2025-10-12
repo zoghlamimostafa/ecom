@@ -1,9 +1,15 @@
 import axios from "axios";
-import { getConfig } from "../../utils/axiosconfig";
+import { getConfig } from "../../utils/axiosConfig";
 import { base_url } from "../../utils/baseUrl";
 const getBrands = async () => {
   const response = await axios.get(`${base_url}brand/`);
-
+  
+  // Extraire les marques de la réponse structurée
+  if (response.data.success && response.data.brands) {
+    return response.data.brands;
+  }
+  
+  // Fallback si la structure est différente
   return response.data;
 };
 

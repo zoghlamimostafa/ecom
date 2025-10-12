@@ -1,0 +1,1070 @@
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+import { createOrder } from '../features/user/userSlice';
+import Container from '../components/Container';
+import Meta from '../components/Meta';
+import './Checkout.css';
+
+const shippingSchema = yup.object({
+    firstName: yup.string().required("Le prénom est requis"),
+    lastName: yup.string().required("Le nom de famille est requis"),
+    address: yup.string().required("L'adresse est requise"),
+    city: yup.string().required("La ville est requise"),
+    zipcode: yup.string().required("Le code postal est requis"),
+});
+
+const Checkout = () => {
+    const dispatch = useDispatch();
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card');
+    const [productOptions, setProductOptions] = useState({});
+    
+    const cartState = useSelector(state => state.auth.cartProducts);
+    const buyNowItem = useSelector(state => state.auth.buyNowItem);
+    const itemsToDisplay = buyNowItem ? [buyNowItem] : cartState;
+    
+    // Frais de livraison standard
+    const shippingCost = 8.00;
+    
+    // Calcul du sous-total (prix des produits uniquement)
+    const subtotal = itemsToDisplay?.reduce((acc, item) => {
+        const qty = productOptions[item._id]?.quantity || item.quantity;
+        return acc + (item.price * qty);
+    }, 0) || 0;
+    
+    // Total avec livraison
+    const totalPrice = subtotal + shippingCost;
+
+    // Couleurs disponibles
+    const availableColors = [
+        { id: 'black', name: 'Noir', class: 'color-black' },
+        { id: 'white', name: 'Blanc', class: 'color-white' },
+        { id: 'red', name: 'Rouge', class: 'color-red' },
+        { id: 'blue', name: 'Bleu', class: 'color-blue' },
+        { id: 'green', name: 'Vert', class: 'color-green' },
+        { id: 'orange', name: 'Orange', class: 'color-orange' }
+    ];
+
+    // Tailles disponibles
+    const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+    // Fonction pour mettre à jour les options d'un produit
+    const updateProductOption = (productId, optionType, value) => {
+        setProductOptions(prev => ({
+            ...prev,
+            [productId]: {
+                ...prev[productId],
+                [optionType]: value
+            }
+        }));
+    };
+
+    // Fonction pour obtenir les options d'un produit
+    const getProductOptions = (productId) => {
+        // Si les options n'existent pas encore, initialiser avec la quantité du panier
+        if (!productOptions[productId]) {
+            const item = itemsToDisplay.find(i => i._id === productId);
+            return {
+                color: availableColors[0].id,
+                size: 'M',
+                quantity: item?.quantity || 1
+            };
+        }
+        return productOptions[productId];
+    };
+
+    const formik = useFormik({
+        initialValues: {
+            firstName: '',
+            lastName: '',
+            address: '',
+            city: '',
+            zipcode: '',
+        },
+        validationSchema: shippingSchema,
+        onSubmit: (values) => {
+            // Mettre à jour les quantités dans les items avec les options sélectionnées
+            const updatedItems = itemsToDisplay.map(item => ({
+                ...item,
+                quantity: productOptions[item._id]?.quantity || item.quantity,
+                selectedColor: productOptions[item._id]?.color,
+                selectedSize: productOptions[item._id]?.size
+            }));
+            
+            const orderData = {
+                shippingInfo: values,
+                orderItems: updatedItems,
+                subtotal: subtotal,
+                shippingCost: shippingCost,
+                totalPrice: totalPrice,
+                paymentInfo: {
+                    method: selectedPaymentMethod,
+                    status: "Payé",
+                }
+            };
+            dispatch(createOrder(orderData));
+        },
+    });
+
+    return (
+        <>
+            <Meta title={"Paiement"} />
+            <div className="checkout-simple-wrapper">
+                <Container class1='py-4'>
+                    <h2 className="text-center mb-4">Finaliser votre commande</h2>
+                    <div className="row g-4">
+                        {/* Détails de commande - Gauche */}
+                        <div className="col-12 col-lg-7">
+                            {/* Informations de livraison */}
+                            <div className="simple-card mb-3">
+                                <h5 className="mb-3">Adresse de livraison</h5>
+                                <form onSubmit={formik.handleSubmit}>
+                                    <div className="row g-3">
+                                        <div className="col-md-6">
+                                            <label htmlFor="firstName" className="form-label">Prénom *</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="firstName" 
+                                                    name="firstName" 
+                                                    className={`form-control ${formik.touched.firstName && formik.errors.firstName ? 'is-invalid' : ''}`}
+                                                    {...formik.getFieldProps('firstName')} 
+                                                />
+                                                {formik.touched.firstName && formik.errors.firstName && (
+                                                    <div className="invalid-feedback">{formik.errors.firstName}</div>
+                                                )}
+                                            </div>
+                                        <div className="col-md-6">
+                                            <label htmlFor="lastName" className="form-label">Nom *</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="lastName" 
+                                                    name="lastName" 
+                                                    className={`form-control ${formik.touched.lastName && formik.errors.lastName ? 'is-invalid' : ''}`}
+                                                    {...formik.getFieldProps('lastName')} 
+                                                />
+                                                {formik.touched.lastName && formik.errors.lastName && (
+                                                    <div className="invalid-feedback">{formik.errors.lastName}</div>
+                                                )}
+                                            </div>
+                                        <div className="col-12">
+                                            <label htmlFor="address" className="form-label">Adresse *</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="address" 
+                                                    name="address" 
+                                                    className={`form-control ${formik.touched.address && formik.errors.address ? 'is-invalid' : ''}`}
+                                                    {...formik.getFieldProps('address')} 
+                                                />
+                                                {formik.touched.address && formik.errors.address && (
+                                                    <div className="invalid-feedback">{formik.errors.address}</div>
+                                                )}
+                                            </div>
+                                        <div className="col-md-6">
+                                            <label htmlFor="city" className="form-label">Ville *</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="city" 
+                                                    name="city" 
+                                                    className={`form-control ${formik.touched.city && formik.errors.city ? 'is-invalid' : ''}`}
+                                                    {...formik.getFieldProps('city')} 
+                                                />
+                                                {formik.touched.city && formik.errors.city && (
+                                                    <div className="invalid-feedback">{formik.errors.city}</div>
+                                                )}
+                                            </div>
+                                        <div className="col-md-6">
+                                            <label htmlFor="zipcode" className="form-label">Code Postal *</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="zipcode" 
+                                                    name="zipcode" 
+                                                    className={`form-control ${formik.touched.zipcode && formik.errors.zipcode ? 'is-invalid' : ''}`}
+                                                    {...formik.getFieldProps('zipcode')} 
+                                                />
+                                            {formik.touched.zipcode && formik.errors.zipcode && (
+                                                <div className="invalid-feedback">{formik.errors.zipcode}</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            {/* Méthode de paiement */}
+                            <div className="simple-card">
+                                <h5 className="mb-3">Méthode de paiement</h5>
+                                <div className="payment-methods">
+                                    <label className="payment-option">
+                                        <input 
+                                            type="radio" 
+                                            name="payment" 
+                                            value="card"
+                                            checked={selectedPaymentMethod === 'card'}
+                                            onChange={() => setSelectedPaymentMethod('card')}
+                                        />
+                                        <span className="ms-2">Carte bancaire</span>
+                                    </label>
+                                    <label className="payment-option">
+                                        <input 
+                                            type="radio" 
+                                            name="payment" 
+                                            value="cod"
+                                            checked={selectedPaymentMethod === 'cod'}
+                                            onChange={() => setSelectedPaymentMethod('cod')}
+                                        />
+                                        <span className="ms-2">Paiement à la livraison</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Facture - Droite */}
+                        <div className="col-12 col-lg-5">
+                            <div className="simple-card sticky-summary">
+                                <h5 className="mb-3">Récapitulatif</h5>
+                                
+                                {/* Liste produits */}
+                                {itemsToDisplay && itemsToDisplay.length > 0 && (
+                                    <div className="product-list mb-3">
+                                    <div className="card-body">
+                                        {itemsToDisplay.map((item, index) => {
+                                            const currentOptions = getProductOptions(item._id);
+                                            return (
+                                                <div key={item._id} className="product-options mb-4">
+                                                    <div className="row">
+                                                        <div className="col-md-3 col-sm-4 mb-3">
+                                                            <img 
+                                                                src={item.images?.[0]?.url || "https://via.placeholder.com/100"} 
+                                                                alt={item.title}
+                                                                className="img-fluid rounded"
+                                                                style={{maxHeight: '80px', objectFit: 'cover'}}
+                                                            />
+                                                        </div>
+                                                        <div className="col-md-9 col-sm-8">
+                                                            <h6 className="mb-2">{item.title}</h6>
+                                                            
+                                                            {/* Sélection de couleur */}
+                                                            <div className="color-selection mb-3">
+                                                                <div className="color-selection-title">
+                                                                    <i className="fas fa-palette me-1"></i>
+                                                                    Couleur
+                                                                </div>
+                                                                <div className="color-options">
+                                                                    {availableColors.map(color => (
+                                                                        <div
+                                                                            key={color.id}
+                                                                            className={`color-option ${color.class} ${
+                                                                                currentOptions.color === color.id ? 'selected' : ''
+                                                                            }`}
+                                                                            onClick={() => updateProductOption(item._id, 'color', color.id)}
+                                                                            title={color.name}
+                                                                        />
+                                                                    ))}
+                                                                </div>
+                                                                {currentOptions.color && (
+                                                                    <div className="selected-color-info">
+                                                                        <i className="fas fa-check-circle me-1"></i>
+                                                                        Couleur sélectionnée: {availableColors.find(c => c.id === currentOptions.color)?.name}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Sélection de taille (pour les vêtements/chaussures) */}
+                                                            {(item.category === 'clothing' || item.tags?.includes('shoes') || item.tags?.includes('clothing')) && (
+                                                                <div className="size-selection mb-3">
+                                                                    <div className="size-selection-title">
+                                                                        <i className="fas fa-ruler me-1"></i>
+                                                                        Taille
+                                                                    </div>
+                                                                    <div className="size-options">
+                                                                        {availableSizes.map(size => (
+                                                                            <div
+                                                                                key={size}
+                                                                                className={`size-option ${
+                                                                                    currentOptions.size === size ? 'selected' : ''
+                                                                                }`}
+                                                                                onClick={() => updateProductOption(item._id, 'size', size)}
+                                                                            >
+                                                                                {size}
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Sélection de quantité */}
+                                                            <div className="quantity-selection">
+                                                                <div className="quantity-selection-title">
+                                                                    <i className="fas fa-sort-numeric-up me-1"></i>
+                                                                    Quantité
+                                                                </div>
+                                                                <div className="quantity-controls">
+                                                                    <div className="quantity-input-group">
+                                                                        <button 
+                                                                            type="button"
+                                                                            className="quantity-btn"
+                                                                            onClick={() => {
+                                                                                if (currentOptions.quantity > 1) {
+                                                                                    updateProductOption(item._id, 'quantity', currentOptions.quantity - 1);
+                                                                                }
+                                                                            }}
+                                                                            disabled={currentOptions.quantity <= 1}
+                                                                        >
+                                                                            -
+                                                                        </button>
+                                                                        <input 
+                                                                            type="number"
+                                                                            className="quantity-input"
+                                                                            value={currentOptions.quantity}
+                                                                            onChange={(e) => {
+                                                                                const newQty = parseInt(e.target.value) || 1;
+                                                                                if (newQty >= 1 && newQty <= 10) {
+                                                                                    updateProductOption(item._id, 'quantity', newQty);
+                                                                                }
+                                                                            }}
+                                                                            min="1"
+                                                                            max="10"
+                                                                        />
+                                                                        <button 
+                                                                            type="button"
+                                                                            className="quantity-btn"
+                                                                            onClick={() => {
+                                                                                if (currentOptions.quantity < 10) {
+                                                                                    updateProductOption(item._id, 'quantity', currentOptions.quantity + 1);
+                                                                                }
+                                                                            }}
+                                                                            disabled={currentOptions.quantity >= 10}
+                                                                        >
+                                                                            +
+                                                                        </button>
+                                                                    </div>
+                                                                    <div className="stock-info">
+                                                                        {item.quantity > 10 ? 'En stock' : 
+                                                                         item.quantity > 0 ? `${item.quantity} restant(s)` : 
+                                                                         'Rupture de stock'}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {index < itemsToDisplay.length - 1 && <hr className="my-3" />}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Méthodes de paiement */}
+                            <div className="card shadow-sm">
+                                <div className="card-header" style={{background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)'}}>
+                                    <h4 className="mb-0" style={{color: 'white'}}>
+                                        <i className="fas fa-credit-card me-2"></i>
+                                        Méthode de Paiement
+                                    </h4>
+                                </div>
+                                <div className="card-body">
+                                    <div className="row g-3">
+                                        {/* Carte de crédit */}
+                                        <div className="col-md-4">
+                                            <div 
+                                                className={`payment-card card h-100 ${selectedPaymentMethod === 'card' ? 'border-primary shadow' : 'border-light'}`}
+                                                style={{cursor: 'pointer'}}
+                                                onClick={() => setSelectedPaymentMethod('card')}
+                                            >
+                                                <div className="card-body text-center py-4">
+                                                    <div className="payment-icon mb-3">
+                                                        <i className="fas fa-credit-card fa-2x text-primary"></i>
+                                                    </div>
+                                                    <h6 className="mb-2">Carte Bancaire</h6>
+                                                    <div className="payment-logos">
+                                                        <i className="fab fa-cc-visa me-1 text-info"></i>
+                                                        <i className="fab fa-cc-mastercard me-1 text-warning"></i>
+                                                        <i className="fab fa-cc-amex text-success"></i>
+                                                    </div>
+                                                    {selectedPaymentMethod === 'card' && (
+                                                        <div className="mt-2">
+                                                            <i className="fas fa-check-circle text-success"></i>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Paiement à la livraison */}
+                                        <div className="col-md-4">
+                                            <div 
+                                                className={`payment-card card h-100 ${selectedPaymentMethod === 'cod' ? 'border-primary shadow' : 'border-light'}`}
+                                                style={{cursor: 'pointer'}}
+                                                onClick={() => setSelectedPaymentMethod('cod')}
+                                            >
+                                                <div className="card-body text-center py-4">
+                                                    <div className="payment-icon mb-3">
+                                                        <i className="fas fa-money-bill-wave fa-2x text-success"></i>
+                                                    </div>
+                                                    <h6 className="mb-2">À la livraison</h6>
+                                                    <small className="text-muted">Espèces</small>
+                                                    {selectedPaymentMethod === 'cod' && (
+                                                        <div className="mt-2">
+                                                            <i className="fas fa-check-circle text-success"></i>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Code promo */}
+                                    <div className="promo-code-section mt-4">
+                                        <div className="card" style={{background: 'linear-gradient(135deg, #fff8e1 0%, #ffe082 100%)', border: '2px dashed #ffd54f'}}>
+                                            <div className="card-body">
+                                                <div className="d-flex align-items-center">
+                                                    <i className="fas fa-tag text-warning me-3" style={{fontSize: '1.5rem'}}></i>
+                                                    <div className="flex-grow-1">
+                                                        <h6 className="mb-1 fw-bold">Vous avez un code promo ?</h6>
+                                                        <small className="text-muted">Entrez-le pour bénéficier d'une réduction</small>
+                                                    </div>
+                                                </div>
+                                                <div className="input-group mt-3">
+                                                    <input 
+                                                        type="text" 
+                                                        className="form-control" 
+                                                        placeholder="CODE-PROMO"
+                                                        style={{borderRadius: '10px 0 0 10px', border: '2px solid #ffd54f'}}
+                                                    />
+                                                    <button 
+                                                        className="btn btn-warning fw-bold" 
+                                                        type="button"
+                                                        style={{borderRadius: '0 10px 10px 0'}}
+                                                    >
+                                                        <i className="fas fa-check me-1"></i>
+                                                        Appliquer
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Informations de sécurité */}
+                                    <div className="security-info mt-4 p-3 bg-light rounded">
+                                        <div className="d-flex align-items-center">
+                                            <i className="fas fa-shield-alt text-success me-2"></i>
+                                            <span className="small text-muted">
+                                                Tous les paiements sont cryptés et sécurisés. Vos informations de paiement ne sont jamais stockées.
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Bouton de paiement */}
+                                    <div className="mt-4">
+                                        <button 
+                                            type="submit" 
+                                            className="btn btn-primary btn-lg w-100 py-3"
+                                            onClick={formik.handleSubmit}
+                                            style={{
+                                                background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+                                                border: 'none',
+                                                borderRadius: '10px',
+                                                fontSize: '1.1rem',
+                                                fontWeight: '600'
+                                            }}
+                                        >
+                                            <i className="fas fa-lock me-2"></i>
+                                            Finaliser le Paiement - {totalPrice.toFixed(2)} TND
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Résumé de commande */}
+                        <div className="col-12 col-xl-4 order-1 order-xl-2">
+                            <div className="summary-card position-sticky" style={{top: '20px'}}>
+                                <div className="card-header-custom">
+                                    <h5 className="mb-0">
+                                        <i className="fas fa-shopping-bag me-2"></i>
+                                        Résumé de Commande
+                                    </h5>
+                                </div>
+                                <div className="p-3 p-md-4">
+                                    <div className="order-items">
+                                        {itemsToDisplay?.map((item) => {
+                                            const currentQty = productOptions[item._id]?.quantity || item.quantity;
+                                            return (
+                                                <div key={item._id} className="order-item-card">
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="product-image me-3 flex-shrink-0">
+                                                            <img 
+                                                                src={item.images?.[0]?.url || "https://via.placeholder.com/60"} 
+                                                                alt={item.title} 
+                                                                className="rounded"
+                                                                style={{width: '50px', height: '50px', objectFit: 'cover'}}
+                                                            />
+                                                        </div>
+                                                        <div className="item-details flex-grow-1">
+                                                            <h6 className="mb-1">{item.title}</h6>
+                                                            <div className="d-flex justify-content-between">
+                                                                <span className="text-muted small">Qté: {currentQty}</span>
+                                                                <span className="fw-bold" style={{color: '#000000'}}>{(item.price * currentQty).toFixed(2)} TND</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    <hr className="my-3"/>
+
+                                    {/* Calculs */}
+                                    <div className="order-calculations">
+                                        <div className="d-flex justify-content-between mb-2">
+                                            <span>Sous-total</span>
+                                            <span>{subtotal.toFixed(2)} TND</span>
+                                        </div>
+                                        <div className="d-flex justify-content-between mb-2">
+                                            <span>Livraison</span>
+                                            <span className="fw-bold" style={{color: '#000000'}}>{shippingCost.toFixed(2)} TND</span>
+                                        </div>
+                                        <div className="d-flex justify-content-between mb-2">
+                                            <span>TVA incluse</span>
+                                            <span>{(subtotal * 0.19).toFixed(2)} TND</span>
+                                        </div>
+                                    </div>
+
+                                    <hr className="my-3"/>
+
+                                    <div className="total-section">
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <h5 className="mb-0">Total</h5>
+                                            <h4 className="mb-0 fw-bold" style={{color: '#000000'}}>{totalPrice.toFixed(2)} TND</h4>
+                                        </div>
+                                    </div>
+
+                                    {/* Badges de confiance */}
+                                    <div className="trust-badges mt-4">
+                                        <div className="row g-2 text-center">
+                                            <div className="col-4">
+                                                <div className="badge-item">
+                                                    <i className="fas fa-shipping-fast text-success mb-1"></i>
+                                                    <div className="small">Livraison Rapide</div>
+                                                </div>
+                                            </div>
+                                            <div className="col-4">
+                                                <div className="badge-item">
+                                                    <i className="fas fa-undo text-info mb-1"></i>
+                                                    <div className="small">Retour Gratuit</div>
+                                                </div>
+                                            </div>
+                                            <div className="col-4">
+                                                <div className="badge-item">
+                                                    <i className="fas fa-headset text-warning mb-1"></i>
+                                                    <div className="small">Support 24/7</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Container>
+            </div>
+
+            <style jsx>{`
+                /* Page wrapper moderne */
+                .checkout-wrapper {
+                    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+                    min-height: 100vh;
+                    padding: 2rem 0;
+                }
+
+                /* Indicateur de progression amélioré */
+                .payment-progress {
+                    background: white;
+                    border-radius: 15px;
+                    padding: 2rem;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                }
+
+                .step {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    position: relative;
+                    z-index: 1;
+                }
+
+                .step-circle {
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: bold;
+                    font-size: 1.2rem;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                }
+
+                .step-circle.completed {
+                    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                    animation: pulse-success 2s infinite;
+                }
+
+                .step-circle.active {
+                    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+                    animation: pulse-active 1.5s infinite;
+                }
+
+                .step-circle.pending {
+                    background: #e9ecef;
+                    color: #6c757d;
+                }
+
+                @keyframes pulse-success {
+                    0%, 100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+                    50% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+                }
+
+                @keyframes pulse-active {
+                    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
+                    50% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+                }
+
+                .step-connector {
+                    height: 4px;
+                    background: linear-gradient(90deg, #28a745 0%, #e9ecef 100%);
+                    border-radius: 2px;
+                    margin-top: -25px;
+                }
+
+                .step-label {
+                    font-size: 0.95rem;
+                    color: #6c757d;
+                    font-weight: 500;
+                    margin-top: 0.5rem;
+                }
+
+                .step.active .step-label {
+                    color: #007bff;
+                    font-weight: 700;
+                }
+
+                .step.completed .step-label {
+                    color: #28a745;
+                    font-weight: 600;
+                }
+
+                /* Cards avec design moderne */
+                .card {
+                    border: none;
+                    border-radius: 15px;
+                    overflow: hidden;
+                    transition: all 0.3s ease;
+                }
+
+                .card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+                }
+
+                .card-header {
+                    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+                    border: none !important;
+                    padding: 1.5rem !important;
+                }
+
+                .card-header h4 {
+                    color: white !important;
+                    font-weight: 600;
+                    margin: 0;
+                }
+
+                .card-header h4 i {
+                    color: rgba(255,255,255,0.9);
+                }
+
+                /* Form inputs modernes */
+                .form-control {
+                    border: 2px solid #e9ecef;
+                    border-radius: 10px;
+                    padding: 0.75rem 1rem;
+                    transition: all 0.3s ease;
+                    font-size: 1rem;
+                }
+
+                .form-control:focus {
+                    border-color: #007bff;
+                    box-shadow: 0 0 0 0.25rem rgba(0,123,255,.15);
+                    transform: translateY(-2px);
+                }
+
+                .form-label {
+                    color: #495057;
+                    font-weight: 600;
+                    margin-bottom: 0.5rem;
+                }
+
+                /* Options de produits stylisées */
+                .product-options {
+                    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    transition: all 0.3s ease;
+                }
+
+                .product-options:hover {
+                    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+                }
+
+                /* Couleurs sélectionnables */
+                .color-selection, .size-selection, .quantity-selection {
+                    margin-bottom: 1rem;
+                }
+
+                .color-selection-title, .size-selection-title, .quantity-selection-title {
+                    font-weight: 600;
+                    color: #495057;
+                    margin-bottom: 0.75rem;
+                    font-size: 0.95rem;
+                }
+
+                .color-options {
+                    display: flex;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                }
+
+                .color-option {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    border: 3px solid transparent;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    position: relative;
+                }
+
+                .color-option:hover {
+                    transform: scale(1.15);
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                }
+
+                .color-option.selected {
+                    border-color: #007bff;
+                    box-shadow: 0 0 0 3px rgba(0,123,255,0.2);
+                    transform: scale(1.1);
+                }
+
+                .color-option.selected::after {
+                    content: '✓';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: white;
+                    font-weight: bold;
+                    font-size: 1.2rem;
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                }
+
+                .color-black { background: #000000; }
+                .color-white { background: #ffffff; border: 2px solid #dee2e6; }
+                .color-red { background: #dc3545; }
+                .color-blue { background: #007bff; }
+                .color-green { background: #28a745; }
+                .color-orange { background: #fd7e14; }
+
+                .selected-color-info {
+                    margin-top: 0.5rem;
+                    color: #28a745;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                }
+
+                /* Tailles */
+                .size-options {
+                    display: flex;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                }
+
+                .size-option {
+                    min-width: 50px;
+                    padding: 10px 15px;
+                    border: 2px solid #e9ecef;
+                    border-radius: 8px;
+                    text-align: center;
+                    cursor: pointer;
+                    font-weight: 600;
+                    transition: all 0.3s ease;
+                    background: white;
+                }
+
+                .size-option:hover {
+                    border-color: #007bff;
+                    background: #e7f3ff;
+                    transform: translateY(-2px);
+                }
+
+                .size-option.selected {
+                    border-color: #007bff;
+                    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+                    color: white;
+                    box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+                }
+
+                /* Quantité */
+                .quantity-controls {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                }
+
+                .quantity-input-group {
+                    display: flex;
+                    align-items: center;
+                    border: 2px solid #e9ecef;
+                    border-radius: 10px;
+                    overflow: hidden;
+                    background: white;
+                }
+
+                .quantity-btn {
+                    width: 40px;
+                    height: 40px;
+                    border: none;
+                    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+                    color: white;
+                    font-size: 1.2rem;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+
+                .quantity-btn:hover:not(:disabled) {
+                    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+                    transform: scale(1.1);
+                }
+
+                .quantity-btn:disabled {
+                    background: #e9ecef;
+                    color: #adb5bd;
+                    cursor: not-allowed;
+                }
+
+                .quantity-input {
+                    width: 60px;
+                    height: 40px;
+                    border: none;
+                    text-align: center;
+                    font-weight: 600;
+                    font-size: 1.1rem;
+                }
+
+                .quantity-input:focus {
+                    outline: none;
+                }
+
+                .stock-info {
+                    font-size: 0.9rem;
+                    color: #28a745;
+                    font-weight: 500;
+                }
+
+                /* Cartes de paiement */
+                .payment-card {
+                    transition: all 0.3s ease;
+                    border-width: 2px !important;
+                    cursor: pointer;
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .payment-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(0,123,255,0.1), transparent);
+                    transition: left 0.5s ease;
+                }
+
+                .payment-card:hover::before {
+                    left: 100%;
+                }
+
+                .payment-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+                }
+
+                .payment-icon {
+                    font-size: 2.5rem;
+                }
+
+                .payment-logos i {
+                    font-size: 1.8rem;
+                }
+
+                /* Résumé de commande */
+                .summary-card {
+                    background: white;
+                    border-radius: 15px;
+                    overflow: hidden;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+                }
+
+                .card-header-custom {
+                    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                    padding: 1.5rem;
+                    color: white;
+                }
+
+                .card-header-custom h5 {
+                    margin: 0;
+                    font-weight: 600;
+                }
+
+                .order-item-card {
+                    background: #f8f9fa;
+                    border-radius: 12px;
+                    padding: 1rem;
+                    margin-bottom: 1rem;
+                    transition: all 0.3s ease;
+                }
+
+                .order-item-card:hover {
+                    background: #e9ecef;
+                    transform: translateX(5px);
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                }
+
+                .order-calculations {
+                    font-size: 1rem;
+                    color: #495057;
+                }
+
+                .total-section {
+                    background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+                    padding: 1.5rem;
+                    border-radius: 12px;
+                    margin-top: 1rem;
+                }
+
+                .total-section h4 {
+                    font-size: 1.8rem;
+                    font-weight: 800;
+                }
+
+                /* Badges de confiance */
+                .trust-badges {
+                    background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%);
+                    padding: 1rem;
+                    border-radius: 12px;
+                }
+
+                .badge-item {
+                    padding: 1rem 0.5rem;
+                    border-radius: 10px;
+                    background: white;
+                    transition: all 0.3s ease;
+                }
+
+                .badge-item:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                }
+
+                .badge-item i {
+                    font-size: 1.5rem;
+                }
+
+                .badge-item .small {
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    color: #495057;
+                }
+
+                /* Bouton de paiement animé */
+                .btn-primary {
+                    position: relative;
+                    overflow: hidden;
+                    transition: all 0.3s ease;
+                }
+
+                .btn-primary::before {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 0;
+                    height: 0;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,0.3);
+                    transform: translate(-50%, -50%);
+                    transition: width 0.6s ease, height 0.6s ease;
+                }
+
+                .btn-primary:hover::before {
+                    width: 300px;
+                    height: 300px;
+                }
+
+                .btn-primary:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 10px 30px rgba(0,123,255,0.4);
+                }
+
+                /* Info de sécurité */
+                .security-info {
+                    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+                    border-left: 4px solid #28a745;
+                }
+
+                /* Responsive */
+                @media (max-width: 768px) {
+                    .checkout-wrapper {
+                        padding: 1rem 0;
+                    }
+
+                    .payment-progress {
+                        padding: 1rem;
+                    }
+
+                    .step-circle {
+                        width: 40px;
+                        height: 40px;
+                        font-size: 1rem;
+                    }
+
+                    .step-connector {
+                        margin-top: -20px;
+                    }
+
+                    .card-header {
+                        padding: 1rem !important;
+                    }
+
+                    .card-header h4 {
+                        font-size: 1.1rem;
+                    }
+
+                    .payment-icon {
+                        font-size: 2rem;
+                    }
+
+                    .total-section h4 {
+                        font-size: 1.5rem;
+                    }
+                }
+            `}</style>
+        </>
+    );
+};
+
+export default Checkout;

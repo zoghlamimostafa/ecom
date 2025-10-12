@@ -1,227 +1,624 @@
-const Product = require("../models/productModel");
-const User = require("../models/userModels");
+// ===== CONTRÔLEUR PRODUITS CORRIGÉ =====
+const { Product, User, Order, Category, Brand, Color } = require('../models');
+const { Op } = require('sequelize');
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
-const validateMongoDbId = require("../utils/validateMongodbId");
-const Order = require("../models/orderModel");
-const fs = require("fs"); // Importation de fs pour manipuler les fichiers
-const cloudinaryUploadImg = require("../utils/cloudinary"); // Assurez-vous que cette fonction est bien définie
+const fs = require("fs");
+const cloudinaryUploadImg = require("../utils/cloudinary");
 
-// Création d'un produit
+// ===== CRUD OPERATIONS =====
+
+// CREATE - Créer un produit
 const createProduct = asyncHandler(async (req, res) => {
   try {
-    if (req.body.title) {
-      req.body.slug = slugify(req.body.title);
+    const { 
+      title, 
+      description, 
+      price, 
+      category, 
+      subcategory,
+      brand, 
+      color, 
+      tags, 
+      quantity, 
+      images 
+    } = req.body;
+
+    // Validation des champs obligatoires
+    if (!title || !description || !price || !category || !brand || !quantity) {
+      return res.status(400).json({
+        success: false,
+        message: "Tous les champs obligatoires doivent être remplis"
+      });
     }
-    const newProduct = await Product.create(req.body);
-    res.json(newProduct);
+
+    // Vérifier que la catégorie existe
+    const categoryExists = await Category.findByPk(category);
+    if (!categoryExists) {
+      return res.status(400).json({
+        success: false,
+        message: "Catégorie non valide"
+      });
+    }
+
+    // Vérifier la sous-catégorie si fournie
+    if (subcategory) {
+      const subcategoryExists = await Category.findByPk(subcategory);
+      if (!subcategoryExists || subcategoryExists.parentId !== parseInt(category)) {
+        return res.status(400).json({
+          success: false,
+          message: "Sous-catégorie non valide"
+        });
+      }
+    }
+
+    // Générer le slug
+    const slug = slugify(title.toLowerCase());
+
+    // Vérifier que le slug est unique
+    const existingProduct = await Product.findOne({ where: { slug: slug } });
+    if (existingProduct) {
+      return res.status(400).json({
+        success: false,
+        message: "Un produit avec ce titre existe déjà"
+      });
+    }
+
+    // Préparer les données du produit
+    const productData = {
+      title,
+      slug,
+      description,
+      price: parseFloat(price),
+      category: parseInt(category),
+      subcategory: subcategory ? parseInt(subcategory) : null,
+      brand,
+      color: Array.isArray(color) ? JSON.stringify(color) : color,
+      tags,
+      quantity: parseInt(quantity),
+      images: Array.isArray(images) ? JSON.stringify(images) : images
+    };
+
+    // Créer le produit
+    const newProduct = await Product.create(productData);
+
+    res.status(201).json({
+      success: true,
+      message: "Produit créé avec succès",
+      product: newProduct
+    });
   } catch (error) {
-    throw new Error(error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de la création du produit",
+      error: error.message
+    });
   }
 });
 
-// Fonction d'upload d'images
+// READ - Récupérer tous les produits
+const getAllProduct = asyncHandler(async (req, res) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 12, 
+      category, 
+      subcategory,
+      brand, 
+      minPrice, 
+      maxPrice, 
+      search,
+      sortBy = 'createdAt',
+      sortOrder = 'DESC'
+    } = req.query;
+    
+    const offset = (page - 1) * limit;
+    let whereClause = {};
+    
+    // Filtrer par catégorie
+    if (category) {
+      whereClause.category = category;
+    }
+    
+    // Filtrer par sous-catégorie
+    if (subcategory) {
+      whereClause.subcategory = subcategory;
+    }
+    
+    // Filtrer par marque
+    if (brand) {
+      whereClause.brand = brand;
+    }
+    
+    // Filtrer par prix
+    if (minPrice || maxPrice) {
+      whereClause.price = {};
+      if (minPrice) whereClause.price[Op.gte] = parseFloat(minPrice);
+      if (maxPrice) whereClause.price[Op.lte] = parseFloat(maxPrice);
+    }
+    
+    // Recherche par titre ou description
+    if (search) {
+      whereClause[Op.or] = [
+        { title: { [Op.like]: `%${search}%` } },
+        { description: { [Op.like]: `%${search}%` } },
+        { tags: { [Op.like]: `%${search}%` } }
+      ];
+    }
+
+    const { count, rows } = await Product.findAndCountAll({
+      where: whereClause,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [[sortBy, sortOrder]]
+    });
+
+    // Traiter les données pour le frontend
+    const products = rows.map(product => {
+      const productData = product.toJSON();
+      
+      // Parser les JSON si nécessaire
+      if (productData.color && typeof productData.color === 'string') {
+        try {
+          productData.color = JSON.parse(productData.color);
+        } catch (e) {
+          productData.color = [];
+        }
+      }
+      
+      if (productData.images && typeof productData.images === 'string') {
+        try {
+          productData.images = JSON.parse(productData.images);
+        } catch (e) {
+          productData.images = [];
+        }
+      }
+      
+      return productData;
+    });
+
+    res.json({
+      success: true,
+      products: products,
+      pagination: {
+        total: count,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(count / limit)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de la récupération des produits",
+      error: error.message
+    });
+  }
+});
+
+// READ - Récupérer un produit par ID
+const getaProduct = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "ID produit requis"
+      });
+    }
+
+    const product = await Product.findByPk(id, {
+      include: [
+        {
+          model: Category,
+          as: 'categoryInfo',
+          attributes: ['id', 'title', 'slug', 'description']
+        }
+      ]
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Produit non trouvé"
+      });
+    }
+
+    // Traiter les données JSON
+    const productData = product.toJSON();
+    
+    if (productData.color && typeof productData.color === 'string') {
+      try {
+        productData.color = JSON.parse(productData.color);
+      } catch (e) {
+        productData.color = [];
+      }
+    }
+    
+    if (productData.images && typeof productData.images === 'string') {
+      try {
+        productData.images = JSON.parse(productData.images);
+      } catch (e) {
+        productData.images = [];
+      }
+    }
+
+    res.json({
+      success: true,
+      product: productData
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de la récupération du produit",
+      error: error.message
+    });
+  }
+});
+
+// UPDATE - Mettre à jour un produit
+const updateProduct = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = { ...req.body };
+    
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "ID produit requis"
+      });
+    }
+
+    // Vérifier si le produit existe
+    const product = await Product.findByPk(id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Produit non trouvé"
+      });
+    }
+
+    // Générer un nouveau slug si le titre change
+    if (updateData.title && updateData.title !== product.title) {
+      updateData.slug = slugify(updateData.title.toLowerCase());
+      
+      // Vérifier l'unicité du nouveau slug
+      const existingProduct = await Product.findOne({ 
+        where: { 
+          slug: updateData.slug,
+          id: { [Op.ne]: id }
+        } 
+      });
+      
+      if (existingProduct) {
+        return res.status(400).json({
+          success: false,
+          message: "Un produit avec ce titre existe déjà"
+        });
+      }
+    }
+
+    // Valider la catégorie si elle change
+    if (updateData.category) {
+      const categoryExists = await Category.findByPk(updateData.category);
+      if (!categoryExists) {
+        return res.status(400).json({
+          success: false,
+          message: "Catégorie non valide"
+        });
+      }
+    }
+
+    // Valider la sous-catégorie si elle change
+    if (updateData.subcategory) {
+      const subcategoryExists = await Category.findByPk(updateData.subcategory);
+      if (!subcategoryExists) {
+        return res.status(400).json({
+          success: false,
+          message: "Sous-catégorie non valide"
+        });
+      }
+    }
+
+    // Traiter les champs JSON
+    if (updateData.color && Array.isArray(updateData.color)) {
+      updateData.color = JSON.stringify(updateData.color);
+    }
+    
+    if (updateData.images && Array.isArray(updateData.images)) {
+      updateData.images = JSON.stringify(updateData.images);
+    }
+
+    // Mettre à jour le produit
+    await Product.update(updateData, { where: { id: id } });
+    
+    // Récupérer le produit mis à jour
+    const updatedProduct = await Product.findByPk(id, {
+      include: [
+        {
+          model: Category,
+          as: 'categoryInfo',
+          attributes: ['id', 'title', 'slug']
+        }
+      ]
+    });
+
+    res.json({
+      success: true,
+      message: "Produit mis à jour avec succès",
+      product: updatedProduct
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de la mise à jour du produit",
+      error: error.message
+    });
+  }
+});
+
+// DELETE - Supprimer un produit
+const deleteProduct = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "ID produit requis"
+      });
+    }
+
+    // Vérifier si le produit existe
+    const product = await Product.findByPk(id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Produit non trouvé"
+      });
+    }
+
+    // Supprimer le produit
+    await Product.destroy({ where: { id: id } });
+
+    res.json({
+      success: true,
+      message: "Produit supprimé avec succès"
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de la suppression du produit",
+      error: error.message
+    });
+  }
+});
+
+// ===== FONCTIONS SPÉCIALISÉES =====
+
+// Ajouter à la wishlist
+const addToWishlist = asyncHandler(async (req, res) => {
+  try {
+    let { prodId } = req.body;
+    const userId = req.user.id;
+    
+    console.log("📝 Wishlist request body:", JSON.stringify(req.body));
+    console.log("📝 Received prodId:", prodId, "Type:", typeof prodId);
+    console.log("📝 User ID:", userId);
+    
+    // Si prodId est un objet, extraire l'ID
+    if (typeof prodId === 'object' && prodId !== null) {
+      prodId = prodId.id || prodId._id;
+      console.log("📝 Extracted ID from object:", prodId);
+    }
+    
+    if (!prodId) {
+      console.log("❌ prodId is missing or falsy");
+      return res.status(400).json({
+        success: false,
+        message: "ID produit requis"
+      });
+    }
+
+    // Vérifier si le produit existe
+    const product = await Product.findByPk(prodId);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Produit non trouvé"
+      });
+    }
+
+    // Importer le modèle Wishlist
+    const { Wishlist } = require('../models');
+
+    // Vérifier si le produit est déjà dans la wishlist
+    const existingWishlist = await Wishlist.findOne({
+      where: {
+        userId: userId,
+        productId: prodId
+      }
+    });
+
+    if (existingWishlist) {
+      // Retirer de la wishlist
+      await Wishlist.destroy({
+        where: {
+          userId: userId,
+          productId: prodId
+        }
+      });
+      
+      console.log("✅ Produit retiré de la wishlist");
+      res.json({
+        success: true,
+        message: "Produit retiré de la wishlist",
+        action: 'removed'
+      });
+    } else {
+      // Ajouter à la wishlist
+      await Wishlist.create({
+        userId: userId,
+        productId: prodId
+      });
+      
+      console.log("✅ Produit ajouté à la wishlist");
+      res.json({
+        success: true,
+        message: "Produit ajouté à la wishlist",
+        action: 'added'
+      });
+    }
+  } catch (error) {
+    console.error("❌❌❌ ERREUR WISHLIST DÉTAILLÉE ❌❌❌");
+    console.error("Message:", error.message);
+    console.error("Stack:", error.stack);
+    console.error("Name:", error.name);
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de la gestion de la wishlist",
+      error: error.message
+    });
+  }
+});
+
+// Noter un produit
+const rating = asyncHandler(async (req, res) => {
+  try {
+    const { star, prodId, comment } = req.body;
+    const userId = req.user.id;
+    
+    if (!star || !prodId) {
+      return res.status(400).json({
+        success: false,
+        message: "Note et ID produit requis"
+      });
+    }
+
+    const product = await Product.findByPk(prodId);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Produit non trouvé"
+      });
+    }
+
+    let alreadyRated = product.ratings.find(
+      (rating) => rating.postedby.toString() === userId.toString()
+    );
+
+    if (alreadyRated) {
+      // Mettre à jour la note existante
+      const updateRating = await Product.updateOne(
+        {
+          ratings: { $elemMatch: alreadyRated },
+        },
+        {
+          $set: { "ratings.$.star": star, "ratings.$.comment": comment },
+        },
+        {
+          new: true,
+        }
+      );
+    } else {
+      // Ajouter une nouvelle note
+      const rateProduct = await Product.findByIdAndUpdate(
+        prodId,
+        {
+          $push: {
+            ratings: {
+              star: star,
+              comment: comment,
+              postedby: userId,
+            },
+          },
+        },
+        {
+          new: true,
+        }
+      );
+    }
+
+    // Calculer la note moyenne
+    const getallratings = await Product.findByPk(prodId);
+    let totalRating = getallratings.ratings.length;
+    let ratingsum = getallratings.ratings
+      .map((item) => item.star)
+      .reduce((prev, curr) => prev + curr, 0);
+    let actualRating = Math.round(ratingsum / totalRating);
+    
+    let finalproduct = await Product.findByIdAndUpdate(
+      prodId,
+      {
+        totalrating: actualRating,
+      },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      message: "Note ajoutée avec succès",
+      product: finalproduct
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de l'ajout de la note",
+      error: error.message
+    });
+  }
+});
+
+// Upload d'images
 const uploadImages = asyncHandler(async (req, res) => {
   try {
     const uploader = (path) => cloudinaryUploadImg(path, "images");
     const urls = [];
     const files = req.files;
 
+    if (!files || files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Aucun fichier à uploader"
+      });
+    }
+
     for (const file of files) {
       const { path } = file;
-      const newpath = await uploader(path);
-      console.log(newpath);
-      urls.push(newpath); // Utiliser urls et non fs
-      fs.unlinkSync(path); // Supprimer le fichier temporaire après l'upload
+      try {
+        const newpath = await uploader(path);
+        urls.push(newpath);
+        fs.unlinkSync(path); // Supprimer le fichier temporaire
+      } catch (uploadError) {
+        console.error("Erreur upload:", uploadError);
+        if (fs.existsSync(path)) {
+          fs.unlinkSync(path);
+        }
+      }
     }
 
-    res.json(urls); // Renvoie les images uploadées
-  } catch (error) {
-    throw new Error(error);
-  }
-});
-
-// Mise à jour d'un produit
-const updateProduct = asyncHandler(async (req, res) => {
-  const { id } = req.params; // Utilisation correcte de l'ID dans les params
-  validateMongoDbId(id);
-  try {
-    if (req.body.title) {
-      req.body.slug = slugify(req.body.title);
-    }
-    const updatedProduct = await Product.findByIdAndUpdate(id, req.body, {
-      new: true,
+    res.json({
+      success: true,
+      message: "Images uploadées avec succès",
+      images: urls
     });
-    res.json(updatedProduct);
   } catch (error) {
-    throw new Error(error);
-  }
-});
-
-// Suppression d'un produit
-const deleteProduct = asyncHandler(async (req, res) => {
-  const { id } = req.params; // Utilisation correcte de l'ID
-  validateMongoDbId(id);
-  try {
-    const deletedProduct = await Product.findByIdAndDelete(id);
-    res.json(deletedProduct);
-  } catch (error) {
-    throw new Error(error);
-  }
-});
-
-// Récupération d'un produit par ID ou slug
-const getaProduct = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  
-  try {
-    let findProduct;
-    
-    // Check if the id is a valid MongoDB ObjectId or a slug
-    if (id.match(/^[0-9a-fA-F]{24}$/)) {
-      // It's a MongoDB ObjectId
-      validateMongoDbId(id);
-      findProduct = await Product.findById(id).populate("color");
-    } else {
-      // It's a slug
-      findProduct = await Product.findOne({ slug: id }).populate("color");
-    }
-    
-    if (!findProduct) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-    
-    res.json(findProduct);
-  } catch (error) {
-    throw new Error(error);
-  }
-});
-
-// Récupération de tous les produits
-const getAllProduct = asyncHandler(async (req, res) => {
-  try {
-    const queryObj = { ...req.query };
-    const excludeFields = ["page", "sort", "limit", "fields"];
-    excludeFields.forEach((el) => delete queryObj[el]);
-
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-
-    let query = Product.find(JSON.parse(queryStr));
-
-    // Tri des produits
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(",").join(" ");
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort("-createdAt");
-    }
-
-    // Sélection des champs
-    if (req.query.fields) {
-      const fields = req.query.fields.split(",").join(" ");
-      query = query.select(fields);
-    } else {
-      query = query.select("-__v");
-    }
-
-    // Pagination
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 10;
-    const skip = (page - 1) * limit;
-    query = query.skip(skip).limit(limit);
-
-    if (req.query.page) {
-      const productCount = await Product.countDocuments();
-      if (skip >= productCount) throw new Error("Cette page n'existe pas");
-    }
-
-    const products = await query;
-    res.json(products);
-  } catch (error) {
-    throw new Error(error);
-  }
-});
-
-// Ajouter un produit à la liste de souhaits
-const addToWishlist = asyncHandler(async (req, res) => {
-  const { _id } = req.user;
-  const { prodId } = req.body;
-  try {
-    const user = await User.findById(_id);
-    const alreadyAdded = user.wishlist.find((id) => id.toString() === prodId);
-
-    if (alreadyAdded) {
-      let updatedUser = await User.findByIdAndUpdate(
-        _id,
-        { $pull: { wishlist: prodId } },
-        { new: true }
-      );
-      res.json(updatedUser);
-    } else {
-      let updatedUser = await User.findByIdAndUpdate(
-        _id,
-        { $push: { wishlist: prodId } },
-        { new: true }
-      );
-      res.json(updatedUser);
-    }
-  } catch (error) {
-    throw new Error(error);
-  }
-});
-
-// Ajouter une évaluation
-const rating = asyncHandler(async (req, res) => {
-  const { _id } = req.user;
-  const { star, prodId, comment } = req.body;
-  try {
-    const product = await Product.findById(prodId);
-    let alreadyRated = product.ratings.find(
-      (userId) => userId.postedby.toString() === _id.toString()
-    );
-
-    if (alreadyRated) {
-      const updateRating = await Product.updateOne(
-        { ratings: { $elemMatch: alreadyRated } },
-        { $set: { "ratings.$.star": star, "ratings.$.comment": comment } }
-      );
-    } else {
-      await Product.findByIdAndUpdate(
-        prodId,
-        {
-          $push: {
-            ratings: { star, comment, postedby: _id },
-          },
-        },
-        { new: true }
-      );
-    }
-
-    const allRatings = await Product.findById(prodId);
-    let totalRating = allRatings.ratings.length;
-    let ratingSum = allRatings.ratings.reduce((prev, curr) => prev + curr.star, 0);
-    let finalRating = Math.round(ratingSum / totalRating);
-
-    await Product.findByIdAndUpdate(
-      prodId,
-      { totalrating: finalRating },
-      { new: true }
-    );
-
-    res.json({ finalRating });
-  } catch (error) {
-    throw new Error(error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de l'upload des images",
+      error: error.message
+    });
   }
 });
 
 module.exports = {
   createProduct,
-  getaProduct,
   getAllProduct,
+  getaProduct,
   updateProduct,
   deleteProduct,
   addToWishlist,
   rating,
-  uploadImages
+  uploadImages,
 };

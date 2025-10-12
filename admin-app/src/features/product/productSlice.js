@@ -4,11 +4,12 @@ import productService from "./productService";
 // Action asynchrone pour récupérer les produits
 export const getProducts = createAsyncThunk(
   "product/get-products",
-  async (thunkAPI) => {
+  async (_, thunkAPI) => {
     try {
       return await productService.getProducts();
     } catch (error) {
-      return thunkAPI.rejectWithValue(error);
+      const message = error.response?.data?.message || error.message || 'Erreur lors du chargement des produits';
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -20,7 +21,9 @@ export const createProducts = createAsyncThunk(
     try {
       return await productService.createProduct(productData);
     } catch (error) {
-      return thunkAPI.rejectWithValue(error);
+      // Extraire le message d'erreur de manière sécurisée
+      const errorMessage = error.message || error.response?.data?.message || error.toString();
+      return thunkAPI.rejectWithValue(errorMessage);
     }
   }
 );
@@ -33,7 +36,8 @@ export const deleteProduct = createAsyncThunk(
       await productService.deleteProduct(productId);
       return productId; // Retourne l'ID du produit supprimé
     } catch (error) {
-      return thunkAPI.rejectWithValue(error);
+      const errorMessage = error.message || error.response?.data?.message || error.toString();
+      return thunkAPI.rejectWithValue(errorMessage);
     }
   }
 );
@@ -45,7 +49,8 @@ export const getProduct = createAsyncThunk(
     try {
       return await productService.getProduct(productId);
     } catch (error) {
-      return thunkAPI.rejectWithValue(error);
+      const errorMessage = error.message || error.response?.data?.message || error.toString();
+      return thunkAPI.rejectWithValue(errorMessage);
     }
   }
 );
@@ -57,7 +62,8 @@ export const updateProduct = createAsyncThunk(
     try {
       return await productService.updateProduct(productData);
     } catch (error) {
-      return thunkAPI.rejectWithValue(error);
+      const errorMessage = error.message || error.response?.data?.message || error.toString();
+      return thunkAPI.rejectWithValue(errorMessage);
     }
   }
 );
@@ -105,7 +111,18 @@ export const productSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
-        state.message = action.error;
+        // Extraire le message d'erreur de manière sécurisée
+        let errorMessage = 'Erreur lors du chargement des produits';
+        if (action.payload) {
+          if (typeof action.payload === 'string') {
+            errorMessage = action.payload;
+          } else if (typeof action.payload === 'object' && action.payload.message) {
+            errorMessage = action.payload.message;
+          }
+        } else if (action.error?.message) {
+          errorMessage = action.error.message;
+        }
+        state.message = errorMessage;
       })
       // Gestion des cas pour la création de produits
       .addCase(createProducts.pending, (state) => {
@@ -121,7 +138,21 @@ export const productSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
-        state.message = action.error;
+        // Extraire le message d'erreur de manière sécurisée
+        let errorMessage = "Erreur lors de la création du produit";
+        if (action.payload) {
+          if (typeof action.payload === 'string') {
+            errorMessage = action.payload;
+          } else if (typeof action.payload === 'object' && action.payload.message) {
+            errorMessage = action.payload.message;
+          } else if (action.payload instanceof Error) {
+            errorMessage = action.payload.message;
+          }
+        } else if (action.error?.message) {
+          errorMessage = action.error.message;
+        }
+        state.message = errorMessage;
+        console.error("Product creation error:", errorMessage, action.payload || action.error);
       })
       // Gestion des cas pour la suppression de produits
       .addCase(deleteProduct.pending, (state) => {
@@ -132,13 +163,26 @@ export const productSlice = createSlice({
         state.isError = false;
         state.isSuccess = true;
         // Supprimez le produit de la liste des produits en utilisant son ID
-        state.products = state.products.filter(product => product._id !== action.payload);
+        // Compatibilité MongoDB (_id) et SQLite (id)
+        state.products = state.products.filter(product => {
+          const productId = product.id || product._id;
+          return productId !== action.payload;
+        });
       })
       .addCase(deleteProduct.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
-        state.message = action.error;
+        // Extraire le message d'erreur de manière sécurisée
+        let errorMessage = "Erreur lors de la suppression du produit";
+        if (action.payload) {
+          errorMessage = typeof action.payload === 'string' ? action.payload : 
+                        (action.payload.message || errorMessage);
+        } else if (action.error) {
+          errorMessage = typeof action.error === 'string' ? action.error : 
+                        (action.error.message || errorMessage);
+        }
+        state.message = errorMessage;
       })
       .addCase(getProduct.pending, (state) => {
         state.isLoading = true;
@@ -153,7 +197,16 @@ export const productSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
-        state.message = action.error;
+        // Extraire le message d'erreur de manière sécurisée
+        let errorMessage = "Erreur lors de la récupération du produit";
+        if (action.payload) {
+          errorMessage = typeof action.payload === 'string' ? action.payload : 
+                        (action.payload.message || errorMessage);
+        } else if (action.error) {
+          errorMessage = typeof action.error === 'string' ? action.error : 
+                        (action.error.message || errorMessage);
+        }
+        state.message = errorMessage;
       })
       .addCase(updateProduct.pending, (state) => {
         state.isLoading = true;
@@ -164,7 +217,12 @@ export const productSlice = createSlice({
         state.isSuccess = true;
         state.product = action.payload;
         // Update the product in the products array as well
-        const index = state.products.findIndex(product => product._id === action.payload._id);
+        // Compatibilité MongoDB (_id) et SQLite (id)
+        const updatedProductId = action.payload.id || action.payload._id;
+        const index = state.products.findIndex(product => {
+          const productId = product.id || product._id;
+          return productId === updatedProductId;
+        });
         if (index !== -1) {
           state.products[index] = action.payload;
         }
@@ -173,7 +231,16 @@ export const productSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
-        state.message = action.error;
+        // Extraire le message d'erreur de manière sécurisée
+        let errorMessage = "Erreur lors de la mise à jour du produit";
+        if (action.payload) {
+          errorMessage = typeof action.payload === 'string' ? action.payload : 
+                        (action.payload.message || errorMessage);
+        } else if (action.error) {
+          errorMessage = typeof action.error === 'string' ? action.error : 
+                        (action.error.message || errorMessage);
+        }
+        state.message = errorMessage;
       });
   },
 });

@@ -1,19 +1,20 @@
 const express = require("express");
-const User = require("../models/userModels");
-const Cart = require("../models/cartModel");
-const Product = require("../models/productModel");
+// ===== MIGRATION VERS MYSQL/SEQUELIZE =====
+const { User, Cart, Product } = require("../models");
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 const { generateToken } = require("../config/jwtToken");
 const { generateRefreshToken } = require("../config/refreshtoken");
-const mongoose = require("mongoose");
+const { JWT_SECRET } = require('../config/config'); // Import centralized config
 
 // Import functions from userCtrl
 const { 
     createUser, 
+    createAdmin,
     forgotPasswordToken, 
     loginAdmin, 
     loginUserCtrl,
+    logout,
     getallUser,
     getAllOrders,
     getMyOrders,
@@ -24,7 +25,8 @@ const {
     deleteaUser,
     updateOrderStatus,
     deleteOrder,
-    getOrderByUserId
+    getOrderByUserId,
+    updatedUser
 } = require("../controller/userCtrl");
 
 const router = express.Router();
@@ -36,8 +38,8 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
         token = req.headers.authorization.split(" ")[1];
         try {
             if (token) {
-                const decoded = jwt.verify(token, process.env.JWT_SECRET);
-                const user = await User.findById(decoded.id);
+                const decoded = jwt.verify(token, JWT_SECRET); // Use centralized config
+                const user = await User.findByPk(decoded.id); // Sequelize method
                 if (user) {
                     req.user = user;
                     next();
@@ -56,6 +58,9 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
 // Register route
 router.post("/register", createUser);
 
+// Admin register route
+router.post("/admin-register", createAdmin);
+
 // Admin login route  
 router.post("/admin-login", loginAdmin);
 
@@ -65,10 +70,13 @@ router.post("/forgot-password-token", forgotPasswordToken);
 // Login route
 router.post("/login", loginUserCtrl);
 
+// Logout route
+router.get("/logout", logout);
+
 // Cart routes
 router.post("/cart", authMiddleware, asyncHandler(async (req, res) => {
     const { productId, color, quantity, price } = req.body;
-    const { _id } = req.user;
+    const userId = req.user.id; // Sequelize uses id, not _id
 
     if (isNaN(parseFloat(price)) || !isFinite(price)) {
         return res.status(400).json({ message: "Invalid price format" });
@@ -80,7 +88,7 @@ router.post("/cart", authMiddleware, asyncHandler(async (req, res) => {
 
     try {
         const cartData = {
-            userId: _id,
+            userId,
             productId,
             quantity,
             price
@@ -96,11 +104,11 @@ router.post("/cart", authMiddleware, asyncHandler(async (req, res) => {
             }
         }
 
-        if (colorToUse && mongoose.Types.ObjectId.isValid(colorToUse) && colorToUse !== "default") {
+        if (colorToUse && colorToUse !== "default") {
             cartData.color = colorToUse;
         }
 
-        let newCart = await new Cart(cartData).save();
+        let newCart = await Cart.create(cartData);
         res.json(newCart);
     } catch (error) {
         console.error("Error while saving cart:", error);
@@ -109,29 +117,51 @@ router.post("/cart", authMiddleware, asyncHandler(async (req, res) => {
 }));
 
 router.get("/cart", authMiddleware, asyncHandler(async (req, res) => {
-    const { _id } = req.user;
+    const userId = req.user.id; // Sequelize uses id, not _id
     try {
-        console.log("Fetching cart for user:", _id);
+        console.log("Fetching cart for user:", userId);
         
         // First, try to get cart without populate to see if basic retrieval works
-        const cartBasic = await Cart.find({ userId: _id });
+        const cartBasic = await Cart.findAll({ where: { userId } }); // Sequelize syntax
         console.log("Cart items found (basic):", cartBasic.length);
         
         if (cartBasic.length === 0) {
             return res.json([]);
         }
         
-        // Try with populate
-        const cart = await Cart.find({ userId: _id }).populate("productId");
+        // Try with include (Sequelize equivalent of populate)
+        const cart = await Cart.findAll({ 
+            where: { userId },
+            include: [{
+                model: Product,
+                as: 'product'
+            }]
+        });
         console.log("Cart items with populated products:", cart.length);
+        
+        // Log pour debug - voir la structure des données
+        if (cart.length > 0) {
+            console.log("📸 First cart item structure:", JSON.stringify({
+                id: cart[0].id,
+                quantity: cart[0].quantity,
+                productId: cart[0].productId,
+                product: {
+                    id: cart[0].product?.id,
+                    title: cart[0].product?.title,
+                    images: cart[0].product?.images,
+                    price: cart[0].product?.price
+                }
+            }, null, 2));
+        }
+        
         res.json(cart);
     } catch (error) {
         console.error("Error while fetching user cart:", error);
         
-        // If populate fails, return basic cart data
+        // If include fails, return basic cart data
         try {
-            const cartBasic = await Cart.find({ userId: _id });
-            console.log("Returning basic cart data due to populate error");
+            const cartBasic = await Cart.findAll({ where: { userId } });
+            console.log("Returning basic cart data due to include error");
             res.json(cartBasic);
         } catch (basicError) {
             console.error("Even basic cart fetch failed:", basicError);
@@ -143,23 +173,107 @@ router.get("/cart", authMiddleware, asyncHandler(async (req, res) => {
 // Delete product from cart
 router.delete("/delete-product-cart", authMiddleware, removeProductFromCart);
 
-router.get("/wishlist", authMiddleware, asyncHandler(async (req, res) => {
-    const { _id } = req.user;
+// Update product quantity in cart
+router.put("/update-product-cart/:cartId/:newQuantity", authMiddleware, asyncHandler(async (req, res) => {
+    const { cartId, newQuantity } = req.params;
+    const userId = req.user.id;
+    
+    console.log("📝 Updating cart item:", { cartId, newQuantity, userId });
+    
     try {
-        const findUser = await User.findById(_id).populate({
-            path: 'wishlist',
-            select: 'title price images description category brand'
+        // Vérifier que la quantité est valide
+        const quantity = parseInt(newQuantity);
+        if (isNaN(quantity) || quantity < 1) {
+            return res.status(400).json({ 
+                success: false,
+                message: "Quantité invalide" 
+            });
+        }
+        
+        // Trouver l'item du panier
+        const cartItem = await Cart.findOne({
+            where: { 
+                id: cartId,
+                userId: userId 
+            }
         });
-        res.json(findUser?.wishlist || []);
+        
+        if (!cartItem) {
+            return res.status(404).json({ 
+                success: false,
+                message: "Article non trouvé dans le panier" 
+            });
+        }
+        
+        // Mettre à jour la quantité
+        await cartItem.update({ quantity: quantity });
+        
+        console.log("✅ Cart item updated successfully");
+        
+        // Retourner le panier mis à jour
+        const updatedCart = await Cart.findAll({ 
+            where: { userId },
+            include: [{
+                model: Product,
+                as: 'product'
+            }]
+        });
+        
+        res.json({
+            success: true,
+            message: "Quantité mise à jour",
+            cart: updatedCart
+        });
+    } catch (error) {
+        console.error("❌ Error updating cart:", error);
+        res.status(500).json({ 
+            success: false,
+            message: "Erreur lors de la mise à jour du panier",
+            error: error.message 
+        });
+    }
+}));
+
+router.get("/wishlist", authMiddleware, asyncHandler(async (req, res) => {
+    const userId = req.user.id; // Sequelize uses id, not _id
+    try {
+        const Wishlist = require('../models/Wishlist');
+        
+        // Get wishlist items with product details
+        const wishlistItems = await Wishlist.findAll({
+            where: { userId: userId },
+            include: [
+                {
+                    model: Product,
+                    as: 'product',
+                    attributes: ['id', 'title', 'price', 'images', 'description', 'brand', 'category', 'slug']
+                }
+            ]
+        });
+        
+        // Transform the data to match the expected format
+        const formattedWishlist = wishlistItems.map(item => ({
+            _id: item.productId,
+            id: item.productId,
+            title: item.product?.title,
+            price: item.product?.price,
+            images: item.product?.images,
+            description: item.product?.description,
+            brand: item.product?.brand,
+            category: item.product?.category,
+            slug: item.product?.slug
+        }));
+        
+        res.json(formattedWishlist);
     } catch (error) {
         console.error("Error in getWishlist:", error);
-        res.status(500).json({ message: "Failed to fetch wishlist" });
+        res.status(500).json({ message: "Failed to fetch wishlist", error: error.message });
     }
 }));
 
 // Address route - save user address
 router.post("/address", authMiddleware, asyncHandler(async (req, res) => {
-    const userId = req.user._id;
+    const userId = req.user.id; // Sequelize uses id, not _id
     try {
         console.log("Saving address for user:", userId);
         console.log("Address data received:", req.body);
@@ -173,20 +287,23 @@ router.post("/address", authMiddleware, asyncHandler(async (req, res) => {
             addressToSave = JSON.stringify(addressToSave);
         }
         
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
+        const updatedUser = await User.update(
             { address: addressToSave },
-            { new: true, runValidators: true }
+            { 
+                where: { id: userId },
+                returning: true
+            }
         );
 
-        if (!updatedUser) {
+        const user = await User.findByPk(userId);
+        if (!user) {
             return res.status(404).json({ message: "Utilisateur non trouvé" });
         }
 
         console.log("Address saved successfully for user:", userId);
         res.status(200).json({
             message: "Adresse mise à jour avec succès",
-            user: updatedUser,
+            user: user,
         });
     } catch (error) {
         console.error("Error saving address:", error);
@@ -217,5 +334,8 @@ router.delete("/delete-order/:id", authMiddleware, deleteOrder);
 router.put("/block-user/:id", authMiddleware, blockUser);
 router.put("/unblock-user/:id", authMiddleware, unblockUser);
 router.delete("/delete-user/:id", authMiddleware, deleteaUser);
+
+// User profile update route
+router.put("/edit-user/:id", authMiddleware, updatedUser);
 
 module.exports = router;

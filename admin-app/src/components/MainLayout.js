@@ -67,6 +67,18 @@ const MainLayout = () => {
               icon: <FaUsers className="fs-4" />,
               label: "Customers",
             },
+            {
+              key: "user-management",
+              icon: <FaUsers className="fs-4" />,
+              label: "Gestion Utilisateurs",
+              children: [
+                {
+                  key: "add-user",
+                  icon: <FaUsers className="fs-4" />,
+                  label: "Ajouter Utilisateur",
+                },
+              ],
+            },
            
             {
               key: "Catalog",

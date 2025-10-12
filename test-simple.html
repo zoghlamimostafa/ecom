@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API - Sanny Store</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .product-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; transition: transform 0.3s ease; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .product-image { width: 100%; height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 10px; }
+        .product-title { font-weight: bold; margin: 10px 0; color: #333; }
+        .product-price { color: #e74c3c; font-size: 18px; font-weight: bold; }
+        .product-brand { color: #666; margin: 5px 0; }
+        .btn { padding: 8px 12px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background-color: #3498db; color: white; }
+        .btn-success { background-color: #27ae60; color: white; }
+        .btn-warning { background-color: #f39c12; color: white; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .status.success { background-color: #d4edda; color: #155724; }
+        .status.error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛍️ Test API - Sanny Store</h1>
+        
+        <div id="api-status">Vérification en cours...</div>
+        
+        <div>
+            <h2>🛒 Produits</h2>
+            <div id="products" class="product-grid"></div>
+        </div>
+        
+        <div>
+            <h2>🧪 Tests</h2>
+            <button class="btn btn-primary" onclick="testLogin()">Test Connexion</button>
+            <div id="test-results"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:4000/api/';
+        let authToken = null;
+
+        async function checkAPI() {
+            try {
+                const response = await fetch(API_BASE + 'product/');
+                const data = await response.json();
+                document.getElementById('api-status').innerHTML = 
+                    '<div class="status success">✅ API OK - ' + data.length + ' produits</div>';
+                
+                document.getElementById('products').innerHTML = data.map(product => {
+                    let images = [];
+                    try {
+                        images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images || [];
+                    } catch (e) { }
+                    
+                    const imageUrl = images[0]?.url || 'https://via.placeholder.com/300x200?text=No+Image';
+                    
+                    return `
+                        <div class="product-card">
+                            <img src="${imageUrl}" alt="${product.title}" class="product-image">
+                            <div class="product-title">${product.title}</div>
+                            <div class="product-brand">${product.brand}</div>
+                            <div class="product-price">${parseFloat(product.price).toFixed(2)} TND</div>
+                            <button class="btn btn-primary" onclick="alert('Voir produit ID: ${product.id}')">Voir</button>
+                            <button class="btn btn-warning" onclick="alert('Wishlist produit ID: ${product.id}')">♥</button>
+                            <button class="btn btn-success" onclick="alert('Panier produit ID: ${product.id}')">🛒</button>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                document.getElementById('api-status').innerHTML = 
+                    '<div class="status error">❌ API Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function testLogin() {
+            try {
+                const response = await fetch(API_BASE + 'user/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'password123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    document.getElementById('test-results').innerHTML = 
+                        '<div class="status success">✅ Connexion réussie: ' + data.firstname + '</div>';
+                } else {
+                    throw new Error(data.message || 'Erreur connexion');
+                }
+            } catch (error) {
+                document.getElementById('test-results').innerHTML = 
+                    '<div class="status error">❌ Erreur: ' + error.message + '</div>';
+            }
+        }
+
+        window.onload = checkAPI;
+    </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { base_url } from "../utils/baseUrl";
 
 const ProfilePage = () => {
   const [user, setUser] = useState({
@@ -12,7 +13,7 @@ const ProfilePage = () => {
   // Fonction pour récupérer les informations de l'utilisateur depuis le backend
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/user/profile');
+      const response = await axios.get(base_url + 'user/profile');
       setUser(response.data);
     } catch (error) {
       console.error('Failed to fetch user data:', error);
@@ -26,7 +27,7 @@ const ProfilePage = () => {
   // Fonction pour mettre à jour les informations de l'utilisateur
   const updateUserProfile = async () => {
     try {
-      const response = await axios.put('http://localhost:4000/api/user/edit-user', user);
+      const response = await axios.put(base_url + 'user/edit-user', user);
       console.log('User updated successfully:', response.data);
       // Vous pouvez ajouter ici une logique pour afficher un message de succès ou rediriger l'utilisateur
     } catch (error) {

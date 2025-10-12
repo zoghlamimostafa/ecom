@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aperçu Menu Catégories - Sanny Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .header {
+            background: #fff;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            text-align: center;
+        }
+
+        /* Menu déroulant catégories */
+        .category-navigation {
+            background: #ffffff;
+            border-bottom: 1px solid #dee2e6;
+            padding: 10px 0;
+            margin-bottom: 15px;
+        }
+
+        .category-nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .category-nav-toggle {
+            background: transparent;
+            border: 1px solid #6c757d;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .category-nav-toggle:hover {
+            border-color: #ff8c00;
+            color: #ff8c00;
+        }
+
+        .category-nav-list {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            min-width: 250px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .category-nav-list.show {
+            display: block;
+        }
+
+        .category-nav-item {
+            position: relative;
+        }
+
+        .category-nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: #495057;
+            border-bottom: 1px solid #f1f1f1;
+            transition: all 0.3s ease;
+        }
+
+        .category-nav-link:hover {
+            background: #ff8c00;
+            color: white;
+        }
+
+        .category-nav-link i {
+            margin-right: 10px;
+            width: 16px;
+        }
+
+        /* Menu horizontal catégories avec dropdowns */
+        .horizontal-category-menu {
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            border-bottom: 1px solid #dee2e6;
+            padding: 12px 0;
+        }
+
+        .category-menu-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+
+        .horizontal-category-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .horizontal-category-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #495057;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            min-width: 80px;
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .horizontal-category-item:hover {
+            color: #ff8c00;
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,140,0,0.15);
+            border-color: #ff8c00;
+            text-decoration: none;
+        }
+
+        /* Styles pour les flèches et listes */
+        .horizontal-category-item-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            min-width: 120px;
+        }
+
+        .horizontal-category-item-wrapper:hover {
+            background: rgba(255, 140, 0, 0.1);
+            border-color: #ff8c00;
+        }
+
+        .category-arrow {
+            color: #6c757d;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+
+        .category-arrow:hover {
+            color: #ff8c00;
+        }
+
+        .category-arrow.rotated {
+            transform: rotate(180deg);
+            color: #ff8c00;
+        }
+
+        .horizontal-category-link {
+            text-decoration: none;
+            color: #495057;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .horizontal-category-link:hover {
+            color: #ff8c00;
+            text-decoration: none;
+        }
+
+        .horizontal-category-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+            color: #6c757d;
+            transition: color 0.3s ease;
+        }
+
+        .horizontal-category-item:hover i {
+            color: #ff8c00;
+        }
+
+        .horizontal-category-item span {
+            font-size: 11px;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        /* Dropdown des sous-catégories horizontales */
+        .horizontal-subcategory-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            min-width: 250px;
+            max-width: 300px;
+            margin-top: 5px;
+        }
+
+        .subcategory-header {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f1f1;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .subcategory-header h4 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .subcategory-list {
+            padding: 8px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .horizontal-subcategory-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            text-decoration: none;
+            color: #495057;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .horizontal-subcategory-item:last-child {
+            border-bottom: none;
+        }
+
+        .horizontal-subcategory-item:hover {
+            background: #ff8c00;
+            color: white;
+            text-decoration: none;
+        }
+
+        .horizontal-subcategory-item i {
+            margin-right: 10px;
+            width: 16px;
+            font-size: 14px;
+            color: #6c757d;
+            transition: color 0.2s ease;
+        }
+
+        .horizontal-subcategory-item:hover i {
+            color: white;
+        }
+
+        .horizontal-subcategory-item span {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .demo-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .demo-title {
+            color: #495057;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="logo">🛍️ SANNY STORE</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="demo-section">
+            <h2 class="demo-title">Menu Déroulant des Catégories</h2>
+            <div class="category-navigation">
+                <div class="category-nav-inner">
+                    <div style="position: relative;">
+                        <button class="category-nav-toggle" onclick="toggleDropdown()">
+                            <i class="fas fa-bars"></i>
+                            <span>Menu Catégories</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="category-nav-list" id="categoryDropdown">
+                            <div class="category-nav-item">
+                                <a href="#" class="category-nav-link">
+                                    <i class="fas fa-tshirt"></i>
+                                    <span>Mode & Vêtements</span>
+                                </a>
+                            </div>
+                            <div class="category-nav-item">
+                                <a href="#" class="category-nav-link">
+                                    <i class="fas fa-car"></i>
+                                    <span>Auto & Moto</span>
+                                </a>
+                            </div>
+                            <div class="category-nav-item">
+                                <a href="#" class="category-nav-link">
+                                    <i class="fas fa-laptop"></i>
+                                    <span>Électronique & High-Tech</span>
+                                </a>
+                            </div>
+                            <div class="category-nav-item">
+                                <a href="#" class="category-nav-link">
+                                    <i class="fas fa-home"></i>
+                                    <span>Maison & Jardin</span>
+                                </a>
+                            </div>
+                            <div class="category-nav-item">
+                                <a href="#" class="category-nav-link">
+                                    <i class="fas fa-running"></i>
+                                    <span>Sport & Loisirs</span>
+                                </a>
+                            </div>
+                            <div class="category-nav-item">
+                                <a href="#" class="category-nav-link">
+                                    <i class="fas fa-heart"></i>
+                                    <span>Santé & Beauté</span>
+                                </a>
+                            </div>
+                            <div class="category-nav-item">
+                                <a href="#" class="category-nav-link">
+                                    <i class="fas fa-baby"></i>
+                                    <span>Enfants & Bébés</span>
+                                </a>
+                            </div>
+                            <div class="category-nav-item">
+                                <a href="#" class="category-nav-link">
+                                    <i class="fas fa-paw"></i>
+                                    <span>Animaux</span>
+                                </a>
+                            </div>
+                            <div class="category-nav-item">
+                                <a href="#" class="category-nav-link">
+                                    <i class="fas fa-utensils"></i>
+                                    <span>Alimentation</span>
+                                </a>
+                            </div>
+                            <div class="category-nav-item">
+                                <a href="#" class="category-nav-link">
+                                    <i class="fas fa-book"></i>
+                                    <span>Livres & Culture</span>
+                                </a>
+                            </div>
+                            <div class="category-nav-item">
+                                <a href="#" class="category-nav-link">
+                                    <i class="fas fa-hammer"></i>
+                                    <span>Bricolage & Jardinage</span>
+                                </a>
+                            </div>
+                            <div class="category-nav-item">
+                                <a href="#" class="category-nav-link">
+                                    <i class="fas fa-briefcase"></i>
+                                    <span>Bureautique</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2 class="demo-title">Menu Horizontal des Catégories avec Flèches</h2>
+            <div class="horizontal-category-menu">
+                <div class="category-menu-container">
+                    <div class="horizontal-category-wrapper" onmouseenter="showSubcategories(1)" onmouseleave="hideSubcategories(1)">
+                        <div class="horizontal-category-item-wrapper">
+                            <i class="category-arrow fas fa-chevron-down" onclick="toggleSubcategories(1)"></i>
+                            <a href="#" class="horizontal-category-link">Mode & Vêtements</a>
+                        </div>
+                        <div class="horizontal-subcategory-dropdown" id="dropdown-1" style="display: none;">
+                            <div class="subcategory-header">
+                                <h4>Mode & Vêtements</h4>
+                            </div>
+                            <div class="subcategory-list">
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-female"></i>
+                                    <span>Mode Femme</span>
+                                </a>
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-male"></i>
+                                    <span>Mode Homme</span>
+                                </a>
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-shoe-prints"></i>
+                                    <span>Chaussures Femme</span>
+                                </a>
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-shoe-prints"></i>
+                                    <span>Chaussures Homme</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="horizontal-category-wrapper" onmouseenter="showSubcategories(2)" onmouseleave="hideSubcategories(2)">
+                        <div class="horizontal-category-item-wrapper">
+                            <i class="category-arrow fas fa-chevron-down" onclick="toggleSubcategories(2)"></i>
+                            <a href="#" class="horizontal-category-link">Auto & Moto</a>
+                        </div>
+                        <div class="horizontal-subcategory-dropdown" id="dropdown-2" style="display: none;">
+                            <div class="subcategory-header">
+                                <h4>Auto & Moto</h4>
+                            </div>
+                            <div class="subcategory-list">
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-cog"></i>
+                                    <span>Pièces Auto</span>
+                                </a>
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-car-side"></i>
+                                    <span>Accessoires Auto</span>
+                                </a>
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-tire"></i>
+                                    <span>Pneus & Jantes</span>
+                                </a>
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-tools"></i>
+                                    <span>Entretien Auto</span>
+                                </a>
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-motorcycle"></i>
+                                    <span>Équipement Moto</span>
+                                </a>
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-wrench"></i>
+                                    <span>Pièces Moto</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="horizontal-category-wrapper" onmouseenter="showSubcategories(3)" onmouseleave="hideSubcategories(3)">
+                        <div class="horizontal-category-item-wrapper">
+                            <i class="category-arrow fas fa-chevron-down" onclick="toggleSubcategories(3)"></i>
+                            <a href="#" class="horizontal-category-link">Électronique & High-Tech</a>
+                        </div>
+                        <div class="horizontal-subcategory-dropdown" id="dropdown-3" style="display: none;">
+                            <div class="subcategory-header">
+                                <h4>Électronique & High-Tech</h4>
+                            </div>
+                            <div class="subcategory-list">
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    <span>Smartphones</span>
+                                </a>
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-desktop"></i>
+                                    <span>Ordinateurs</span>
+                                </a>
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-tv"></i>
+                                    <span>TV & Audio</span>
+                                </a>
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-tablet-alt"></i>
+                                    <span>Tablettes</span>
+                                </a>
+                                <a href="#" class="horizontal-subcategory-item">
+                                    <i class="fas fa-gamepad"></i>
+                                    <span>Gaming</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="horizontal-category-wrapper">
+                        <div class="horizontal-category-item-wrapper">
+                            <i class="category-arrow fas fa-chevron-down"></i>
+                            <a href="#" class="horizontal-category-link">Maison & Jardin</a>
+                        </div>
+                    </div>
+
+                    <div class="horizontal-category-wrapper">
+                        <div class="horizontal-category-item-wrapper">
+                            <i class="category-arrow fas fa-chevron-down"></i>
+                            <a href="#" class="horizontal-category-link">Sport & Loisirs</a>
+                        </div>
+                    </div>
+
+                    <div class="horizontal-category-wrapper">
+                        <div class="horizontal-category-item-wrapper">
+                            <i class="category-arrow fas fa-chevron-down"></i>
+                            <a href="#" class="horizontal-category-link">Santé & Beauté</a>
+                        </div>
+                    </div>
+
+                    <div class="horizontal-category-wrapper">
+                        <div class="horizontal-category-item-wrapper">
+                            <i class="category-arrow fas fa-chevron-down"></i>
+                            <a href="#" class="horizontal-category-link">Enfants & Bébés</a>
+                        </div>
+                    </div>
+
+                    <div class="horizontal-category-wrapper">
+                        <div class="horizontal-category-item-wrapper">
+                            <i class="category-arrow fas fa-chevron-down"></i>
+                            <a href="#" class="horizontal-category-link">Animaux</a>
+                        </div>
+                    </div>
+
+                    <div class="horizontal-category-wrapper">
+                        <div class="horizontal-category-item-wrapper">
+                            <i class="category-arrow fas fa-chevron-down"></i>
+                            <a href="#" class="horizontal-category-link">Alimentation</a>
+                        </div>
+                    </div>
+
+                    <div class="horizontal-category-wrapper">
+                        <div class="horizontal-category-item-wrapper">
+                            <i class="category-arrow fas fa-chevron-down"></i>
+                            <a href="#" class="horizontal-category-link">Livres & Culture</a>
+                        </div>
+                    </div>
+
+                    <div class="horizontal-category-wrapper">
+                        <div class="horizontal-category-item-wrapper">
+                            <i class="category-arrow fas fa-chevron-down"></i>
+                            <a href="#" class="horizontal-category-link">Bricolage & Jardinage</a>
+                        </div>
+                    </div>
+
+                    <div class="horizontal-category-wrapper">
+                        <div class="horizontal-category-item-wrapper">
+                            <i class="category-arrow fas fa-chevron-down"></i>
+                            <a href="#" class="horizontal-category-link">Bureautique</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2 class="demo-title">Résumé des Fonctionnalités</h2>
+            <ul style="line-height: 1.8; color: #495057;">
+                <li>✅ <strong>Menu déroulant</strong> : Cliquez sur "Menu Catégories" pour voir TOUTES les 12 catégories</li>
+                <li>✅ <strong>Menu horizontal avec dropdowns</strong> : Toutes les catégories sur la même ligne avec sous-catégories au survol</li>
+                <li>✅ <strong>58 sous-catégories</strong> réparties dans 12 catégories principales</li>
+                <li>✅ <strong>Survol orange</strong> : Couleur orange (#ff8c00) sur tous les éléments</li>
+                <li>✅ <strong>Dropdowns intelligents</strong> : Les sous-catégories apparaissent au survol des icônes</li>
+                <li>✅ <strong>Design responsive</strong> : S'adapte aux écrans mobiles avec scroll horizontal</li>
+                <li>✅ <strong>Navigation intuitive</strong> : Accès direct aux catégories et sous-catégories</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let hoverTimeouts = {};
+        let clickedCategories = new Set();
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('categoryDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function showSubcategories(categoryId) {
+            if (hoverTimeouts[categoryId]) {
+                clearTimeout(hoverTimeouts[categoryId]);
+                delete hoverTimeouts[categoryId];
+            }
+            
+            const dropdown = document.getElementById('dropdown-' + categoryId);
+            const wrapper = dropdown?.parentElement;
+            const arrow = wrapper?.querySelector('.category-arrow');
+            
+            if (dropdown) {
+                dropdown.style.display = 'block';
+                if (arrow) arrow.classList.add('rotated');
+            }
+        }
+
+        function hideSubcategories(categoryId) {
+            if (clickedCategories.has(categoryId)) {
+                return; // Ne pas cacher si ouvert par clic
+            }
+            
+            hoverTimeouts[categoryId] = setTimeout(() => {
+                const dropdown = document.getElementById('dropdown-' + categoryId);
+                const wrapper = dropdown?.parentElement;
+                const arrow = wrapper?.querySelector('.category-arrow');
+                
+                if (dropdown) {
+                    dropdown.style.display = 'none';
+                    if (arrow) arrow.classList.remove('rotated');
+                }
+                delete hoverTimeouts[categoryId];
+            }, 200);
+        }
+
+        function toggleSubcategories(categoryId) {
+            const dropdown = document.getElementById('dropdown-' + categoryId);
+            const wrapper = dropdown?.parentElement;
+            const arrow = wrapper?.querySelector('.category-arrow');
+            
+            if (dropdown) {
+                if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+                    dropdown.style.display = 'block';
+                    if (arrow) arrow.classList.add('rotated');
+                    clickedCategories.add(categoryId);
+                } else {
+                    dropdown.style.display = 'none';
+                    if (arrow) arrow.classList.remove('rotated');
+                    clickedCategories.delete(categoryId);
+                }
+            }
+        }
+
+        // Fermer le dropdown principal si on clique ailleurs
+        document.addEventListener('click', function(event) {
+            const toggle = document.querySelector('.category-nav-toggle');
+            const dropdown = document.getElementById('categoryDropdown');
+            
+            if (toggle && dropdown && !toggle.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+            
+            // Fermer les dropdowns horizontaux en cliquant ailleurs
+            if (!event.target.closest('.horizontal-category-wrapper')) {
+                clickedCategories.forEach(categoryId => {
+                    const dropdown = document.getElementById('dropdown-' + categoryId);
+                    const wrapper = dropdown?.parentElement;
+                    const arrow = wrapper?.querySelector('.category-arrow');
+                    
+                    if (dropdown) {
+                        dropdown.style.display = 'none';
+                        if (arrow) arrow.classList.remove('rotated');
+                    }
+                });
+                clickedCategories.clear();
+            }
+        });
+    </script>
+</body>
+</html>

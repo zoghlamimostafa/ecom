@@ -1,0 +1,25 @@
+﻿RewriteEngine On
+
+# React Router pour Client (routes principales)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/admin
+RewriteCond %{REQUEST_URI} !^/api
+RewriteRule . /index.html [L]
+
+# React Router pour Admin
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d  
+RewriteCond %{REQUEST_URI} ^/admin
+RewriteRule . /admin/index.html [L]
+
+# Securite
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.log">
+    Order allow,deny
+    Deny from all
+</Files>

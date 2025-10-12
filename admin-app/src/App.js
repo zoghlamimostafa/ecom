@@ -1,4 +1,5 @@
 import "./App.css";
+import "./styles/admin-improvements.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Resetpassword from "./pages/Resetpassword";
@@ -27,6 +28,9 @@ import ViewEnq from "./pages/ViewEnq";
 import ViewOrder from "./pages/ViewOrder";
 import  Dashbord from "./pages/Dashbord";
 import CreateAdmin from "./pages/CreateAdmin";
+import AddUser from "./pages/AddUser";
+import EditUser from "./pages/EditUser";
+import DiagnosticTest from "./components/DiagnosticTest";
 import { OpenRoutes } from "./routing/OpenRoutes";
 import { PrivateRoutes } from "./routing/PrivateRoutes";
 function App() {
@@ -35,11 +39,13 @@ function App() {
       <AuthChecker>
         <Routes>
           <Route path="/" element={<OpenRoutes><Login /></OpenRoutes>} />
+          <Route path="/diagnostic" element={<DiagnosticTest />} />
           <Route path="/create-admin" element={<OpenRoutes><CreateAdmin /></OpenRoutes>} />
           <Route path="/reset-password" element={<OpenRoutes><Resetpassword /></OpenRoutes>} />
           <Route path="/forgot-password" element={<OpenRoutes><Forgotpassword /></OpenRoutes>} />
           <Route path="/admin" element={<><MainLayout /></>}>
             <Route index element={<><Dashbord /></>} />
+            <Route path="diagnostic" element={<DiagnosticTest />} />
             <Route path="enquiries" element={<><Enquiries /></>} />
             <Route path="enquiries/:id" element={<PrivateRoutes><ViewEnq /></PrivateRoutes>} />
             <Route path="blog-list" element={<PrivateRoutes><Bloglist /></PrivateRoutes>} />
@@ -55,6 +61,8 @@ function App() {
           <Route path="order/:id" element={<ViewOrder />} />
           <Route path="customers" element={<Customers />} />
           <Route path="customers-debug" element={<CustomersDebug />} />
+          <Route path="add-user" element={<AddUser />} />
+          <Route path="edit-user/:id" element={<EditUser />} />
           <Route path="list-color" element={<Colorlist />} />
           <Route path="color" element={<Addcolor />} />
           <Route path="color/:id" element={<Addcolor />} />

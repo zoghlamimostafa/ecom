@@ -22,7 +22,7 @@ const FAQPage = () => {
                   </h2>
                   <div id="collapseOne" className="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
                     <div className="accordion-body">
-                      Nous acceptons les cartes de crédit, les virements bancaires et les paiements via PayPal.
+                      Nous acceptons les cartes de crédit et les virements bancaires.
                     </div>
                   </div>
                 </div>

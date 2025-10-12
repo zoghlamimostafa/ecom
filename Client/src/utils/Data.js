@@ -3,28 +3,28 @@ import { FaShippingFast, FaGift, FaHeadset, FaMoneyBillAlt, FaLock } from 'react
 const servicesData = [
     { 
       icon: <FaShippingFast className="service-icon" />, 
-      title: "Livraison rapide", 
-      tagline: "Livraison express dans toute la Tunisie." 
+      titleKey: "fastDelivery", 
+      taglineKey: "fastDeliveryDesc" 
     },
     { 
       icon: <FaGift className="service-icon" />, 
-      title: "Cadeau surprise", 
-      tagline: "Recevez un cadeau surprise chaque semaine." 
+      titleKey: "surpriseGift", 
+      taglineKey: "surpriseGiftDesc" 
     },
     { 
       icon: <FaHeadset className="service-icon" />, 
-      title: "Support client", 
-      tagline: "Assistance client disponible 24/7." 
+      titleKey: "customerSupport", 
+      taglineKey: "customerSupportDesc" 
     },
     { 
       icon: <FaMoneyBillAlt className="service-icon" />, 
-      title: "Prix abordables", 
-      tagline: "Offres spéciales et prix compétitifs." 
+      titleKey: "affordablePrices", 
+      taglineKey: "affordablePricesDesc" 
     },
     { 
       icon: <FaLock className="service-icon" />, 
-      title: "Paiements sécurisés", 
-      tagline: "Transactions sécurisées pour une tranquillité d'esprit." 
+      titleKey: "securePayments", 
+      taglineKey: "securePaymentsDesc" 
     }
 ];
 

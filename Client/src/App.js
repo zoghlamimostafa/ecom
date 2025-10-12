@@ -25,7 +25,7 @@ import Electro from './pages/Electro';
 import Informatique from './pages/Informatique';
 import Bebe from './pages/Bebe';
 import Animaux from './pages/Animaux';
-import Jadin from './pages/Jardin';
+import Jardin from './pages/Jardin';
 import Homme from './pages/Homme';
 import Telephone from './pages/Telephone';
 import Femme from './pages/Femme';
@@ -35,33 +35,50 @@ import Auto from './pages/Auto';
 import Sante from './pages/Sante';
 import Maison from './pages/Maison';
 import Jeux from './pages/Jeux';
-import Imageia from './pages/Imageia';
+import CategoryPage from './pages/CategoryPage';
+import CategoriesPage from './pages/CategoriesPage';
+import CategoryDetailPage from './pages/CategoryDetailPage';
 import { PrivateRoutes } from './routing/PrivateRoutes';
 import { OpenRoutes } from './routing/OpenRoutes';
 import Propros from './pages/Propros';
 import FAQPage from './pages/FAQPage';
+import FAQ from './pages/FAQ';
+import LegalNotice from './pages/LegalNotice';
 import Orders from './pages/Orders';
 import Profile from './pages/Profile';
 import Livraison from './pages/livraison';
 import Payment from './pages/payment';
+import AvisClients from './pages/AvisClients';
+import WhatsAppButton from './components/WhatsAppButton';
+import { Navigate } from 'react-router-dom';
+import { TranslationProvider } from './contexts/TranslationContext';
+import TranslationTest from './pages/TranslationTest';
+import WishlistTestComponent from './components/WishlistTestComponent';
 
 function App() {
   return (
     <>
-      <BrowserRouter>
-      <Routes>
+      <TranslationProvider>
+        <BrowserRouter>
+        <Routes>
 <Route path="/" element={<Layout />}>
 <Route index element={<Home />}/>
 <Route path="about" element={<About />}/>
 <Route path="contact" element={<Contact />}/>
+<Route path="test-translations" element={<TranslationTest />}/>
+<Route path="wishlist-test" element={<WishlistTestComponent />}/>
 <Route path="product" element={<OurStore />}/>
 <Route path="product/:id" element={<SingleProduct />}/>
+
+{/* Routes pour les catégories */}
+<Route path="categories" element={<CategoriesPage />}/>
+<Route path="category/:categoryId" element={<CategoryDetailPage />}/>
 
 <Route path="blogs" element={<Blogs />}/>
 <Route path="blog/:id" element={<SingleBlog />}/>
 <Route path="compare" element={<CompareProduct />}/>
 <Route path="wishlist" element={<PrivateRoutes><Wishlist /></PrivateRoutes>}/>
-<Route path="/login" element={<OpenRoutes><Login /></OpenRoutes>} />
+<Route path="login" element={<OpenRoutes><Login /></OpenRoutes>} />
 <Route path="forgot-password" element={<ForgotPassword />}/>
 <Route path="sign-up" element={<OpenRoutes><Signup /></OpenRoutes>}/>
 <Route path="reset-password/:token" element={<RestPassword />} />
@@ -71,25 +88,28 @@ function App() {
 <Route path="term-conditions" element={<TermAndContions />}/>
 <Route path="cart" element={<Cart />}/>
 <Route path="checkout" element={<PrivateRoutes><Checkout /></PrivateRoutes>}/>
-<Route path="electro" element={<Electro />}/>
-<Route path="info" element={<Informatique />}/>
-<Route path="baby" element={<Bebe />}/>
 
-<Route path="Animaux" element={<Animaux />}/>
-<Route path="jardin" element={<Jadin />}/>
-<Route path="homme" element={<Homme />}/>
-<Route path="femme" element={<Femme />}/>
-<Route path="sport" element={<Sport />}/>
-<Route path="auto" element={<Auto />}/>
-<Route path="sante" element={<Sante />}/>
-<Route path="maison" element={<Maison />}/>
-<Route path="jeux" element={<Jeux />}/>
-
-<Route path="telephone" element={<Telephone />}/>
+{/* Routes d'anciennes catégories maintenant redirigées */}
+<Route path="electro" element={<Navigate to="/category/tv-audio" replace />}/>
+<Route path="info" element={<Navigate to="/category/ordinateurs" replace />}/>
+<Route path="baby" element={<Navigate to="/category/vetements-bebe" replace />}/>
+<Route path="animaux" element={<Navigate to="/category/chiens" replace />}/>
+<Route path="jardin" element={<Navigate to="/category/jardinage" replace />}/>
+<Route path="homme" element={<Navigate to="/category/mode-homme" replace />}/>
+<Route path="femme" element={<Navigate to="/category/mode-femme" replace />}/>
+<Route path="sport" element={<Navigate to="/category/fitness" replace />}/>
+<Route path="auto" element={<Navigate to="/category/pieces-auto" replace />}/>
+<Route path="sante" element={<Navigate to="/category/cosmetiques" replace />}/>
+<Route path="maison" element={<Navigate to="/category/mobilier" replace />}/>
+<Route path="jeux" element={<Navigate to="/category/jouets" replace />}/>
+<Route path="telephone" element={<Navigate to="/category/smartphones" replace />}/>
 <Route path="other" element={<Other />}/>
+
 <Route path="proprs" element={<Propros />}/>
-<Route path="FAQ" element={<FAQPage
- />}/>
+<Route path="FAQ" element={<FAQPage />}/>
+<Route path="faq" element={<FAQ />}/>
+<Route path="mentions-legales" element={<LegalNotice />}/>
+<Route path="avis-clients" element={<AvisClients />}/>
 <Route path="my-orders" element={<PrivateRoutes><Orders /></PrivateRoutes>}/>
 <Route path="livraison" element={<PrivateRoutes><Livraison /></PrivateRoutes>}/>
 <Route path="payment" element={<PrivateRoutes><Payment /></PrivateRoutes>}/>
@@ -97,8 +117,11 @@ function App() {
 <Route path="my-Profile" element={<PrivateRoutes><Profile /></PrivateRoutes>}/>
 
 </Route>
-      </Routes>     
-      </BrowserRouter>    </>
+        </Routes>     
+        </BrowserRouter>
+        <WhatsAppButton />
+      </TranslationProvider>
+    </>
   )
 }
 

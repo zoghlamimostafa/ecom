@@ -4,7 +4,7 @@ const {
   updateColor,
   deleteColor,
   getColor,
-  getallColor,
+  getAllColor,
 } = require("../controller/colorCtrl");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -13,6 +13,6 @@ router.post("/", authMiddleware, isAdmin, createColor);
 router.put("/:id", authMiddleware, isAdmin, updateColor);
 router.delete("/:id", authMiddleware, isAdmin, deleteColor);
 router.get("/:id", getColor);
-router.get("/", getallColor);
+router.get("/", getAllColor);
 
 module.exports = router;

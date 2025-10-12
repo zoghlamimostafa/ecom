@@ -40,7 +40,13 @@ const CustomersDebug = () => {
         <strong>Success:</strong> {isSuccess ? 'Yes' : 'No'}
       </div>
       <div style={{ marginBottom: '10px' }}>
-        <strong>Message:</strong> {message || 'None'}
+        <strong>Message:</strong> {
+          message ? (
+            typeof message === 'string' ? message : 
+            typeof message === 'object' && message.message ? message.message :
+            JSON.stringify(message)
+          ) : 'None'
+        }
       </div>
       <div style={{ marginBottom: '10px' }}>
         <strong>Customers Array:</strong> {customers ? `${customers.length} items` : 'null/undefined'}

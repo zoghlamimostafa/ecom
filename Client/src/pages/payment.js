@@ -1,26 +1,48 @@
 // src/PaymentPage.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { loadStripe } from '@stripe/stripe-js';
-
-// Charge Stripe.js avec la clé publique depuis les variables d'environnement
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'pk_test_51NpHZvG3llw1QwnpOPEni9oFYhsi6ck2r1GilJH0liC7cpBrokLvkKkzEGY3TXdCbhGTOFvlEK4dwoYE1bZQnBFu00fajYHl11');
+import { useTranslation } from '../contexts/TranslationContext';
 
 const PaymentPage = () => {
+  const { t } = useTranslation();
   const [orderId, setOrderId] = useState('');
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState('tnd');
   const [paymentMethodId, setPaymentMethodId] = useState('');
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [stripePromise, setStripePromise] = useState(null);
+  
+  // Charge Stripe.js uniquement quand ce composant est monté
+  useEffect(() => {
+    const loadStripeLib = async () => {
+      try {
+        const { loadStripe } = await import('@stripe/stripe-js');
+        const stripe = await loadStripe(
+          process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 
+          'pk_test_51NpHZvG3llw1QwnpOPEni9oFYhsi6ck2r1GilJH0liC7cpBrokLvkKkzEGY3TXdCbhGTOFvlEK4dwoYE1bZQnBFu00fajYHl11'
+        );
+        setStripePromise(stripe);
+      } catch (error) {
+        console.warn('Stripe.js non disponible:', error);
+        setMessage('Le système de paiement n\'est pas disponible actuellement.');
+        setMessageType('error');
+      }
+    };
+    
+    loadStripeLib();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsProcessing(true);
     setMessage('');
+    setMessageType('');
 
     if (!orderId || !amount || !paymentMethodId) {
-      setMessage('Veuillez remplir tous les champs');
+      setMessage(t('fillAllRequiredFields'));
+      setMessageType('error');
       setIsProcessing(false);
       return;
     }
@@ -36,21 +58,39 @@ const PaymentPage = () => {
 
       const { clientSecret } = response.data;
 
-      const stripe = await stripePromise;
+      if (!stripePromise) {
+        setMessage('Le système de paiement n\'est pas encore chargé. Veuillez réessayer.');
+        setMessageType('error');
+        setIsProcessing(false);
+        return;
+      }
 
       // Confirmer le paiement avec le clientSecret
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret);
+      const { error, paymentIntent } = await stripePromise.confirmCardPayment(clientSecret);
 
       if (error) {
         setMessage(`Erreur lors du paiement: ${error.message}`);
+        setMessageType('error');
       } else if (paymentIntent.status === 'succeeded') {
-        setMessage('Paiement effectué avec succès !');
+        setMessage('🎉 Paiement effectué avec succès ! Votre commande a été confirmée.');
+        setMessageType('success');
+        
+        // Réinitialiser le formulaire après succès
+        setTimeout(() => {
+          setOrderId('');
+          setAmount('');
+          setPaymentMethodId('');
+          setMessage('');
+          setMessageType('');
+        }, 3000);
       } else {
-        setMessage('Le paiement a échoué');
+        setMessage(t('paymentFailedTryAgain'));
+        setMessageType('error');
       }
     } catch (error) {
       console.error('Erreur lors du paiement:', error);
-      setMessage('Une erreur s\'est produite. Veuillez réessayer.');
+      setMessage(t('errorProcessingTryAgain'));
+      setMessageType('error');
     }
 
     setIsProcessing(false);
@@ -59,48 +99,81 @@ const PaymentPage = () => {
   return (
     <div className="payment-container">
       <div className="payment-card">
-        <h2>Page de Paiement</h2>
+        <h2>Paiement Sécurisé</h2>
+        <p style={{ textAlign: 'center', color: '#6c757d', marginBottom: '2rem' }}>
+          Finalisez votre commande en toute sécurité
+        </p>
+        
         <form onSubmit={handleSubmit} className="payment-form">
-          <div className="form-group">
-            <label htmlFor="orderId">ID de la commande</label>
+          <div className="form-group" data-field="orderId">
+                        <label htmlFor="orderId">{t('orderNumber')} *</label>
             <input
               type="text"
               id="orderId"
               value={orderId}
               onChange={(e) => setOrderId(e.target.value)}
-              placeholder="Entrez l'ID de la commande"
+              placeholder="Ex: CMD-2024-001"
               className="form-input"
+              required
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="amount">Montant (en TND)</label>
+          
+          <div className="form-group" data-field="amount">
+                        <label htmlFor="amount">{t('amount')} *</label>
             <input
               type="number"
               id="amount"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="Entrez le montant"
+              placeholder="Ex: 150.00"
+              step="0.01"
+              min="0"
               className="form-input"
+              required
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="paymentMethodId">ID de la méthode de paiement</label>
+          
+          <div className="form-group" data-field="paymentMethod">
+            <label htmlFor="paymentMethodId">{t('paymentMethod')} *</label>
             <input
               type="text"
               id="paymentMethodId"
               value={paymentMethodId}
               onChange={(e) => setPaymentMethodId(e.target.value)}
-              placeholder="Entrez l'ID de la méthode de paiement"
+              placeholder={t('paymentMethodIdPlaceholder')}
               className="form-input"
+              required
             />
           </div>
+          
           <div className="form-actions">
-            <button type="submit" className="submit-btn" disabled={isProcessing}>
-              {isProcessing ? 'Traitement en cours...' : 'Payer'}
+            <button 
+              type="submit" 
+              className={`submit-btn ${isProcessing ? 'loading' : ''}`}
+              disabled={isProcessing}
+            >
+              {isProcessing ? t('processingPayment') : t('confirmPayment')}
             </button>
           </div>
         </form>
-        {message && <div className="message">{message}</div>}
+        
+        {message && (
+          <div className={`message ${messageType}`}>
+            {message}
+          </div>
+        )}
+        
+        <div style={{ 
+          marginTop: '2rem', 
+          padding: '1rem', 
+          background: '#f8f9fa', 
+          borderRadius: '8px',
+          fontSize: '0.9rem',
+          color: '#6c757d',
+          textAlign: 'center'
+        }}>
+          🔒 Vos informations de paiement sont sécurisées par cryptage SSL
+        </div>
       </div>
     </div>
   );
