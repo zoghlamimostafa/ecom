@@ -1,0 +1,252 @@
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import './ProductFilters.css';
+import { FaFilter, FaTimes, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+
+const ProductFilters = ({ onFilterChange, activeFilters = {} }) => {
+    const [isOpen, setIsOpen] = useState({
+        price: true,
+        brands: true,
+        categories: true,
+        colors: true,
+        sizes: true
+    });
+
+    const [localFilters, setLocalFilters] = useState({
+        minPrice: '',
+        maxPrice: '',
+        brands: [],
+        categories: [],
+        colors: [],
+        sizes: []
+    });
+
+    const productState = useSelector((state) => state?.product?.products);
+    const categoryState = useSelector((state) => state?.category?.categories);
+
+    // Extract unique values
+    const brands = [...new Set(productState?.map(p => p.brand).filter(Boolean))] || [];
+    const colors = [...new Set(productState?.flatMap(p => {
+        let colorArray = p.color;
+        if (typeof colorArray === 'string' && colorArray !== 'null' && colorArray !== '') {
+            try {
+                colorArray = JSON.parse(colorArray);
+            } catch (e) {
+                return [];
+            }
+        }
+        return Array.isArray(colorArray) ? colorArray.map(c => c?.title || c).filter(Boolean) : [];
+    }))] || [];
+    
+    const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+    const categories = categoryState?.filter(cat => cat.level === 0).map(cat => cat.title) || [];
+
+    const toggleSection = (section) => {
+        setIsOpen(prev => ({ ...prev, [section]: !prev[section] }));
+    };
+
+    const handlePriceChange = (type, value) => {
+        const newFilters = {
+            ...localFilters,
+            [type]: value
+        };
+        setLocalFilters(newFilters);
+        onFilterChange(newFilters);
+    };
+
+    const toggleArrayFilter = (type, value) => {
+        const newArray = localFilters[type].includes(value)
+            ? localFilters[type].filter(item => item !== value)
+            : [...localFilters[type], value];
+        
+        const newFilters = {
+            ...localFilters,
+            [type]: newArray
+        };
+        setLocalFilters(newFilters);
+        onFilterChange(newFilters);
+    };
+
+    const clearAllFilters = () => {
+        const emptyFilters = {
+            minPrice: '',
+            maxPrice: '',
+            brands: [],
+            categories: [],
+            colors: [],
+            sizes: []
+        };
+        setLocalFilters(emptyFilters);
+        onFilterChange(emptyFilters);
+    };
+
+    const activeFiltersCount = 
+        (localFilters.minPrice ? 1 : 0) +
+        (localFilters.maxPrice ? 1 : 0) +
+        localFilters.brands.length +
+        localFilters.categories.length +
+        localFilters.colors.length +
+        localFilters.sizes.length;
+
+    return (
+        <div className="product-filters-sidebar">
+            <div className="filters-header">
+                <h3 className="filters-title">
+                    <FaFilter /> Filtres
+                </h3>
+                {activeFiltersCount > 0 && (
+                    <button className="clear-all-btn" onClick={clearAllFilters}>
+                        <FaTimes /> Effacer tout ({activeFiltersCount})
+                    </button>
+                )}
+            </div>
+
+            {/* Prix */}
+            <div className="filter-section">
+                <button 
+                    className="filter-section-header"
+                    onClick={() => toggleSection('price')}
+                >
+                    <span>💰 Prix</span>
+                    {isOpen.price ? <FaChevronUp /> : <FaChevronDown />}
+                </button>
+                {isOpen.price && (
+                    <div className="filter-content">
+                        <div className="price-inputs">
+                            <input
+                                type="number"
+                                placeholder="Min"
+                                value={localFilters.minPrice}
+                                onChange={(e) => handlePriceChange('minPrice', e.target.value)}
+                                className="price-input"
+                            />
+                            <span className="price-separator">-</span>
+                            <input
+                                type="number"
+                                placeholder="Max"
+                                value={localFilters.maxPrice}
+                                onChange={(e) => handlePriceChange('maxPrice', e.target.value)}
+                                className="price-input"
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Catégories */}
+            {categories.length > 0 && (
+                <div className="filter-section">
+                    <button 
+                        className="filter-section-header"
+                        onClick={() => toggleSection('categories')}
+                    >
+                        <span>📦 Catégories</span>
+                        {isOpen.categories ? <FaChevronUp /> : <FaChevronDown />}
+                    </button>
+                    {isOpen.categories && (
+                        <div className="filter-content">
+                            <div className="filter-checkboxes">
+                                {categories.slice(0, 8).map((category, index) => (
+                                    <label key={index} className="filter-checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={localFilters.categories.includes(category)}
+                                            onChange={() => toggleArrayFilter('categories', category)}
+                                        />
+                                        <span className="checkbox-text">{category}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Marques */}
+            {brands.length > 0 && (
+                <div className="filter-section">
+                    <button 
+                        className="filter-section-header"
+                        onClick={() => toggleSection('brands')}
+                    >
+                        <span>🏷️ Marques</span>
+                        {isOpen.brands ? <FaChevronUp /> : <FaChevronDown />}
+                    </button>
+                    {isOpen.brands && (
+                        <div className="filter-content">
+                            <div className="filter-checkboxes">
+                                {brands.slice(0, 10).map((brand, index) => (
+                                    <label key={index} className="filter-checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={localFilters.brands.includes(brand)}
+                                            onChange={() => toggleArrayFilter('brands', brand)}
+                                        />
+                                        <span className="checkbox-text">{brand}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Couleurs */}
+            {colors.length > 0 && (
+                <div className="filter-section">
+                    <button 
+                        className="filter-section-header"
+                        onClick={() => toggleSection('colors')}
+                    >
+                        <span>🎨 Couleurs</span>
+                        {isOpen.colors ? <FaChevronUp /> : <FaChevronDown />}
+                    </button>
+                    {isOpen.colors && (
+                        <div className="filter-content">
+                            <div className="color-chips">
+                                {colors.slice(0, 12).map((color, index) => (
+                                    <button
+                                        key={index}
+                                        className={`color-chip ${localFilters.colors.includes(color) ? 'active' : ''}`}
+                                        onClick={() => toggleArrayFilter('colors', color)}
+                                        title={color}
+                                    >
+                                        {color}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Tailles */}
+            <div className="filter-section">
+                <button 
+                    className="filter-section-header"
+                    onClick={() => toggleSection('sizes')}
+                >
+                    <span>📏 Tailles</span>
+                    {isOpen.sizes ? <FaChevronUp /> : <FaChevronDown />}
+                </button>
+                {isOpen.sizes && (
+                    <div className="filter-content">
+                        <div className="size-chips">
+                            {sizes.map((size, index) => (
+                                <button
+                                    key={index}
+                                    className={`size-chip ${localFilters.sizes.includes(size) ? 'active' : ''}`}
+                                    onClick={() => toggleArrayFilter('sizes', size)}
+                                >
+                                    {size}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default ProductFilters;

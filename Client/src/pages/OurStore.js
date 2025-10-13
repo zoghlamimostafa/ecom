@@ -263,13 +263,23 @@ const OurStore = () => {
 
                             {/* Liste des produits */}
                             <div className="products-grid">
-                                <div className={`row ${gridView ? 'grid-view' : 'list-view'}`}>
-                                    {filteredProducts && filteredProducts.map((item, index) => (
-                                        <div key={index}>
-                                            <ProductCard data={item} gridView={gridView} />
-                                        </div>
-                                    ))}
-                                </div>
+                                {gridView ? (
+                                    <div className="row">
+                                        {filteredProducts && filteredProducts.map((item, index) => (
+                                            <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-4" key={index}>
+                                                <ProductCard data={item} gridView={true} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="row">
+                                        {filteredProducts && filteredProducts.map((item, index) => (
+                                            <div className="col-12 mb-3" key={index}>
+                                                <ProductCard data={item} gridView={false} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                                 {filteredProducts.length === 0 && (
                                     <div className="no-products">
                                         <div style={{ fontSize: '4rem', marginBottom: '1rem', opacity: 0.3 }}>🔍</div>

@@ -1,0 +1,281 @@
+/* Sidebar de filtres moderne avec couleur orange #FF7A00 */
+
+.product-filters-sidebar {
+    background: white;
+    border-radius: 16px;
+    padding: 0;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    border: 2px solid #f5f5f5;
+}
+
+.filters-header {
+    padding: 1.5rem;
+    border-bottom: 2px solid #f5f5f5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #fff5f0 0%, #ffffff 100%);
+    border-radius: 14px 14px 0 0;
+}
+
+.filters-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #202124;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.filters-title svg {
+    color: #FF7A00;
+    font-size: 1.1rem;
+}
+
+.clear-all-btn {
+    background: #fff0e6;
+    color: #FF7A00;
+    border: 2px solid #FF7A00;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.clear-all-btn:hover {
+    background: #FF7A00;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Section de filtre */
+.filter-section {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.filter-section:last-child {
+    border-bottom: none;
+}
+
+.filter-section-header {
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    background: white;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #202124;
+    transition: all 0.3s ease;
+}
+
+.filter-section-header:hover {
+    background: #fff5f0;
+}
+
+.filter-section-header span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-section-header svg {
+    color: #FF7A00;
+    font-size: 0.875rem;
+}
+
+.filter-content {
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Prix */
+.price-inputs {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.price-input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.price-input:focus {
+    outline: none;
+    border-color: #FF7A00;
+    box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.1);
+}
+
+.price-separator {
+    font-weight: 600;
+    color: #999;
+}
+
+/* Checkboxes */
+.filter-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.filter-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.filter-checkbox-label:hover {
+    background: #fff5f0;
+}
+
+.filter-checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #FF7A00;
+}
+
+.checkbox-text {
+    font-size: 0.95rem;
+    color: #333;
+    font-weight: 500;
+}
+
+/* Couleurs */
+.color-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.color-chip {
+    padding: 0.5rem 1rem;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #333;
+}
+
+.color-chip:hover {
+    border-color: #FF7A00;
+    background: #fff5f0;
+    transform: translateY(-2px);
+}
+
+.color-chip.active {
+    background: #FF7A00;
+    color: white;
+    border-color: #FF7A00;
+}
+
+/* Tailles */
+.size-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.size-chip {
+    width: 50px;
+    height: 50px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.size-chip:hover {
+    border-color: #FF7A00;
+    background: #fff5f0;
+    transform: translateY(-2px);
+}
+
+.size-chip.active {
+    background: #FF7A00;
+    color: white;
+    border-color: #FF7A00;
+}
+
+/* Scrollbar personnalisée */
+.product-filters-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.product-filters-sidebar::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 10px;
+}
+
+.product-filters-sidebar::-webkit-scrollbar-thumb {
+    background: #FF7A00;
+    border-radius: 10px;
+}
+
+.product-filters-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #e66d00;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .product-filters-sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        bottom: 0;
+        width: 85%;
+        max-width: 350px;
+        max-height: 100vh;
+        border-radius: 0;
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+
+    .product-filters-sidebar.mobile-open {
+        left: 0;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
+    }
+}
