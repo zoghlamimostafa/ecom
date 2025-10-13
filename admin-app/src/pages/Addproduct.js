@@ -255,59 +255,85 @@ const Addproduct = () => {
             {formik.touched.brand && formik.errors.brand}
           </div>
           
-          <select
-            name="category"
-            onChange={handleCategoryChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.category}
-            className="form-control py-3 mb-3"
-            id=""
-            style={{fontSize: '1rem', fontWeight: '500'}}
-          >
-            <option value="">📦 Sélectionnez une Catégorie Principale</option>
-            {mainCategories
-              .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
-              .map((i, j) => {
-                const icon = i.icon || '📦';
-                return (
-                  <option key={j} value={i._id || i.id}>
-                    {icon} {i.title}
-                  </option>
-                );
-              })}
-          </select>
-          <div className="error">
-            {formik.touched.category && formik.errors.category}
-          </div>
-          
-          {/* Sous-catégories conditionnelles */}
-          {selectedCategory && availableSubcategories.length > 0 && (
-            <>
-              <select
-                name="subcategory"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.subcategory}
-                className="form-control py-3 mb-3"
-                id=""
-                style={{fontSize: '0.95rem', fontWeight: '500', background: '#f8f9fa'}}
-              >
-                <option value="">↳ Sélectionnez une Sous-catégorie (Optionnel)</option>
-                {availableSubcategories
-                  .sort((a, b) => (a.title || '').localeCompare(b.title || ''))
-                  .map((sub, index) => {
-                    return (
-                      <option key={index} value={sub._id || sub.id}>
-                        ↳ {sub.title}
+          {/* Catégories avec structure hiérarchique améliorée */}
+          <div style={{marginBottom: '20px'}}>
+            <label style={{display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.95rem'}}>
+              📂 Catégorie du Produit <span style={{color: 'red'}}>*</span>
+            </label>
+            <select
+              name="category"
+              onChange={handleCategoryChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.category}
+              className="form-control py-3"
+              style={{
+                fontSize: '0.95rem', 
+                fontWeight: '500',
+                border: formik.touched.category && formik.errors.category ? '1px solid red' : '1px solid #ced4da',
+                borderRadius: '6px'
+              }}
+            >
+              <option value="" style={{fontWeight: '600', color: '#666'}}>
+                📦 Sélectionnez une Catégorie (385 disponibles)
+              </option>
+              
+              {/* Grouper par catégories principales avec leurs sous-catégories */}
+              {mainCategories
+                .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+                .map((mainCat) => {
+                  const icon = mainCat.icon || '📦';
+                  const categoryId = mainCat._id || mainCat.id;
+                  
+                  // Récupérer les sous-catégories de cette catégorie principale
+                  const subCats = subCategories.filter(sub => 
+                    sub.parentId && sub.parentId.toString() === categoryId.toString()
+                  );
+                  
+                  return (
+                    <optgroup 
+                      key={categoryId} 
+                      label={`${icon} ${mainCat.title} (${subCats.length} sous-catégories)`}
+                      style={{fontWeight: '700', fontSize: '1rem', background: '#f0f0f0'}}
+                    >
+                      {/* Option pour la catégorie principale */}
+                      <option 
+                        value={categoryId}
+                        style={{fontWeight: '600', paddingLeft: '10px'}}
+                      >
+                        {icon} {mainCat.title} (Catégorie principale)
                       </option>
-                    );
-                  })}
-              </select>
-              <div className="error">
-                {formik.touched.subcategory && formik.errors.subcategory}
-              </div>
-            </>
-          )}
+                      
+                      {/* Sous-catégories */}
+                      {subCats
+                        .sort((a, b) => (a.title || '').localeCompare(b.title || ''))
+                        .map((subCat) => (
+                          <option 
+                            key={subCat._id || subCat.id} 
+                            value={subCat._id || subCat.id}
+                            style={{
+                              paddingLeft: '30px', 
+                              fontWeight: '400',
+                              fontSize: '0.9rem'
+                            }}
+                          >
+                            ↳ {subCat.title}
+                          </option>
+                        ))}
+                    </optgroup>
+                  );
+                })}
+            </select>
+            <div className="error" style={{marginTop: '5px', fontSize: '0.85rem'}}>
+              {formik.touched.category && formik.errors.category}
+            </div>
+            {selectedCategory && (
+              <small style={{display: 'block', marginTop: '5px', color: '#28a745', fontSize: '0.85rem'}}>
+                ✅ Catégorie sélectionnée : {
+                  catState.find(c => (c._id || c.id) === selectedCategory)?.title || 'N/A'
+                }
+              </small>
+            )}
+          </div>
           
           <select
             name="tags"

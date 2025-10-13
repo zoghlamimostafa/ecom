@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import './ProductFilters.css';
 import { FaFilter, FaTimes, FaChevronDown, FaChevronUp } from 'react-icons/fa';
@@ -9,7 +9,10 @@ const ProductFilters = ({ onFilterChange, activeFilters = {} }) => {
         brands: true,
         categories: true,
         colors: true,
-        sizes: true
+        sizes: true,
+        rating: true,
+        availability: true,
+        discount: true
     });
 
     const [localFilters, setLocalFilters] = useState({
@@ -18,7 +21,10 @@ const ProductFilters = ({ onFilterChange, activeFilters = {} }) => {
         brands: [],
         categories: [],
         colors: [],
-        sizes: []
+        sizes: [],
+        rating: '',
+        inStock: false,
+        onSale: false
     });
 
     const productState = useSelector((state) => state?.product?.products);
@@ -67,6 +73,24 @@ const ProductFilters = ({ onFilterChange, activeFilters = {} }) => {
         onFilterChange(newFilters);
     };
 
+    const handleRatingChange = (value) => {
+        const newFilters = {
+            ...localFilters,
+            rating: localFilters.rating === value ? '' : value
+        };
+        setLocalFilters(newFilters);
+        onFilterChange(newFilters);
+    };
+
+    const toggleBooleanFilter = (type) => {
+        const newFilters = {
+            ...localFilters,
+            [type]: !localFilters[type]
+        };
+        setLocalFilters(newFilters);
+        onFilterChange(newFilters);
+    };
+
     const clearAllFilters = () => {
         const emptyFilters = {
             minPrice: '',
@@ -74,7 +98,10 @@ const ProductFilters = ({ onFilterChange, activeFilters = {} }) => {
             brands: [],
             categories: [],
             colors: [],
-            sizes: []
+            sizes: [],
+            rating: '',
+            inStock: false,
+            onSale: false
         };
         setLocalFilters(emptyFilters);
         onFilterChange(emptyFilters);
@@ -86,7 +113,10 @@ const ProductFilters = ({ onFilterChange, activeFilters = {} }) => {
         localFilters.brands.length +
         localFilters.categories.length +
         localFilters.colors.length +
-        localFilters.sizes.length;
+        localFilters.sizes.length +
+        (localFilters.rating ? 1 : 0) +
+        (localFilters.inStock ? 1 : 0) +
+        (localFilters.onSale ? 1 : 0);
 
     return (
         <div className="product-filters-sidebar">
@@ -242,6 +272,82 @@ const ProductFilters = ({ onFilterChange, activeFilters = {} }) => {
                                 </button>
                             ))}
                         </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Note moyenne */}
+            <div className="filter-section">
+                <button 
+                    className="filter-section-header"
+                    onClick={() => toggleSection('rating')}
+                >
+                    <span>⭐ Note minimum</span>
+                    {isOpen.rating ? <FaChevronUp /> : <FaChevronDown />}
+                </button>
+                {isOpen.rating && (
+                    <div className="filter-content">
+                        <div className="rating-options">
+                            {[5, 4, 3, 2, 1].map((star) => (
+                                <label key={star} className="filter-checkbox-label">
+                                    <input
+                                        type="radio"
+                                        name="rating"
+                                        checked={localFilters.rating === star}
+                                        onChange={() => handleRatingChange(star)}
+                                    />
+                                    <span className="checkbox-text">
+                                        {'⭐'.repeat(star)} {star} étoiles et +
+                                    </span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Disponibilité */}
+            <div className="filter-section">
+                <button 
+                    className="filter-section-header"
+                    onClick={() => toggleSection('availability')}
+                >
+                    <span>📦 Disponibilité</span>
+                    {isOpen.availability ? <FaChevronUp /> : <FaChevronDown />}
+                </button>
+                {isOpen.availability && (
+                    <div className="filter-content">
+                        <label className="filter-checkbox-label">
+                            <input
+                                type="checkbox"
+                                checked={localFilters.inStock}
+                                onChange={() => toggleBooleanFilter('inStock')}
+                            />
+                            <span className="checkbox-text">✅ En stock uniquement</span>
+                        </label>
+                    </div>
+                )}
+            </div>
+
+            {/* Promotions */}
+            <div className="filter-section">
+                <button 
+                    className="filter-section-header"
+                    onClick={() => toggleSection('discount')}
+                >
+                    <span>🔥 Promotions</span>
+                    {isOpen.discount ? <FaChevronUp /> : <FaChevronDown />}
+                </button>
+                {isOpen.discount && (
+                    <div className="filter-content">
+                        <label className="filter-checkbox-label">
+                            <input
+                                type="checkbox"
+                                checked={localFilters.onSale}
+                                onChange={() => toggleBooleanFilter('onSale')}
+                            />
+                            <span className="checkbox-text">💰 En promotion uniquement</span>
+                        </label>
                     </div>
                 )}
             </div>

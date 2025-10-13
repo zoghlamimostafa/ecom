@@ -13,6 +13,60 @@
     margin-bottom: 2rem;
 }
 
+/* Products Grid Spacing */
+.products-list {
+    padding: 2rem 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.products-list .row {
+    margin-left: 0;
+    margin-right: 0;
+    justify-content: center;
+}
+
+.products-list .col-xl-3,
+.products-list .col-lg-4,
+.products-list .col-md-6,
+.products-list .col-sm-6 {
+    display: flex;
+    justify-content: center;
+    padding: 0 15px;
+}
+
+/* DESKTOP (≥1200px) - 4 colonnes, espacement généreux */
+@media (min-width: 1200px) {
+    .products-list .row.g-4 {
+        row-gap: 40px !important;
+        column-gap: 40px !important;
+    }
+}
+
+/* TABLETTE (768px - 1199px) - 3 colonnes, espacement moyen */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .products-list .row.g-4 {
+        row-gap: 35px !important;
+        column-gap: 35px !important;
+    }
+    
+    .products-list {
+        padding: 1.5rem 1rem;
+    }
+}
+
+/* MOBILE (<768px) - 2 colonnes, espacement compact */
+@media (max-width: 767px) {
+    .products-list .row.g-4 {
+        row-gap: 30px !important;
+        column-gap: 30px !important;
+    }
+    
+    .products-list {
+        padding: 1rem 0.5rem;
+    }
+}
+
 .page-title {
     font-size: 2.5rem;
     font-weight: 800;

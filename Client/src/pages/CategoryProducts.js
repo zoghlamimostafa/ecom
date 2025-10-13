@@ -109,6 +109,39 @@ const CategoryProducts = () => {
             });
         }
 
+        // Filtre de taille
+        if (filters.sizes && filters.sizes.length > 0) {
+            filtered = filtered.filter(p => {
+                let productSizes = p.size || p.sizes;
+                if (typeof productSizes === 'string') {
+                    try {
+                        productSizes = JSON.parse(productSizes);
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                if (Array.isArray(productSizes)) {
+                    return productSizes.some(s => filters.sizes.includes(s));
+                }
+                return false;
+            });
+        }
+
+        // Filtre de note
+        if (filters.rating) {
+            filtered = filtered.filter(p => parseFloat(p.totalrating || 0) >= filters.rating);
+        }
+
+        // Filtre de disponibilité
+        if (filters.inStock) {
+            filtered = filtered.filter(p => p.quantity > 0);
+        }
+
+        // Filtre de promotion
+        if (filters.onSale) {
+            filtered = filtered.filter(p => p.tags && p.tags.includes('sale'));
+        }
+
         return filtered;
     };
 
@@ -211,9 +244,9 @@ const CategoryProducts = () => {
                         {/* Grille de produits */}
                         <div className="col-lg-9">
                             {filteredProducts.length > 0 ? (
-                                <div className="row">
+                                <div className="row g-4">
                                     {filteredProducts.map((product, index) => (
-                                        <div className="col-lg-4 col-md-6 col-sm-6 mb-4" key={product._id || index}>
+                                        <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6" key={product._id || index}>
                                             <ProductCard data={product} gridView={true} />
                                         </div>
                                     ))}

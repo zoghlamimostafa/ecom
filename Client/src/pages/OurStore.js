@@ -3,10 +3,11 @@ import BrandCrumb from '../components/BrandCrumb';
 import Meta from '../components/Meta';
 import SEOEnhancer from '../components/SEOEnhancer';
 import ProductCard from '../components/ProductCard';
+import ProductFilters from '../components/ProductFilters';
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from '../contexts/TranslationContext';
 import { getAllProducts } from '../features/products/productSlice';
-import { FaFilter, FaTimes, FaSearch, FaTh, FaList, FaSort } from 'react-icons/fa';
+import { FaSearch, FaTh, FaList, FaSort } from 'react-icons/fa';
 import './OurStore.css';
 
 const OurStore = () => {
@@ -14,68 +15,94 @@ const OurStore = () => {
     const dispatch = useDispatch();
     const productState = useSelector((state) => state?.product?.product);
     
-    const [brands, setBrands] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [tags, setTags] = useState([]);
-    const [showFilters, setShowFilters] = useState(false);
     const [gridView, setGridView] = useState(true);
-    
-    const [selectedBrand, setSelectedBrand] = useState(null);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [selectedTag, setSelectedTag] = useState(null);
-    const [minPrice, setMinPrice] = useState('');
-    const [maxPrice, setMaxPrice] = useState('');
     const [sort, setSort] = useState('-createdAt');
     const [searchTerm, setSearchTerm] = useState('');
+    const [activeFilters, setActiveFilters] = useState({});
 
     useEffect(() => {
-        getProducts();
-    }, [sort, selectedBrand, selectedCategory, selectedTag, minPrice, maxPrice]);
+        dispatch(getAllProducts());
+    }, [dispatch]);
 
-    // Fermer les filtres avec la touche Escape
-    useEffect(() => {
-        const handleEscape = (e) => {
-            if (e.key === 'Escape' && showFilters) {
-                setShowFilters(false);
-            }
-        };
-        document.addEventListener('keydown', handleEscape);
-        return () => document.removeEventListener('keydown', handleEscape);
-    }, [showFilters]);
-
-    const getProducts = () => {
-        dispatch(getAllProducts({sort, brand: selectedBrand, category: selectedCategory, tag: selectedTag, minPrice, maxPrice}));
+    const handleFilterChange = (newFilters) => {
+        setActiveFilters(newFilters);
     };
 
-    useEffect(() => {
-        if (productState) {
-            const allBrands = [...new Set(productState.map(p => p.brand))].filter(Boolean);
-            const allCategories = [...new Set(productState.map(p => p.category))].filter(Boolean);
-            const allTags = [...new Set(productState.flatMap(p => p.tags))].filter(Boolean);
-            setBrands(allBrands);
-            setCategories(allCategories);
-            setTags(allTags);
-        }
-    }, [productState]);
+    const applyFilters = (products, filters) => {
+        let filtered = [...products];
 
-    const clearFilters = () => {
-        setSelectedBrand(null);
-        setSelectedCategory(null);
-        setSelectedTag(null);
-        setMinPrice('');
-        setMaxPrice('');
-        setSearchTerm('');
-    };
-
-    const filteredProducts = productState?.filter(product => {
         if (searchTerm) {
-            return product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                   product.brand.toLowerCase().includes(searchTerm.toLowerCase());
+            filtered = filtered.filter(p => 
+                p.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                p.brand?.toLowerCase().includes(searchTerm.toLowerCase())
+            );
         }
-        return true;
-    }) || [];
 
-    const activeFiltersCount = [selectedBrand, selectedCategory, selectedTag, minPrice, maxPrice].filter(Boolean).length;
+        if (filters.minPrice) {
+            filtered = filtered.filter(p => parseFloat(p.price) >= parseFloat(filters.minPrice));
+        }
+        if (filters.maxPrice) {
+            filtered = filtered.filter(p => parseFloat(p.price) <= parseFloat(filters.maxPrice));
+        }
+
+        if (filters.brands && filters.brands.length > 0) {
+            filtered = filtered.filter(p => filters.brands.includes(p.brand));
+        }
+
+        if (filters.categories && filters.categories.length > 0) {
+            filtered = filtered.filter(p => filters.categories.includes(p.category));
+        }
+
+        if (filters.colors && filters.colors.length > 0) {
+            filtered = filtered.filter(p => {
+                let productColors = p.color;
+                if (typeof productColors === 'string' && productColors !== 'null' && productColors !== '') {
+                    try {
+                        productColors = JSON.parse(productColors);
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                if (Array.isArray(productColors)) {
+                    return productColors.some(c => filters.colors.includes(c?.title || c));
+                }
+                return false;
+            });
+        }
+
+        if (filters.sizes && filters.sizes.length > 0) {
+            filtered = filtered.filter(p => {
+                let productSizes = p.size || p.sizes;
+                if (typeof productSizes === 'string') {
+                    try {
+                        productSizes = JSON.parse(productSizes);
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                if (Array.isArray(productSizes)) {
+                    return productSizes.some(s => filters.sizes.includes(s));
+                }
+                return false;
+            });
+        }
+
+        if (filters.rating) {
+            filtered = filtered.filter(p => parseFloat(p.totalrating || 0) >= filters.rating);
+        }
+
+        if (filters.inStock) {
+            filtered = filtered.filter(p => p.quantity > 0);
+        }
+
+        if (filters.onSale) {
+            filtered = filtered.filter(p => p.tags && p.tags.includes('sale'));
+        }
+
+        return filtered;
+    };
+
+    const filteredProducts = applyFilters(productState || [], activeFilters);
 
     return (
         <>
@@ -89,7 +116,6 @@ const OurStore = () => {
             <BrandCrumb title={t('ourStore')} />
             <div className="store-wrapper py-5">
                 <div className="container-xxl">
-                    {/* Barre de recherche et contrôles */}
                     <div className="store-header mb-4">
                         <div className="row align-items-center">
                             <div className="col-lg-6">
@@ -98,7 +124,7 @@ const OurStore = () => {
                                         <FaSearch className="search-icon" />
                                         <input
                                             type="text"
-                                            placeholder={t('searchProducts')}
+                                            placeholder={t('searchProducts') || 'Rechercher des produits...'}
                                             className="search-input"
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -108,12 +134,6 @@ const OurStore = () => {
                             </div>
                             <div className="col-lg-6">
                                 <div className="store-controls">
-                                    <button 
-                                        className={`filter-toggle-btn ${showFilters ? 'active' : ''}`}
-                                        onClick={() => setShowFilters(!showFilters)}
-                                    >
-                                        <FaFilter /> {t('filters')} {activeFiltersCount > 0 && `(${activeFiltersCount})`}
-                                    </button>
                                     <div className="view-toggle">
                                         <button 
                                             className={`view-btn ${gridView ? 'active' : ''}`}
@@ -134,114 +154,18 @@ const OurStore = () => {
                     </div>
 
                     <div className="row">
-                        {/* Overlay pour mobile */}
-                        {showFilters && (
-                            <div 
-                                className="mobile-filter-overlay d-lg-none"
-                                onClick={() => setShowFilters(false)}
-                            ></div>
-                        )}
-                        
-                        {/* Sidebar des filtres */}
-                        <div className={`col-lg-3 ${showFilters ? 'show-filters' : 'hide-filters'}`}>
-                            <div className={`filters-sidebar ${showFilters ? 'active' : ''}`}>
-                                {/* Bouton de fermeture mobile */}
-                                <button 
-                                    className="mobile-filter-close d-lg-none"
-                                    onClick={() => setShowFilters(false)}
-                                >
-                                    <FaTimes />
-                                </button>
-                                
-                                <div className="filters-header">
-                                    <h4>{t('filters')}</h4>
-                                    <button className="clear-filters-btn" onClick={clearFilters}>
-                                        <FaTimes /> {t('clearAll')}
-                                    </button>
-                                </div>
-
-                                {/* Catégories */}
-                                <div className="filter-section">
-                                    <h5 className="filter-title">{t('categories')}</h5>
-                                    <div className="filter-options">
-                                        {categories.map((cat, i) => (
-                                            <div 
-                                                key={i} 
-                                                className={`filter-option ${selectedCategory === cat ? 'selected' : ''}`}
-                                                onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
-                                            >
-                                                <span>{cat}</span>
-                                                {selectedCategory === cat && <FaTimes style={{ marginLeft: 'auto', fontSize: '0.8rem' }} />}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Prix */}
-                                <div className="filter-section">
-                                    <h5 className="filter-title">{t('price')}</h5>
-                                    <div className="price-range">
-                                        <div className="price-input">
-                                            <input 
-                                                type="number" 
-                                                placeholder={t('min')} 
-                                                value={minPrice}
-                                                onChange={(e) => setMinPrice(e.target.value)}
-                                            />
-                                        </div>
-                                        <span className="price-separator">-</span>
-                                        <div className="price-input">
-                                            <input 
-                                                type="number" 
-                                                placeholder={t('max')} 
-                                                value={maxPrice}
-                                                onChange={(e) => setMaxPrice(e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Marques */}
-                                <div className="filter-section">
-                                    <h5 className="filter-title">{t('brands')}</h5>
-                                    <div className="filter-tags">
-                                        {brands.map((brand, i) => (
-                                            <span 
-                                                key={i} 
-                                                className={`filter-tag ${selectedBrand === brand ? 'selected' : ''}`}
-                                                onClick={() => setSelectedBrand(selectedBrand === brand ? null : brand)}
-                                            >
-                                                {brand}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Tags */}
-                                <div className="filter-section">
-                                    <h5 className="filter-title">{t('tags')}</h5>
-                                    <div className="filter-tags">
-                                        {tags.map((tag, i) => (
-                                            <span 
-                                                key={i} 
-                                                className={`filter-tag ${selectedTag === tag ? 'selected' : ''}`}
-                                                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                                            >
-                                                {tag}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
+                        <div className="col-lg-3">
+                            <ProductFilters 
+                                onFilterChange={handleFilterChange}
+                                activeFilters={activeFilters}
+                            />
                         </div>
 
-                        {/* Zone des produits */}
-                        <div className={`${showFilters ? 'col-lg-9' : 'col-lg-12'}`}>
-                            {/* Barre de tri */}
+                        <div className="col-lg-9">
                             <div className="sort-bar mb-4">
                                 <div className="d-flex justify-content-between align-items-center">
                                     <span className="results-count">
-                                        {filteredProducts.length} {t('productsFound')}
+                                        {filteredProducts.length} {t('productsFound') || 'produits trouvés'}
                                     </span>
                                     <div className="sort-dropdown">
                                         <FaSort style={{ marginRight: '8px', color: '#6c757d' }} />
@@ -250,23 +174,22 @@ const OurStore = () => {
                                             onChange={(e) => setSort(e.target.value)}
                                             className="sort-select"
                                         >
-                                            <option value="-createdAt">{t('newest')}</option>
-                                            <option value="createdAt">{t('oldest')}</option>
-                                            <option value="title">{t('alphabeticalAZ')}</option>
-                                            <option value="-title">{t('alphabeticalZA')}</option>
-                                            <option value="price">{t('priceAscending')}</option>
-                                            <option value="-price">{t('priceDescending')}</option>
+                                            <option value="-createdAt">{t('newest') || 'Plus récents'}</option>
+                                            <option value="createdAt">{t('oldest') || 'Plus anciens'}</option>
+                                            <option value="title">{t('alphabeticalAZ') || 'A-Z'}</option>
+                                            <option value="-title">{t('alphabeticalZA') || 'Z-A'}</option>
+                                            <option value="price">{t('priceAscending') || 'Prix croissant'}</option>
+                                            <option value="-price">{t('priceDescending') || 'Prix décroissant'}</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Liste des produits */}
                             <div className="products-grid">
                                 {gridView ? (
-                                    <div className="row">
+                                    <div className="row g-4">
                                         {filteredProducts && filteredProducts.map((item, index) => (
-                                            <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 mb-4" key={index}>
+                                            <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6" key={index}>
                                                 <ProductCard data={item} gridView={true} />
                                             </div>
                                         ))}
@@ -283,13 +206,8 @@ const OurStore = () => {
                                 {filteredProducts.length === 0 && (
                                     <div className="no-products">
                                         <div style={{ fontSize: '4rem', marginBottom: '1rem', opacity: 0.3 }}>🔍</div>
-                                        <h4>{t('noProductsFound')}</h4>
-                                        <p>{t('tryModifyingSearch')}</p>
-                                        {(selectedBrand || selectedCategory || selectedTag || minPrice || maxPrice) && (
-                                            <button className="btn btn-outline-primary mt-3" onClick={clearFilters}>
-                                                {t('clearAllFilters')}
-                                            </button>
-                                        )}
+                                        <h4>{t('noProductsFound') || 'Aucun produit trouvé'}</h4>
+                                        <p>{t('tryModifyingSearch') || 'Essayez de modifier vos critères'}</p>
                                     </div>
                                 )}
                             </div>
