@@ -97,17 +97,15 @@ function App() {
 <Route path="telephones-tablettes" element={<CategoryProducts />}/>
 <Route path="mode-homme" element={<CategoryProducts />}/>
 <Route path="mode-femme" element={<CategoryProducts />}/>
-<Route path="bebe-puericulture" element={<CategoryProducts />}/>
-<Route path="maison-bureau" element={<CategoryProducts />}/>
-<Route path="jardin-bricolage" element={<CategoryProducts />}/>
-<Route path="sport-fitness" element={<CategoryProducts />}/>
-<Route path="automobile" element={<CategoryProducts />}/>
-<Route path="sante-beaute" element={<CategoryProducts />}/>
-<Route path="animaux" element={<CategoryProducts />}/>
-<Route path="jeux-jouets" element={<CategoryProducts />}/>
-<Route path="autres" element={<CategoryProducts />}/>
-
-{/* Anciennes routes redirigées vers les nouvelles */}
+            <Route path="bebe-puericulture" element={<Navigate to="/categorie/bebe-puericulture" replace />}/>
+            <Route path="maison-bureau" element={<Navigate to="/categorie/maison-bureau" replace />}/>
+            <Route path="jardin-bricolage" element={<Navigate to="/categorie/jardin-bricolage" replace />}/>
+            <Route path="sport-fitness" element={<Navigate to="/categorie/sport-fitness" replace />}/>
+            <Route path="automobile" element={<Navigate to="/categorie/automobile" replace />}/>
+            <Route path="sante-beaute" element={<Navigate to="/categorie/sante-beaute" replace />}/>
+            <Route path="animaux" element={<Navigate to="/categorie/animaux" replace />}/>
+            <Route path="jeux-jouets" element={<Navigate to="/categorie/jeux-jouets" replace />}/>
+            <Route path="autres" element={<Navigate to="/categorie/autres" replace />}/>{/* Anciennes routes redirigées vers les nouvelles */}
 <Route path="electro" element={<Navigate to="/categorie/electronique" replace />}/>
 <Route path="info" element={<Navigate to="/categorie/informatique" replace />}/>
 <Route path="baby" element={<Navigate to="/categorie/bebe-puericulture" replace />}/>
