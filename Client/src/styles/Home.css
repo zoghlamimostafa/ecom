@@ -2,16 +2,19 @@
    HOME PAGE - DESIGN AMÉLIORÉ
    ====================================================== */
 
-/* Section Titles - Design moderne */
+/* Section Titles - Design moderne avec espacement */
 .section-title {
   font-family: var(--font-headings);
-  font-size: var(--font-size-3xl);
+  font-size: 1.75rem; /* Taille réduite de 2.25rem à 1.75rem */
   font-weight: 700;
   color: var(--sanny-dark);
   text-align: center;
-  margin-bottom: var(--space-md);
+  margin-bottom: 1rem;
   position: relative;
-  padding-bottom: var(--space-base);
+  padding-bottom: 0.75rem;
+  letter-spacing: 2px; /* Espacement entre les lettres */
+  word-spacing: 8px; /* Espacement entre les mots */
+  text-transform: uppercase;
 }
 
 .section-title::after {
@@ -20,8 +23,8 @@
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 80px;
-  height: 4px;
+  width: 60px; /* Réduit de 80px à 60px */
+  height: 3px; /* Réduit de 4px à 3px */
   background: linear-gradient(90deg, var(--sanny-orange), var(--sanny-yellow));
   border-radius: 2px;
 }
@@ -29,11 +32,14 @@
 .section-subtitle {
   text-align: center;
   color: #666;
-  font-size: var(--font-size-md);
-  margin-bottom: var(--space-xl);
-  max-width: 600px;
+  font-size: 0.95rem; /* Taille réduite de 1.125rem à 0.95rem */
+  margin-bottom: 2.5rem;
+  max-width: 550px;
   margin-left: auto;
   margin-right: auto;
+  line-height: 1.6;
+  letter-spacing: 0.5px; /* Espacement entre les lettres */
+  word-spacing: 3px; /* Espacement entre les mots */
 }
 
 /* ======================================================
@@ -58,13 +64,18 @@
   pointer-events: none;
 }
 
-.promotions-wrapper .btn {
-  padding: var(--btn-padding-base);
+.promotions-wrapper .btn,
+.popular-products-wrapper .btn,
+.new-products-wrapper .btn {
+  padding: 0.75rem 1.75rem; /* Taille réduite */
   font-weight: 600;
   border-radius: var(--border-radius);
   transition: var(--transition);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 2px; /* Augmenté pour plus d'espace */
+  word-spacing: 4px; /* Espacement entre les mots */
+  font-size: 0.85rem; /* Taille de texte réduite */
+  text-align: center;
 }
 
 .promotions-wrapper .btn-outline-primary {
@@ -92,7 +103,6 @@
 .popular-products-wrapper .btn-primary {
   background: linear-gradient(135deg, var(--sanny-orange) 0%, #ff8f3f 100%);
   border: none;
-  padding: var(--btn-padding-base);
   font-weight: 600;
   border-radius: var(--border-radius);
   box-shadow: 0 4px 15px rgba(255,111,0,0.25);
@@ -165,8 +175,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 140px;
-  padding: 1.5rem 1rem;
+  min-width: 120px; /* Réduit de 140px à 120px */
+  padding: 1.25rem 0.875rem; /* Réduit le padding */
   background: white;
   border-radius: var(--border-radius-lg);
   text-decoration: none;
@@ -198,15 +208,15 @@
 }
 
 .category-icon-wrapper {
-  width: 70px;
-  height: 70px;
+  width: 55px; /* Réduit de 70px à 55px */
+  height: 55px; /* Réduit de 70px à 55px */
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--sanny-orange) 0%, var(--sanny-yellow) 100%);
   border-radius: 50%;
-  margin-bottom: 1rem;
-  font-size: 2rem;
+  margin-bottom: 0.75rem; /* Réduit de 1rem à 0.75rem */
+  font-size: 1.5rem; /* Réduit de 2rem à 1.5rem */
   color: white;
   transition: var(--transition);
   box-shadow: 0 4px 15px rgba(255,111,0,0.3);
@@ -221,7 +231,7 @@
 
 .category-name {
   font-family: var(--font-headings);
-  font-size: 0.9rem;
+  font-size: 0.8rem; /* Réduit de 0.9rem à 0.8rem */
   font-weight: 600;
   color: var(--sanny-dark);
   text-align: center;
@@ -229,6 +239,8 @@
   line-height: 1.3;
   position: relative;
   z-index: 1;
+  letter-spacing: 0.5px; /* Espacement entre les lettres */
+  word-spacing: 2px; /* Espacement entre les mots */
 }
 
 /* ======================================================
@@ -251,17 +263,20 @@
 }
 
 .why-sanny-subtitle {
-  font-size: var(--font-size-md);
+  font-size: 0.95rem; /* Taille réduite */
   color: #666;
-  max-width: 700px;
-  margin: 0 auto var(--space-2xl);
-  line-height: 1.8;
+  max-width: 650px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
+  text-align: center;
+  letter-spacing: 0.5px; /* Espacement entre les lettres */
+  word-spacing: 3px; /* Espacement entre les mots */
 }
 
 .feature-card {
   background: white;
   border-radius: var(--border-radius-xl);
-  padding: 2.5rem 2rem;
+  padding: 2rem 1.5rem; /* Réduit de 2.5rem 2rem à 2rem 1.5rem */
   text-align: center;
   transition: var(--transition);
   height: 100%;
@@ -293,15 +308,15 @@
 }
 
 .feature-card-icon {
-  width: 90px;
-  height: 90px;
-  margin: 0 auto 1.5rem;
+  width: 70px; /* Réduit de 90px à 70px */
+  height: 70px; /* Réduit de 90px à 70px */
+  margin: 0 auto 1.25rem; /* Réduit de 1.5rem à 1.25rem */
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, rgba(255,111,0,0.1) 0%, rgba(255,193,7,0.1) 100%);
   border-radius: 50%;
-  font-size: 2.5rem;
+  font-size: 2rem; /* Réduit de 2.5rem à 2rem */
   color: var(--sanny-orange);
   transition: var(--transition);
   position: relative;
@@ -316,17 +331,23 @@
 
 .feature-card-title {
   font-family: var(--font-headings);
-  font-size: var(--font-size-xl);
+  font-size: 1.15rem; /* Réduit de 1.5rem à 1.15rem */
   font-weight: 700;
   color: var(--sanny-dark);
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
+  text-align: center;
+  letter-spacing: 1px; /* Espacement entre les lettres */
+  word-spacing: 4px; /* Espacement entre les mots */
 }
 
 .feature-card-description {
   color: #666;
-  font-size: var(--font-size-base);
-  line-height: 1.7;
+  font-size: 0.9rem; /* Réduit de 1rem à 0.9rem */
+  line-height: 1.6;
   margin: 0;
+  text-align: center;
+  letter-spacing: 0.3px; /* Espacement entre les lettres */
+  word-spacing: 2px; /* Espacement entre les mots */
 }
 
 /* ======================================================
@@ -388,10 +409,10 @@
 }
 
 .service-carousel-card {
-  min-width: 280px;
+  min-width: 240px; /* Réduit de 280px à 240px */
   background: rgba(255,255,255,0.95);
   border-radius: var(--border-radius-lg);
-  padding: 2rem 1.5rem;
+  padding: 1.75rem 1.25rem; /* Réduit le padding */
   text-align: center;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   transition: var(--transition);
@@ -406,15 +427,15 @@
 }
 
 .service-icon {
-  width: 70px;
-  height: 70px;
-  margin: 0 auto 1.25rem;
+  width: 55px; /* Réduit de 70px à 55px */
+  height: 55px; /* Réduit de 70px à 55px */
+  margin: 0 auto 1rem; /* Réduit de 1.25rem à 1rem */
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--sanny-orange) 0%, var(--sanny-yellow) 100%);
   border-radius: 50%;
-  font-size: 2rem;
+  font-size: 1.5rem; /* Réduit de 2rem à 1.5rem */
   color: white;
   transition: var(--transition);
   box-shadow: 0 4px 15px rgba(255,111,0,0.4);
@@ -427,11 +448,14 @@
 
 .service-title {
   font-family: var(--font-headings);
-  font-size: var(--font-size-lg);
+  font-size: 1rem; /* Réduit de 1.25rem à 1rem */
   font-weight: 600;
   color: var(--sanny-dark);
   margin: 0;
   line-height: 1.4;
+  text-align: center;
+  letter-spacing: 0.5px; /* Espacement entre les lettres */
+  word-spacing: 3px; /* Espacement entre les mots */
 }
 
 /* ======================================================
@@ -440,71 +464,106 @@
 
 @media (max-width: 992px) {
   .section-title {
-    font-size: var(--font-size-2xl);
+    font-size: 1.5rem; /* Réduit */
+    letter-spacing: 1.5px;
+    word-spacing: 6px;
+  }
+  
+  .section-subtitle {
+    font-size: 0.875rem;
   }
   
   .feature-card {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+    padding: 1.75rem 1.25rem;
   }
   
   .category-carousel-item {
-    min-width: 120px;
+    min-width: 100px;
   }
   
   .service-carousel-card {
-    min-width: 240px;
+    min-width: 200px;
   }
 }
 
 @media (max-width: 768px) {
   .section-title {
-    font-size: var(--font-size-xl);
-    padding-bottom: var(--space-sm);
+    font-size: 1.35rem; /* Réduit */
+    padding-bottom: 0.5rem;
+    letter-spacing: 1.5px;
+    word-spacing: 5px;
   }
   
   .section-title::after {
-    width: 60px;
-    height: 3px;
+    width: 50px;
+    height: 2.5px;
   }
   
   .section-subtitle {
-    font-size: var(--font-size-base);
+    font-size: 0.85rem;
+    letter-spacing: 0.3px;
+    word-spacing: 2px;
   }
   
   .why-sanny-wrapper {
-    padding: 3rem 0 !important;
+    padding: 2.5rem 0 !important;
   }
   
   .feature-card {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem 1.25rem;
   }
   
   .feature-card-icon {
-    width: 70px;
-    height: 70px;
-    font-size: 2rem;
-  }
-  
-  .category-carousel-item {
-    min-width: 100px;
-    padding: 1rem 0.75rem;
-  }
-  
-  .category-icon-wrapper {
     width: 60px;
     height: 60px;
     font-size: 1.75rem;
   }
   
+  .feature-card-title {
+    font-size: 1rem;
+    letter-spacing: 0.8px;
+    word-spacing: 3px;
+  }
+  
+  .feature-card-description {
+    font-size: 0.85rem;
+  }
+  
+  .category-carousel-item {
+    min-width: 90px;
+    padding: 1rem 0.625rem;
+  }
+  
+  .category-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+  
+  .category-name {
+    font-size: 0.75rem;
+  }
+  
   .service-carousel-card {
-    min-width: 200px;
+    min-width: 180px;
     padding: 1.5rem 1rem;
   }
   
   .service-icon {
-    width: 60px;
-    height: 60px;
-    font-size: 1.75rem;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+  
+  .service-title {
+    font-size: 0.9rem;
+  }
+  
+  .btn {
+    font-size: 0.8rem;
+    padding: 0.625rem 1.5rem;
+    letter-spacing: 1.5px;
   }
 }
 
@@ -519,15 +578,71 @@
   }
   
   .section-title {
-    font-size: var(--font-size-lg);
+    font-size: 1.15rem; /* Réduit */
+    letter-spacing: 1px;
+    word-spacing: 4px;
+  }
+  
+  .section-subtitle {
+    font-size: 0.8rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .feature-card {
+    padding: 1.25rem 1rem;
+  }
+  
+  .feature-card-title {
+    font-size: 0.95rem;
+  }
+  
+  .feature-card-description {
+    font-size: 0.8rem;
   }
   
   .categories-carousel-track {
-    gap: 1rem;
+    gap: 0.75rem;
+  }
+  
+  .category-carousel-item {
+    min-width: 80px;
+    padding: 0.875rem 0.5rem;
+  }
+  
+  .category-icon-wrapper {
+    width: 45px;
+    height: 45px;
+    font-size: 1.25rem;
+  }
+  
+  .category-name {
+    font-size: 0.7rem;
   }
   
   .services-track {
-    gap: 1rem;
+    gap: 0.75rem;
+  }
+  
+  .service-carousel-card {
+    min-width: 160px;
+    padding: 1.25rem 0.875rem;
+  }
+  
+  .service-icon {
+    width: 45px;
+    height: 45px;
+    font-size: 1.25rem;
+  }
+  
+  .service-title {
+    font-size: 0.85rem;
+  }
+  
+  .btn {
+    font-size: 0.75rem;
+    padding: 0.5rem 1.25rem;
+    letter-spacing: 1px;
+    word-spacing: 2px;
   }
 }
 
