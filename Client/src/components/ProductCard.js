@@ -154,20 +154,17 @@ const ProductCard = ({ data, gridView = true }) => {
     const handleImageError = useCallback(() => {
         setImageError(true);
     }, []);
+    
+    // Early return si pas de données (après les hooks)
+    if (!productData) return null;
 
     // Image avec gestion robuste
     const imageUrl = useMemo(() => {
-        if (!productData?.images) {
-            return 'https://via.placeholder.com/300x300/f8f9fa/6c757d?text=Image+non+disponible';
-        }
         if (imageError) {
             return 'https://via.placeholder.com/300x300/f8f9fa/6c757d?text=Image+non+disponible';
         }
         return getProductImageUrl(productData.images);
-    }, [imageError, productData?.images]);
-    
-    // Early return si pas de données (après tous les hooks)
-    if (!productData) return null;
+    }, [imageError, productData.images]);
 
     // Format des badges
     const renderBadges = () => {

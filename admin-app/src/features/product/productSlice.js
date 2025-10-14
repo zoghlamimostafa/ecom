@@ -163,10 +163,8 @@ export const productSlice = createSlice({
         state.isError = false;
         state.isSuccess = true;
         // Supprimez le produit de la liste des produits en utilisant son ID
-        // Compatibilité MongoDB (_id) et SQLite (id)
         state.products = state.products.filter(product => {
-          const productId = product.id || product._id;
-          return productId !== action.payload;
+          return product.id !== action.payload;
         });
       })
       .addCase(deleteProduct.rejected, (state, action) => {
@@ -217,11 +215,9 @@ export const productSlice = createSlice({
         state.isSuccess = true;
         state.product = action.payload;
         // Update the product in the products array as well
-        // Compatibilité MongoDB (_id) et SQLite (id)
-        const updatedProductId = action.payload.id || action.payload._id;
+        const updatedProductId = action.payload.id;
         const index = state.products.findIndex(product => {
-          const productId = product.id || product._id;
-          return productId === updatedProductId;
+          return product.id === updatedProductId;
         });
         if (index !== -1) {
           state.products[index] = action.payload;

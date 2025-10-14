@@ -60,14 +60,14 @@ const Couponlist = () => {
       action: (
         <>
           <Link
-            to={`/admin/coupon/${couponState[i]._id}`}
+            to={`/admin/coupon/${couponState[i].id}`}
             className=" fs-3 text-danger"
           >
             <BiEdit />
           </Link>
           <button
             className="ms-3 fs-3 text-danger bg-transparent border-0"
-            onClick={() => showModal(couponState[i]._id)}
+            onClick={() => showModal(couponState[i].id)}
           >
             <AiFillDelete />
           </button>

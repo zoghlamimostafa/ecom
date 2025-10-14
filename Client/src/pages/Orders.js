@@ -94,8 +94,8 @@ const PageMesCommandes = () => {
               </tr>
             ) : Array.isArray(orders) ? (
               orders.map((commande) => (
-                <tr key={commande._id || commande.id}>
-                  <td data-label="#"> {commande._id || commande.id} </td>
+                <tr key={commande.id}>
+                  <td data-label="#"> {commande.id} </td>
                   <td data-label="Date"> {new Date(commande.createdAt).toLocaleDateString()} </td>
                   <td data-label="Total"> {commande.totalPrice} TND </td>
                   <td data-label="Statut"> {commande.orderStatus} </td>

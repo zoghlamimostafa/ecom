@@ -172,8 +172,7 @@ const Productlist = () => {
   }
   
   const data = productState.products.map((product, index) => {
-    // Assurer la compatibilité entre MongoDB (_id) et SQLite (id)
-    const productId = product.id || product._id;
+    const productId = product.id;
     
     // Debug: Vérifier la structure des données produit
     console.log(`🔍 Produit ${index + 1}:`, {

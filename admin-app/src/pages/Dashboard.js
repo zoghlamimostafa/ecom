@@ -84,8 +84,8 @@ const Dashboard = () => {
 
   // Format orders data with proper keys
   const formattedOrders = orders.map((order, index) => ({
-    key: order._id || `order-${index}`, // Use order ID as key or fallback
-    orderId: order._id || `#${index + 1}`,
+    key: order.id || `order-${index}`,
+    orderId: order.id || `#${index + 1}`,
     customer: (order.user?.firstname || order.orderby?.firstname) || "Client inconnu",
     totalProducts: order.orderItems ? order.orderItems.length : (order.products ? order.products.length : 0),
     status: order.orderStatus || order.paymentIntent?.status || "En traitement",

@@ -53,14 +53,14 @@ const Categorylist = () => {
       action: (
         <>
           <Link
-            to={`/admin/category/${pCatStat[i]._id}`}
+            to={`/admin/category/${pCatStat[i].id}`}
             className=" fs-3 text-danger"
           >
             <BiEdit />
           </Link>
           <button
             className="ms-3 fs-3 text-danger bg-transparent border-0"
-            onClick={() => showModal(pCatStat[i]._id)}
+            onClick={() => showModal(pCatStat[i].id)}
           >
             <AiFillDelete />
           </button>

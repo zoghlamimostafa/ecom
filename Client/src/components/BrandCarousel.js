@@ -77,7 +77,7 @@ const BrandCarousel = ({ brands }) => {
     <div className="brand-carousel-wrapper">
       <Slider {...settings}>
         {displayBrands.map((brand, index) => (
-          <div key={brand._id || index} className="brand-slide">
+          <div key={brand.id || index} className="brand-slide">
             <div className="brand-card">
               <div className="brand-logo">
                 <img 

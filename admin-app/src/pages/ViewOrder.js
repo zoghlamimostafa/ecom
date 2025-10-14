@@ -61,12 +61,12 @@ const ViewOrder = () => {
   if (orderProducts) {
     for (let i = 0; i < orderProducts.length; i++) {
       data1.push({
-        key: orderProducts[i]._id || `item-${i}`, // Use item ID as key or fallback
+        key: orderProducts[i].id || `item-${i}`,
         name: orderProducts[i].product?.title || "N/A",
         brand: orderProducts[i].product?.brand || "N/A", 
-        count: orderProducts[i].quantity || 0, // Use quantity instead of count
-        amount: orderProducts[i].price || 0, // Use the price from orderItem
-        color: orderProducts[i].color?.title || "N/A", // Color is now an object reference
+        count: orderProducts[i].quantity || 0,
+        amount: orderProducts[i].price || 0,
+        color: orderProducts[i].color?.title || "N/A",
         date: orderProducts[i].product?.createdAt ? new Date(orderProducts[i].product.createdAt).toLocaleDateString() : "N/A",
         action: (
           <>

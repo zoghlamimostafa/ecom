@@ -1,45 +1,37 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { getAllCategories } from '../features/category/categorySlice';
+import categoryService from '../services/categoryService';
 import './CategoriesNav.css';
 
 const CategoriesNav = () => {
-    const dispatch = useDispatch();
-    const categoryState = useSelector((state) => state?.category?.categories);
+    const [categories, setCategories] = useState([]);
 
     useEffect(() => {
-        dispatch(getAllCategories());
-    }, [dispatch]);
-
-    // Filtrer seulement les catégories principales (level 0)
-    const mainCategories = categoryState?.filter(cat => cat.level === 0 || cat.parentId === null) || [];
-
-    // Trier par sortOrder
-    const sortedCategories = mainCategories.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+        const fetchCategories = async () => {
+            try {
+                const data = await categoryService.getAllCategories();
+                setCategories(data);
+            } catch (error) {
+                console.error('Erreur chargement catégories:', error);
+            }
+        };
+        fetchCategories();
+    }, []);
 
     return (
-        <div className="categories-nav">
-            <div className="categories-nav-container">
-                <h3 className="categories-nav-title">
-                    <span>📦</span> Catégories
-                </h3>
-                <div className="categories-nav-grid">
-                    {sortedCategories.map((category) => (
-                        <Link
-                            key={category._id || category.id}
-                            to={`/categorie/${category.slug}`}
-                            className="category-nav-item"
-                        >
-                            {category.icon && (
-                                <span className="category-icon">{category.icon}</span>
-                            )}
-                            <span className="category-name">{category.title}</span>
-                        </Link>
+        <nav className="categories-nav">
+            <div className="container">
+                <ul className="categories-list">
+                    {categories.map(category => (
+                        <li key={category.id}>
+                            <Link to={`/category/${category.slug || category.id}`}>
+                                {category.title}
+                            </Link>
+                        </li>
                     ))}
-                </div>
+                </ul>
             </div>
-        </div>
+        </nav>
     );
 };
 

@@ -5,7 +5,7 @@
  */
 
 const asyncHandler = require("express-async-handler");
-const { sequelize } = require('../models');
+const { sequelize } = require('../config/dbConnect');
 
 // Helper pour exécuter des requêtes SQL
 const query = async (sql, replacements = []) => {

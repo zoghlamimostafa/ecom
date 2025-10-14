@@ -76,7 +76,7 @@ router.get("/logout", logout);
 // Cart routes
 router.post("/cart", authMiddleware, asyncHandler(async (req, res) => {
     const { productId, color, quantity, price } = req.body;
-    const userId = req.user.id; // Sequelize uses id, not _id
+    const userId = req.user.id;
 
     if (isNaN(parseFloat(price)) || !isFinite(price)) {
         return res.status(400).json({ message: "Invalid price format" });
@@ -117,7 +117,7 @@ router.post("/cart", authMiddleware, asyncHandler(async (req, res) => {
 }));
 
 router.get("/cart", authMiddleware, asyncHandler(async (req, res) => {
-    const userId = req.user.id; // Sequelize uses id, not _id
+    const userId = req.user.id;
     try {
         console.log("Fetching cart for user:", userId);
         
@@ -235,7 +235,7 @@ router.put("/update-product-cart/:cartId/:newQuantity", authMiddleware, asyncHan
 }));
 
 router.get("/wishlist", authMiddleware, asyncHandler(async (req, res) => {
-    const userId = req.user.id; // Sequelize uses id, not _id
+    const userId = req.user.id;
     try {
         const Wishlist = require('../models/Wishlist');
         
@@ -253,7 +253,6 @@ router.get("/wishlist", authMiddleware, asyncHandler(async (req, res) => {
         
         // Transform the data to match the expected format
         const formattedWishlist = wishlistItems.map(item => ({
-            _id: item.productId,
             id: item.productId,
             title: item.product?.title,
             price: item.product?.price,
@@ -273,7 +272,7 @@ router.get("/wishlist", authMiddleware, asyncHandler(async (req, res) => {
 
 // Address route - save user address
 router.post("/address", authMiddleware, asyncHandler(async (req, res) => {
-    const userId = req.user.id; // Sequelize uses id, not _id
+    const userId = req.user.id;
     try {
         console.log("Saving address for user:", userId);
         console.log("Address data received:", req.body);

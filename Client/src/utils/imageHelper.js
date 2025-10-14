@@ -1,6 +1,6 @@
 /**
  * Utilitaire pour obtenir l'URL de l'image d'un produit
- * Gère différents formats d'images (SQLite/Sequelize et MongoDB)
+ * Gère différents formats d'images
  * Supporte Cloudinary, URLs externes et chemins locaux
  * @param {Object|Array|String} images - Les images du produit
  * @param {Number} index - Index de l'image (par défaut 0)
