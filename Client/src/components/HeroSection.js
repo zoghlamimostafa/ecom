@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../contexts/TranslationContext';
+import '../styles/HeroSection.css';
 
 const HeroSection = ({ title, subtitle, className = "" }) => {
   const { t } = useTranslation();

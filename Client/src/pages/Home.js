@@ -18,6 +18,7 @@ import {
   FaBaby, FaHome, FaSpa, FaMobileAlt, FaFutbol, FaGamepad,
   FaMusic, FaCamera, FaPaw, FaUtensils, FaTree, FaBoxOpen
 } from 'react-icons/fa';
+import '../styles/Home.css';
 
 const Home = () => {
   const { t } = useTranslation();
