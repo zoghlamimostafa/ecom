@@ -8,6 +8,7 @@ import Container from '../components/Container';
 import { AiOutlineHeart, AiOutlineShoppingCart } from 'react-icons/ai';
 import { RiEyeLine } from 'react-icons/ri';
 import { addProdToCart, getUserCart, toggleProductWishlist } from '../features/user/userSlice';
+import { getProductImageUrl } from '../utils/imageHelper';
 
 const Other = () => {
     const navigate = useNavigate();

@@ -158,13 +158,10 @@ const ProductCard = ({ data, gridView = true }) => {
     // Early return si pas de données (après les hooks)
     if (!productData) return null;
 
-    // Image avec gestion robuste
-    const imageUrl = useMemo(() => {
-        if (imageError) {
-            return 'https://via.placeholder.com/300x300/f8f9fa/6c757d?text=Image+non+disponible';
-        }
-        return getProductImageUrl(productData.images);
-    }, [imageError, productData.images]);
+    // Image avec gestion robuste - Hook toujours appelé
+    const imageUrl = imageError 
+        ? 'https://via.placeholder.com/300x300/f8f9fa/6c757d?text=Image+non+disponible'
+        : getProductImageUrl(productData.images);
 
     // Format des badges
     const renderBadges = () => {

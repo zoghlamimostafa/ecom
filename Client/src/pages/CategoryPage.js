@@ -6,11 +6,10 @@ import BreadCrumb from '../components/BreadCrumb';
 import Meta from '../components/Meta';
 import ProductCard from '../components/ProductCard';
 import { getAllProducts } from '../features/products/productSlice';
-import { getAllCategories } from '../features/category/categorySlice';
 import categoryService from '../services/categoryService';
 
 const CategoryPage = () => {
-  const { t, language, translations } = useTranslation();
+  const { t } = useTranslation();
   const { slug } = useParams();
   const dispatch = useDispatch();
   const productState = useSelector((state) => state?.product?.product);

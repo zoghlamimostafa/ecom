@@ -34,11 +34,6 @@ const normalizeProductData = (product) => {
     normalized.color = [];
   }
   
-  // Assurer que l'ID est disponible
-  if (!normalized.id && normalized.id) {
-    normalized.id = normalized.id;
-  }
-  
   return normalized;
 };
 
