@@ -21,21 +21,6 @@ import TermAndContions from './pages/TermAndContions';
 import SingleProduct from './pages/SingleProduct';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
-import Electro from './pages/Electro';
-import Informatique from './pages/Informatique';
-import Bebe from './pages/Bebe';
-import Animaux from './pages/Animaux';
-import Jardin from './pages/Jardin';
-import Homme from './pages/Homme';
-import Telephone from './pages/Telephone';
-import Femme from './pages/Femme';
-import Sport from './pages/Sport';
-import Other from './pages/Other';
-import Auto from './pages/Auto';
-import Sante from './pages/Sante';
-import Maison from './pages/Maison';
-import Jeux from './pages/Jeux';
-import CategoryPage from './pages/CategoryPage';
 import CategoriesPage from './pages/CategoriesPage';
 import CategoryDetailPage from './pages/CategoryDetailPage';
 import CategoryProducts from './pages/CategoryProducts';
@@ -54,7 +39,6 @@ import WhatsAppButton from './components/WhatsAppButton';
 import { Navigate } from 'react-router-dom';
 import { TranslationProvider } from './contexts/TranslationContext';
 import TranslationTest from './pages/TranslationTest';
-import WishlistTestComponent from './components/WishlistTestComponent';
 
 function App() {
   return (
@@ -67,7 +51,6 @@ function App() {
 <Route path="about" element={<About />}/>
 <Route path="contact" element={<Contact />}/>
 <Route path="test-translations" element={<TranslationTest />}/>
-<Route path="wishlist-test" element={<WishlistTestComponent />}/>
 <Route path="product" element={<OurStore />}/>
 <Route path="product/:id" element={<SingleProduct />}/>
 
