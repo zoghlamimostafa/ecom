@@ -67,9 +67,9 @@ const CategoryNavigation = () => {
             <ul className={`category-nav-list ${isCategoriesDropdownOpen ? 'show' : ''}`}>
               {categoriesTree.map((category) => (
                 <li 
-                  key={category._id}
-                  className={`category-nav-item ${activeCategory === category._id ? 'active' : ''}`}
-                  onMouseEnter={() => handleCategoryHover(category._id)}
+                  key={category.id}
+                  className={`category-nav-item ${activeCategory === category.id ? 'active' : ''}`}
+                  onMouseEnter={() => handleCategoryHover(category.id)}
                   onMouseLeave={handleCategoryLeave}
                 >
                   <Link 
@@ -87,7 +87,7 @@ const CategoryNavigation = () => {
                   
                   {/* Sous-menu dropdown */}
                   {category.subcategories && category.subcategories.length > 0 && (
-                    <div className={`category-dropdown ${activeCategory === category._id ? 'show' : ''}`}>
+                    <div className={`category-dropdown ${activeCategory === category.id ? 'show' : ''}`}>
                       <div className="category-dropdown-inner">
                         <div className="dropdown-header">
                           <h4>{category.title}</h4>
@@ -96,7 +96,7 @@ const CategoryNavigation = () => {
                         <div className="subcategories-grid">
                           {category.subcategories.map((subcategory) => (
                             <Link
-                              key={subcategory._id}
+                              key={subcategory.id}
                               to={`/category/${subcategory.slug}`}
                               className="subcategory-item"
                             >
@@ -135,7 +135,7 @@ const CategoryNavigation = () => {
         
         <div className={`mobile-category-menu ${isMenuOpen ? 'show' : ''}`}>
           {categoriesTree.map((category) => (
-            <div key={category._id} className="mobile-category-item">
+            <div key={category.id} className="mobile-category-item">
               <Link 
                 to={`/category/${category.slug}`}
                 className="mobile-category-link"
@@ -149,7 +149,7 @@ const CategoryNavigation = () => {
                 <div className="mobile-subcategories">
                   {category.subcategories.map((subcategory) => (
                     <Link
-                      key={subcategory._id}
+                      key={subcategory.id}
                       to={`/category/${subcategory.slug}`}
                       className="mobile-subcategory-link"
                       onClick={() => setIsMenuOpen(false)}

@@ -41,7 +41,7 @@ const Wishlist = () => {
     };
 
     const addToCartFromWishlist = async (item) => {
-        const itemId = item._id || item.id;
+        const itemId = item.id || item.id;
         setAdding(prev => ({ ...prev, [itemId]: true }));
         try {
             const cartData = {
@@ -108,7 +108,7 @@ const Wishlist = () => {
                         </div>
                         <div className="row">
                         {wishlistState && wishlistState.map((item, index) => {
-                            const itemId = item._id || item.id;
+                            const itemId = item.id || item.id;
                             const imageUrl = getProductImageUrl(item?.images);
                             
                             // Debug log

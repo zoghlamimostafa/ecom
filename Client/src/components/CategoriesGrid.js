@@ -43,7 +43,7 @@ const CategoriesGrid = () => {
                 <div className="categories-grid-container">
                     {categories.map((category) => (
                         <Link
-                            key={category._id || category.id}
+                            key={category.id || category.id}
                             to={`/category/${category.id}`}
                             className="category-card"
                         >

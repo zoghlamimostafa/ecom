@@ -72,10 +72,10 @@ const getBlog = asyncHandler(async (req, res) => {
         /* TODO: Remplacer par include dans Sequelize */;
       
       if (getBlog) {
-        await Blog.update({ $inc: { numViews: 1 } }, { where: { id: 
-          getBlog._id } });
+        await Blog.update({ numViews: getBlog.numViews + 1 }, { where: { id: 
+          getBlog.id } });
     const updated = await Blog.findByPk(
-          getBlog._id);
+          getBlog.id);
     // updated représente l'objet mis à jour;
       }
     }
@@ -111,7 +111,7 @@ const liketheBlog = asyncHandler(async (req, res) => {
   const { blogId } = req.body;// Find the blog which you want to be liked
   const blog = await Blog.findByPk(blogId);
   // find the login user
-  const loginUserId = req?.user?._id;
+  const loginUserId = req?.user?.id;
   // find if the user has liked the blog
   const isLiked = blog?.isLiked;
   // find if the user has disliked the blog
@@ -155,7 +155,7 @@ const disliketheBlog = asyncHandler(async (req, res) => {
   const { blogId } = req.body;// Find the blog which you want to be liked
   const blog = await Blog.findByPk(blogId);
   // find the login user
-  const loginUserId = req?.user?._id;
+  const loginUserId = req?.user?.id;
   // find if the user has liked the blog
   const isDisLiked = blog?.isDisliked;
   // find if the user has disliked the blog

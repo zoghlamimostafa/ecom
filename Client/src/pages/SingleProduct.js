@@ -66,7 +66,7 @@ const SingleProduct = () => {
   useEffect(() => {
     // Vérifier si le produit est déjà dans le panier
     if (cartState && cartState.length > 0 && productState) {
-      const isAlreadyAdded = cartState.some(item => item?.productId?._id === productState._id);
+      const isAlreadyAdded = cartState.some(item => item?.productId?.id === productState.id);
       setAlreadyAdded(isAlreadyAdded);
     }
   }, [cartState, productState]);
@@ -86,7 +86,7 @@ const SingleProduct = () => {
       toast.error("Please Write Review About the Product");
       return false;
     } else {
-      dispatch(addRating({ star, comment, prodId: productState?._id }));
+      dispatch(addRating({ star, comment, prodId: productState?.id }));
       setTimeout(() => {
         dispatch(getAProduct(getProductSlug)); // Récupérer à nouveau le produit après avoir ajouté un avis
       }, 100);
@@ -103,7 +103,7 @@ const SingleProduct = () => {
     }
 
     dispatch(addProdToCart({
-      productId: productState?._id,
+      productId: productState?.id,
       quantity,
       color: color || null, // Send null if no color is selected
       price: productState?.price
@@ -111,7 +111,7 @@ const SingleProduct = () => {
   };
 
   const addToWishlist = async () => {
-    console.log('❤️ ADD TO WISHLIST clicked for product:', productState?._id);
+    console.log('❤️ ADD TO WISHLIST clicked for product:', productState?.id);
     console.log('Auth State:', !!authState);
     console.log('Product State:', productState);
     
@@ -122,15 +122,15 @@ const SingleProduct = () => {
       return;
     }
 
-    if (!productState?._id) {
+    if (!productState?.id) {
       toast.error("ID produit manquant");
       console.error('Product ID missing:', productState);
       return;
     }
 
     try {
-      console.log('📦 Dispatching toggleProductWishlist with ID:', productState._id);
-      const result = await dispatch(toggleProductWishlist(productState._id)).unwrap();
+      console.log('📦 Dispatching toggleProductWishlist with ID:', productState.id);
+      const result = await dispatch(toggleProductWishlist(productState.id)).unwrap();
       console.log('✅ Wishlist success result:', result);
       toast.success(t('wishlistUpdateSuccess'));
     } catch (error) {
@@ -156,7 +156,7 @@ const SingleProduct = () => {
     const buyNowItemData = {
       _id: Date.now(), // Temporary ID for buy now item
       productId: {
-        _id: productState?._id,
+        _id: productState?.id,
         title: productState?.title,
         images: productState?.images
       },

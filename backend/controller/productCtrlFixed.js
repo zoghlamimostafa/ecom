@@ -416,7 +416,7 @@ const addToWishlist = asyncHandler(async (req, res) => {
     
     // Si prodId est un objet, extraire l'ID
     if (typeof prodId === 'object' && prodId !== null) {
-      prodId = prodId.id || prodId._id;
+      prodId = prodId.id;
       console.log("📝 Extracted ID from object:", prodId);
     }
     

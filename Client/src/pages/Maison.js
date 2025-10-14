@@ -74,7 +74,7 @@ const Maison = () => {
                 {infoProducts.map((item, index) => (
                     <div key={index} className={"new-informatique-card"}>
                         <div className='new-informatique-card-inner'>
-                            <div className='new-informatique-image' onClick={() => navigate("/product/" + (item?.slug || item?._id))} style={{ cursor: 'pointer' }}>
+                            <div className='new-informatique-image' onClick={() => navigate("/product/" + (item?.slug || item?.id))} style={{ cursor: 'pointer' }}>
                                 <img src={item?.images[0]?.url} alt="product" />
                             </div>
                             <div className='new-informatique-details'>
@@ -90,13 +90,13 @@ const Maison = () => {
                                 <p className='new-informatique-price'>{item?.price}</p>
                             </div>
                             <div className='new-informatique-actions'>
-                                <button className='new-informatique-wishlist-button' onClick={() => addToWish(item?._id)}>
+                                <button className='new-informatique-wishlist-button' onClick={() => addToWish(item?.id)}>
                                     <AiOutlineHeart size={24} />
                                 </button>
-                                <button className='new-informatique-cart-button' onClick={() => addToShoppingCart(item?._id, item?.color, item?.price)}>
+                                <button className='new-informatique-cart-button' onClick={() => addToShoppingCart(item?.id, item?.color, item?.price)}>
                                     <AiOutlineShoppingCart size={24} />
                                 </button>
-                                <button className='new-informatique-view-button' onClick={() => navigate("/product/" + (item?.slug || item?._id))}>
+                                <button className='new-informatique-view-button' onClick={() => navigate("/product/" + (item?.slug || item?.id))}>
                                     <RiEyeLine size={24} />
                                 </button>
                             </div>

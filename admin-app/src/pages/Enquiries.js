@@ -71,7 +71,7 @@ const Enquiries = () => {
             defaultValue={enqState[i].status ? enqState[i].status : "Submitted"}
             className="form-control form-select"
             id=""
-            onChange={(e) => setEnquiryStatus(e.target.value, enqState[i]._id)}
+            onChange={(e) => setEnquiryStatus(e.target.value, enqState[i].id)}
           >
             <option value="Submitted">Soumise</option>
             <option value="Contacted">Contacté</option>
@@ -85,13 +85,13 @@ const Enquiries = () => {
         <>
           <Link
             className="ms-3 fs-3 text-danger"
-            to={`/admin/enquiries/${enqState[i]._id}`}
+            to={`/admin/enquiries/${enqState[i].id}`}
           >
             <AiOutlineEye />
           </Link>
           <button
             className="ms-3 fs-3 text-danger bg-transparent border-0"
-            onClick={() => showModal(enqState[i]._id)}
+            onClick={() => showModal(enqState[i].id)}
           >
             <AiFillDelete />
           </button>

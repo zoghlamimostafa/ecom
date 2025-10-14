@@ -62,7 +62,7 @@ const Bloglist = () => {
           </Link>
           <button
             className="ms-3 fs-3 text-danger bg-transparent border-0"
-            onClick={() => showModal(getBlogState[i]._id)}
+            onClick={() => showModal(getBlogState[i].id)}
           >
             <AiFillDelete />
           </button>

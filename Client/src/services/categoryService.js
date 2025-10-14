@@ -170,7 +170,7 @@ export const categoryService = {
       
       return {
         ...mainCat,
-        _id: mainCat.id?.toString() || mainCat._id,
+        _id: mainCat.id?.toString() || mainCat.id,
         icon: categoryService.getCategoryIcon(mainCat.title),
         subcategories: level1Subcategories.map(sub1 => {
           // Récupérer toutes les sous-catégories de niveau 2 pour cette sous-catégorie
@@ -178,12 +178,12 @@ export const categoryService = {
           
           return {
             ...sub1,
-            _id: sub1.id?.toString() || sub1._id,
+            _id: sub1.id?.toString() || sub1.id,
             icon: categoryService.getCategoryIcon(sub1.title),
             // Ajouter les sous-sous-catégories si elles existent
             subcategories: level2Subcategories.length > 0 ? level2Subcategories.map(sub2 => ({
               ...sub2,
-              _id: sub2.id?.toString() || sub2._id,
+              _id: sub2.id?.toString() || sub2.id,
               icon: categoryService.getCategoryIcon(sub2.title)
             })) : undefined
           };

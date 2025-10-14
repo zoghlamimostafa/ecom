@@ -75,10 +75,10 @@ const CategoryPage = () => {
         
         // Comparer l'ID de la catégorie du produit avec l'ID de la catégorie actuelle
         const productCategoryId = typeof product.category === 'object' 
-          ? product.category.id || product.category._id
+          ? product.category.id || product.category.id
           : product.category;
         
-        const currentCategoryId = category.id || category._id;
+        const currentCategoryId = category.id || category.id;
         
         return productCategoryId === currentCategoryId || 
                productCategoryId === parseInt(currentCategoryId);
@@ -163,7 +163,7 @@ const CategoryPage = () => {
               <div className="subcategories-grid">
                 {subcategories.map((subcategory) => (
                   <Link
-                    key={subcategory._id}
+                    key={subcategory.id}
                     to={`/category/${subcategory.slug}`}
                     className="subcategory-card"
                   >
@@ -227,8 +227,8 @@ const CategoryPage = () => {
               <div className={`products-container ${viewMode}`}>
                 {filteredProducts.map((product) => (
                   <ProductCard
-                    key={product._id}
-                    id={product._id}
+                    key={product.id}
+                    id={product.id}
                     title={product.title}
                     description={product.description}
                     price={product.price}

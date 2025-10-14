@@ -29,7 +29,7 @@ const ProductCard = ({ data, gridView = true }) => {
     const productData = useMemo(() => {
         if (!data) return null;
         
-        const productId = data._id || data.id;
+        const productId = data.id || data.id;
         let { title, brand, totalrating, price, images, slug, description, tags, color, category } = data;
         
         // Normaliser images
@@ -70,7 +70,7 @@ const ProductCard = ({ data, gridView = true }) => {
     // Vérifier wishlist optimisé
     const isInWishlist = useMemo(() => {
         if (!productData?.productId || !wishlistState) return false;
-        return wishlistState.some(item => (item._id || item.id) === productData.productId);
+        return wishlistState.some(item => (item.id || item.id) === productData.productId);
     }, [productData?.productId, wishlistState]);
     
     // Handlers optimisés avec useCallback

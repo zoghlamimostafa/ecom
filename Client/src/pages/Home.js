@@ -165,7 +165,7 @@ const Home = () => {
         <div className="row">
           {featuredProducts && featuredProducts.length > 0 ? (
             featuredProducts.slice(0, 4).map((product) => (
-              <div className="col-lg-3 col-md-6 col-sm-6 mb-4" key={product._id}>
+              <div className="col-lg-3 col-md-6 col-sm-6 mb-4" key={product.id}>
                 <ProductCard data={product} gridView={true} />
               </div>
             ))
@@ -191,7 +191,7 @@ const Home = () => {
         <div className="row">
           {popularProducts && popularProducts.length > 0 ? (
             popularProducts.slice(0, 8).map((product) => (
-              <div className="col-lg-3 col-md-6 col-sm-6 mb-4" key={product._id}>
+              <div className="col-lg-3 col-md-6 col-sm-6 mb-4" key={product.id}>
                 <ProductCard data={product} gridView={true} />
               </div>
             ))
@@ -199,7 +199,7 @@ const Home = () => {
             // Afficher tous les produits si pas de produits populaires
             allProducts && allProducts.length > 0 ? (
               allProducts.slice(0, 8).map((product) => (
-                <div className="col-lg-3 col-md-6 col-sm-6 mb-4" key={product._id}>
+                <div className="col-lg-3 col-md-6 col-sm-6 mb-4" key={product.id}>
                   <ProductCard data={product} gridView={true} />
                 </div>
               ))
@@ -231,7 +231,7 @@ const Home = () => {
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
               .slice(0, 6)
               .map((product) => (
-                <div className="col-lg-4 col-md-6 col-sm-6 mb-4" key={product._id}>
+                <div className="col-lg-4 col-md-6 col-sm-6 mb-4" key={product.id}>
                   <ProductCard data={product} gridView={true} />
                 </div>
               ))
@@ -258,7 +258,7 @@ const Home = () => {
                   <Link 
                     to={`/product?category=${encodeURIComponent(category.title)}`} 
                     className="category-carousel-item" 
-                    key={`${category._id || category.id}-1`}
+                    key={`${category.id || category.id}-1`}
                   >
                     <div className="category-icon-wrapper">
                       {getCategoryIcon(category.title)}
@@ -271,7 +271,7 @@ const Home = () => {
                   <Link 
                     to={`/product?category=${encodeURIComponent(category.title)}`} 
                     className="category-carousel-item" 
-                    key={`${category._id || category.id}-2`}
+                    key={`${category.id || category.id}-2`}
                   >
                     <div className="category-icon-wrapper">
                       {getCategoryIcon(category.title)}

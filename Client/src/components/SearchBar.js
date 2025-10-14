@@ -273,7 +273,7 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
   };
 
   const handleSelectProduct = (product) => {
-    navigate(`/product/${product._id}`);
+    navigate(`/product/${product.id}`);
     setSearchTerm('');
     setShowSuggestions(false);
     setSelectedIndex(-1);
@@ -400,7 +400,7 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
           <div className="suggestions-list">
             {suggestions.map((product, index) => (
               <div
-                key={product._id}
+                key={product.id}
                 className={`suggestion-item ${index === selectedIndex ? 'selected' : ''}`}
                 onClick={() => handleSelectProduct(product)}
                 onMouseEnter={() => setSelectedIndex(index)}

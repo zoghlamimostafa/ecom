@@ -45,9 +45,9 @@ const HorizontalCategoryMenu = () => {
               <div className="categories-grid">
                 {allCategories.map(category => (
                   <div 
-                    key={category._id}
+                    key={category.id}
                     className="category-dropdown-item"
-                    onMouseEnter={() => setHoveredCategory(category._id)}
+                    onMouseEnter={() => setHoveredCategory(category.id)}
                     onMouseLeave={() => setHoveredCategory(null)}
                   >
                     <Link
@@ -62,7 +62,7 @@ const HorizontalCategoryMenu = () => {
                     </Link>
                     
                     {/* Sous-catégories */}
-                    {hoveredCategory === category._id && category.subcategories && category.subcategories.length > 0 && (
+                    {hoveredCategory === category.id && category.subcategories && category.subcategories.length > 0 && (
                       <div className="subcategories-side-menu">
                         <div className="subcategories-header">
                           <h4>{category.title}</h4>
@@ -71,7 +71,7 @@ const HorizontalCategoryMenu = () => {
                         <div className="subcategories-list">
                           {category.subcategories.map(subcategory => (
                             <Link
-                              key={subcategory._id}
+                              key={subcategory.id}
                               to={`/category/${subcategory.slug}`}
                               className="subcategory-link-item"
                             >

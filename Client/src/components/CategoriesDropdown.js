@@ -63,9 +63,9 @@ const CategoriesDropdown = ({ isOpen, onClose }) => {
                         <div className="main-categories-column">
                             {categories.map((category) => (
                                 <div
-                                    key={category._id}
-                                    className={`main-category-item ${hoveredCategory === category._id ? 'active' : ''}`}
-                                    onMouseEnter={() => setHoveredCategory(category._id)}
+                                    key={category.id}
+                                    className={`main-category-item ${hoveredCategory === category.id ? 'active' : ''}`}
+                                    onMouseEnter={() => setHoveredCategory(category.id)}
                                 >
                                     <Link
                                         to={`/product-category/${category.slug}`}
@@ -86,12 +86,12 @@ const CategoriesDropdown = ({ isOpen, onClose }) => {
                         {hoveredCategory && (
                             <div className="subcategories-column">
                                 {categories
-                                    .find(cat => cat._id === hoveredCategory)
+                                    .find(cat => cat.id === hoveredCategory)
                                     ?.subcategories?.map((subcategory) => (
                                         <div
-                                            key={subcategory._id}
-                                            className={`subcategory-item ${hoveredSubcategory === subcategory._id ? 'active' : ''}`}
-                                            onMouseEnter={() => setHoveredSubcategory(subcategory._id)}
+                                            key={subcategory.id}
+                                            className={`subcategory-item ${hoveredSubcategory === subcategory.id ? 'active' : ''}`}
+                                            onMouseEnter={() => setHoveredSubcategory(subcategory.id)}
                                         >
                                             <Link
                                                 to={`/product-category/${subcategory.slug}`}
@@ -113,11 +113,11 @@ const CategoriesDropdown = ({ isOpen, onClose }) => {
                         {hoveredCategory && hoveredSubcategory && (
                             <div className="sub-subcategories-column">
                                 {categories
-                                    .find(cat => cat._id === hoveredCategory)
-                                    ?.subcategories?.find(sub => sub._id === hoveredSubcategory)
+                                    .find(cat => cat.id === hoveredCategory)
+                                    ?.subcategories?.find(sub => sub.id === hoveredSubcategory)
                                     ?.subcategories?.map((subSubcategory) => (
                                         <div
-                                            key={subSubcategory._id}
+                                            key={subSubcategory.id}
                                             className="sub-subcategory-item"
                                         >
                                             <Link

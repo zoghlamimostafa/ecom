@@ -35,8 +35,8 @@ const Blogs = () => {
               {blogState && blogState.length > 0 ? (
                 blogState.map((item, index) => (
                   <BlogCard
-                    key={item._id}
-                    id={item.slug || item._id}
+                    key={item.id}
+                    id={item.slug || item.id}
                     title={item.title}
                     description={item.description}
                     image={item.images && item.images[0]}

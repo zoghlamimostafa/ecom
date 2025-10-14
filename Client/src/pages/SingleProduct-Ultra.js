@@ -146,7 +146,7 @@ const SingleProductUltra = () => {
 
   useEffect(() => {
     if (cartState && cartState.length > 0 && productState) {
-      const isAlreadyAdded = cartState.some(item => item?.productId?._id === productState._id);
+      const isAlreadyAdded = cartState.some(item => item?.productId?.id === productState.id);
       setAlreadyAdded(isAlreadyAdded);
     }
   }, [cartState, productState]);
@@ -169,7 +169,7 @@ const SingleProductUltra = () => {
       return;
     }
     
-    dispatch(addRating({ star, comment, prodId: productState?._id }));
+    dispatch(addRating({ star, comment, prodId: productState?.id }));
     setStar(0);
     setComment('');
     setTimeout(() => {
@@ -196,7 +196,7 @@ const SingleProductUltra = () => {
     }
 
     dispatch(addProdToCart({
-      productId: productState?._id,
+      productId: productState?.id,
       quantity,
       color: color || null,
       price: productState?.price
@@ -219,7 +219,7 @@ const SingleProductUltra = () => {
       return;
     }
 
-    dispatch(toggleProductWishlist(productState?._id));
+    dispatch(toggleProductWishlist(productState?.id));
     setIsWishlisted(!isWishlisted);
     
     if (!isWishlisted) {
@@ -242,7 +242,7 @@ const SingleProductUltra = () => {
     const buyNowItemData = {
       _id: Date.now(),
       productId: {
-        _id: productState?._id,
+        _id: productState?.id,
         title: productState?.title,
         images: productState?.images
       },

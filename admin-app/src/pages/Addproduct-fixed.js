@@ -82,7 +82,7 @@ const Addproduct = () => {
   
   const colorOptions = colorState.map((color) => ({
     label: color.title,
-    value: color._id,
+    value: color.id,
   }));
   
   const img = [];

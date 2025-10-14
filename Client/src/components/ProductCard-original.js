@@ -15,7 +15,7 @@ const ProductCard = ({ data, gridView = true }) => {
     const wishlistState = useSelector(state => state.auth?.wishlist);
     
     // Vérifier si le produit est dans la wishlist
-    const isInWishlist = wishlistState?.find(item => item._id === data?._id);
+    const isInWishlist = wishlistState?.find(item => item.id === data?.id);
     
     const handleAddToCart = () => {
         if (!isAuthenticated) {
@@ -23,9 +23,9 @@ const ProductCard = ({ data, gridView = true }) => {
             return;
         }
         
-        if (data?._id) {
+        if (data?.id) {
             dispatch(addProdToCart({
-                productId: data._id,
+                productId: data.id,
                 quantity: 1,
                 color: null,
                 price: data.price
@@ -39,14 +39,14 @@ const ProductCard = ({ data, gridView = true }) => {
             return;
         }
         
-        if (data?._id) {
-            dispatch(toggleProductWishlist(data._id));
+        if (data?.id) {
+            dispatch(toggleProductWishlist(data.id));
         }
     };
 
     const handleViewProduct = () => {
-        if (data?._id) {
-            navigate(`/product/${data._id}`);
+        if (data?.id) {
+            navigate(`/product/${data.id}`);
         }
     };
 

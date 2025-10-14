@@ -105,11 +105,11 @@ const Orders = () => {
   const safeOrderState = Array.isArray(orderState) ? orderState : [];
 
   const data1 = safeOrderState.map((order, index) => ({
-    key: order._id || `order-${index}`, // Use order ID as key
-    orderId: order._id,
+    key: order.id || `order-${index}`, // Use order ID as key
+    orderId: order.id,
     name: (order.user?.firstname || order.orderby?.firstname) || "Unknown",
     product: (
-      <Link to={`/admin/order/${order._id}`}>
+      <Link to={`/admin/order/${order.id}`}>
         Voir les commandes
       </Link>
     ),

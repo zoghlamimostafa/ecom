@@ -33,7 +33,7 @@ const Cart = () => {
     if (userCartState && userCartState.length > 0) {
       const updatedQuantity = {};
       userCartState.forEach(item => {
-        const itemId = item.id || item._id; // Support SQLite et MongoDB
+        const itemId = item.id || item.id; // Support SQLite et MongoDB
         updatedQuantity[itemId] = item.quantity;
       });
       setQuantity(updatedQuantity);
@@ -68,7 +68,7 @@ const Cart = () => {
     
     try {
       await dispatch(toggleProductWishlist(productId)).unwrap();
-      const isInWishlist = wishlistState?.some(item => item._id === productId);
+      const isInWishlist = wishlistState?.some(item => item.id === productId);
       
       if (isInWishlist) {
         toast.success(t('productRemovedFromWishlist'));
@@ -84,7 +84,7 @@ const Cart = () => {
   };
 
   const isInWishlist = (productId) => {
-    return wishlistState?.some(item => (item.id || item._id) === productId);
+    return wishlistState?.some(item => (item.id || item.id) === productId);
   };
 
   // Frais de livraison
@@ -97,7 +97,7 @@ const Cart = () => {
         const product = item.product || item.productId;
         const itemPrice = item.price || product?.price || 0;
         if (!itemPrice) return acc;
-        const itemId = item.id || item._id;
+        const itemId = item.id || item.id;
         return acc + (itemPrice * (quantity[itemId] || item.quantity || 1));
       }, 0) 
     : 0;
@@ -164,9 +164,9 @@ const Cart = () => {
                       
                       const productTitle = product.title || 'Produit sans nom';
                       const productPrice = item.price || product.price || 0;
-                      const itemId = item.id || item._id; // Support SQLite et MongoDB
+                      const itemId = item.id || item.id; // Support SQLite et MongoDB
                       // ID du produit pour wishlist
-                      const productId = product.id || product._id || item.productId;
+                      const productId = product.id || product.id || item.productId;
 
                       return (
                         <div key={itemId} className='cart-item-modern mb-4'>

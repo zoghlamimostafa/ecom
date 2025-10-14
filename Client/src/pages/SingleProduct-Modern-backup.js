@@ -66,7 +66,7 @@ const SingleProductModern = () => {
 
   useEffect(() => {
     if (cartState && cartState.length > 0 && productState) {
-      const isAlreadyAdded = cartState.some(item => item?.productId?._id === productState._id);
+      const isAlreadyAdded = cartState.some(item => item?.productId?.id === productState.id);
       setAlreadyAdded(isAlreadyAdded);
     }
   }, [cartState, productState]);
@@ -89,7 +89,7 @@ const SingleProductModern = () => {
       return;
     }
     
-    dispatch(addRating({ star, comment, prodId: productState?._id }));
+    dispatch(addRating({ star, comment, prodId: productState?.id }));
     setStar(0);
     setComment('');
     setTimeout(() => {
@@ -106,7 +106,7 @@ const SingleProductModern = () => {
     }
 
     dispatch(addProdToCart({
-      productId: productState?._id,
+      productId: productState?.id,
       quantity,
       color: color || null,
       price: productState?.price
@@ -127,7 +127,7 @@ const SingleProductModern = () => {
       return;
     }
 
-    dispatch(toggleProductWishlist(productState?._id));
+    dispatch(toggleProductWishlist(productState?.id));
     setIsWishlisted(!isWishlisted);
     toast.success(isWishlisted ? t('removedFromWishlist') : t('addedToWishlist'));
   };
@@ -142,7 +142,7 @@ const SingleProductModern = () => {
     const buyNowItemData = {
       _id: Date.now(),
       productId: {
-        _id: productState?._id,
+        _id: productState?.id,
         title: productState?.title,
         images: productState?.images
       },
