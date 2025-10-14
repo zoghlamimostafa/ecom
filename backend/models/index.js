@@ -30,9 +30,8 @@ const defineAssociations = () => {
   Product.hasMany(Cart, { foreignKey: 'productId', as: 'cartItems' });
   Product.hasMany(Wishlist, { foreignKey: 'productId', as: 'wishlistItems' });
   Product.hasMany(ProductRating, { foreignKey: 'productId', as: 'ratings' });
-  Product.belongsTo(Category, { foreignKey: 'category', as: 'categoryInfo' });
-  Product.belongsTo(Category, { foreignKey: 'subcategory', as: 'subcategoryInfo' });
-  Product.belongsTo(Brand, { foreignKey: 'brand', as: 'brandInfo' });
+  // NOTE: category, subcategory et brand sont des strings, pas des foreign keys
+  // Les relations sont gérées manuellement dans le controller
 
   // Cart associations
   Cart.belongsTo(User, { foreignKey: 'userId', as: 'user' });

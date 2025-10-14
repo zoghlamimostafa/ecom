@@ -153,6 +153,16 @@ const getAllProduct = asyncHandler(async (req, res) => {
       order: [[sortBy, sortOrder]]
     });
 
+    // Récupérer toutes les catégories pour le mapping
+    const categories = await Category.findAll({
+      attributes: ['id', 'title', 'slug']
+    });
+    
+    const categoryMap = {};
+    categories.forEach(cat => {
+      categoryMap[cat.id] = cat.toJSON();
+    });
+
     // Traiter les données pour le frontend
     const products = rows.map(product => {
       const productData = product.toJSON();
@@ -172,6 +182,17 @@ const getAllProduct = asyncHandler(async (req, res) => {
         } catch (e) {
           productData.images = [];
         }
+      }
+      
+      // Ajouter les informations de catégorie
+      if (productData.category && categoryMap[productData.category]) {
+        productData.categoryInfo = categoryMap[productData.category];
+        productData.categoryName = categoryMap[productData.category].title;
+      }
+      
+      if (productData.subcategory && categoryMap[productData.subcategory]) {
+        productData.subcategoryInfo = categoryMap[productData.subcategory];
+        productData.subcategoryName = categoryMap[productData.subcategory].title;
       }
       
       return productData;
@@ -208,15 +229,7 @@ const getaProduct = asyncHandler(async (req, res) => {
       });
     }
 
-    const product = await Product.findByPk(id, {
-      include: [
-        {
-          model: Category,
-          as: 'categoryInfo',
-          attributes: ['id', 'title', 'slug', 'description']
-        }
-      ]
-    });
+    const product = await Product.findByPk(id);
 
     if (!product) {
       return res.status(404).json({
@@ -241,6 +254,27 @@ const getaProduct = asyncHandler(async (req, res) => {
         productData.images = JSON.parse(productData.images);
       } catch (e) {
         productData.images = [];
+      }
+    }
+    
+    // Récupérer les informations de catégorie
+    if (productData.category) {
+      const category = await Category.findByPk(productData.category, {
+        attributes: ['id', 'title', 'slug', 'description']
+      });
+      if (category) {
+        productData.categoryInfo = category.toJSON();
+        productData.categoryName = category.title;
+      }
+    }
+    
+    if (productData.subcategory) {
+      const subcategory = await Category.findByPk(productData.subcategory, {
+        attributes: ['id', 'title', 'slug', 'description']
+      });
+      if (subcategory) {
+        productData.subcategoryInfo = subcategory.toJSON();
+        productData.subcategoryName = subcategory.title;
       }
     }
 
