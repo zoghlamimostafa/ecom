@@ -26,13 +26,6 @@ const Checkout = () => {
     const { user } = useSelector(state => state.auth);
     const itemsToDisplay = buyNowItem ? [buyNowItem] : cartState;
     
-    // 🔍 DEBUG: Afficher la structure des données du panier
-    console.log("🛒 DEBUG Checkout - cartState:", cartState);
-    console.log("🛒 DEBUG Checkout - itemsToDisplay:", itemsToDisplay);
-    if (itemsToDisplay && itemsToDisplay.length > 0) {
-        console.log("🛒 DEBUG Checkout - Premier item:", JSON.stringify(itemsToDisplay[0], null, 2));
-    }
-    
     // Frais de livraison standard (7 TND - cohérent avec Cart.js)
     const SHIPPING_COST = 7.00;
     const FREE_SHIPPING_THRESHOLD = 100.00;
@@ -236,79 +229,19 @@ const Checkout = () => {
                                 {/* Liste produits */}
                                 <div className="order-items mb-3">
                                     {itemsToDisplay.map((item) => {
-                                        // 🔍 DEBUG: Structure des données
-                                        console.log("🖼️ DEBUG Item:", {
-                                            id: item.id,
-                                            title: item.title || item.product?.title,
-                                            images: item.images,
-                                            imagesType: typeof item.images,
-                                            productImages: item.product?.images,
-                                            productImagesType: typeof item.product?.images,
-                                            image: item.image
-                                        });
-                                        
-                                        // Gestion intelligente des images
+                                        // ️ Gestion des images (normalisées par le backend)
                                         let imageUrl = "https://via.placeholder.com/80";
                                         
-                                        // 🔄 Parser JSON si nécessaire
-                                        let images = item.images;
-                                        if (typeof images === 'string') {
-                                          const trimmed = images.trim();
-                                          console.log("🔍 Parsing images string:", trimmed.substring(0, 100));
-                                          if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-                                            try {
-                                              images = JSON.parse(trimmed);
-                                              console.log("✅ Images parsed successfully:", images);
-                                            } catch (e) {
-                                              console.warn('⚠️ Failed to parse checkout images:', e.message);
-                                            }
-                                          }
+                                        // 1. Priorité: item.images (déjà normalisé par getUserCart)
+                                        if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+                                            imageUrl = item.images[0].url;
+                                        }
+                                        // 2. Fallback: product.images (normalisé aussi)
+                                        else if (item.product?.images && Array.isArray(item.product.images) && item.product.images.length > 0) {
+                                            imageUrl = item.product.images[0].url;
                                         }
                                         
-                                        // 1. Priorité: images au niveau racine (depuis getUserCart)
-                                        if (images && Array.isArray(images) && images.length > 0) {
-                                            const firstImage = images[0];
-                                            // Si c'est un objet avec url
-                                            if (firstImage && typeof firstImage === 'object' && firstImage.url) {
-                                                imageUrl = firstImage.url;
-                                            } 
-                                            // Si c'est directement une string
-                                            else if (typeof firstImage === 'string') {
-                                                imageUrl = firstImage;
-                                            }
-                                        }
-                                        // 2. Fallback: images dans product.images
-                                        else if (item.product?.images) {
-                                            let productImages = item.product.images;
-                                            // Parser si string JSON
-                                            if (typeof productImages === 'string') {
-                                              const trimmed = productImages.trim();
-                                              if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-                                                try {
-                                                  productImages = JSON.parse(trimmed);
-                                                } catch (e) {
-                                                  console.warn('⚠️ Failed to parse product images:', e.message);
-                                                }
-                                              }
-                                            }
-                                            
-                                            if (Array.isArray(productImages) && productImages.length > 0) {
-                                              const firstImage = productImages[0];
-                                              if (firstImage && typeof firstImage === 'object' && firstImage.url) {
-                                                imageUrl = firstImage.url;
-                                              } else if (typeof firstImage === 'string') {
-                                                imageUrl = firstImage;
-                                              }
-                                            }
-                                        }
-                                        // 3. Fallback: item.image (singular) si existe
-                                        else if (item.image) {
-                                            imageUrl = typeof item.image === 'string' ? item.image : item.image.url;
-                                        }
-                                        
-                                        console.log("🖼️ URL finale:", imageUrl);
-                                        
-                                        // Utiliser les données du produit si disponibles
+                                        // Données du produit
                                         const title = item.title || item.product?.title || 'Produit';
                                         const price = item.price || item.product?.price || 0;
                                         
@@ -319,7 +252,6 @@ const Checkout = () => {
                                                         src={imageUrl} 
                                                         alt={title}
                                                         onError={(e) => {
-                                                            console.error("❌ Erreur chargement image:", imageUrl);
                                                             e.target.onerror = null;
                                                             e.target.src = "https://via.placeholder.com/80";
                                                         }}
