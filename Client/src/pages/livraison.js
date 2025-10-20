@@ -16,10 +16,14 @@ const DeliveryAddressPage = () => {
 
   // Initialisation de l'adresse avec les données existantes si elles sont présentes
   const [address, setAddress] = useState({
-    street: "",
+    firstName: "",
+    lastName: "",
+    address: "",
     city: "",
-    postalCode: "",
+    state: "",
+    pincode: "",
     country: "",
+    other: ""
   });
 
   const [orderCreated, setOrderCreated] = useState(false);
@@ -29,10 +33,32 @@ const DeliveryAddressPage = () => {
       try {
         // Si l'utilisateur a déjà une adresse enregistrée, la pré-remplir dans le formulaire
         const parsedAddress = typeof user.address === 'string' ? JSON.parse(user.address) : user.address;
-        setAddress(parsedAddress);
+        setAddress({
+          firstName: user.firstname || "",
+          lastName: user.lastname || "",
+          address: parsedAddress.address || parsedAddress.street || "",
+          city: parsedAddress.city || "",
+          state: parsedAddress.state || "",
+          pincode: parsedAddress.pincode || parsedAddress.postalCode || "",
+          country: parsedAddress.country || "",
+          other: parsedAddress.other || ""
+        });
       } catch (error) {
         console.error("Error parsing address:", error);
+        // Initialiser avec les infos utilisateur au moins
+        setAddress(prev => ({
+          ...prev,
+          firstName: user.firstname || "",
+          lastName: user.lastname || ""
+        }));
       }
+    } else if (user) {
+      // Si pas d'adresse mais utilisateur connecté, pré-remplir nom et prénom
+      setAddress(prev => ({
+        ...prev,
+        firstName: user.firstname || "",
+        lastName: user.lastname || ""
+      }));
     }
   }, [user]);
 
@@ -45,8 +71,8 @@ const DeliveryAddressPage = () => {
     e.preventDefault();
 
     // Validation des champs de formulaire
-    if (!address.street || !address.city || !address.postalCode || !address.country) {
-      toast.error("Veuillez remplir tous les champs.");
+    if (!address.firstName || !address.lastName || !address.address || !address.city || !address.state || !address.pincode) {
+      toast.error("Veuillez remplir tous les champs obligatoires.");
       return;
     }
 
@@ -60,7 +86,19 @@ const DeliveryAddressPage = () => {
       
       // Create order after address is saved successfully
       const orderData = {
-        COD: true  // Cash on Delivery
+        shippingInfo: {
+          firstName: address.firstName,
+          lastName: address.lastName,
+          address: address.address,
+          city: address.city,
+          state: address.state,
+          pincode: address.pincode,
+          country: address.country,
+          other: address.other || ""
+        },
+        paymentInfo: {
+          method: 'COD'
+        }
       };
       
       dispatch(createNewOrder(orderData))
@@ -71,20 +109,23 @@ const DeliveryAddressPage = () => {
             
             // Navigate to order confirmation or success page
             setTimeout(() => {
-              navigate("/"); // or navigate to an order success page
+              navigate("/my-orders"); // Rediriger vers la page des commandes
             }, 2000);
+          } else if (response.error) {
+            console.error("Order creation failed:", response.error);
+            toast.error(response.error.message || "Un problème est survenu lors de la création de la commande");
           }
         })
         .catch((error) => {
           console.error("Order creation failed:", error);
-          toast.error("Erreur lors de la création de la commande");
+          toast.error("Un problème est survenu lors de la création de la commande");
         });
     }
     
     if (isError) {
       toast.error(message || "Une erreur est survenue lors de l'enregistrement de l'adresse.");
     }
-  }, [isSuccess, isError, message, dispatch, navigate, orderCreated]);
+  }, [isSuccess, isError, message, dispatch, navigate, orderCreated, address]);
 
   return (
     <div className="payment-container">
@@ -94,12 +135,37 @@ const DeliveryAddressPage = () => {
           <div className="form-group">
             <input
               type="text"
-              id="street"
-              name="street"
-              value={address.street}
+              id="firstName"
+              name="firstName"
+              value={address.firstName}
               onChange={handleChange}
               className="form-input"
-              placeholder="Entrez votre rue"
+              placeholder="Prénom *"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              value={address.lastName}
+              onChange={handleChange}
+              className="form-input"
+              placeholder="Nom *"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="text"
+              id="address"
+              name="address"
+              value={address.address}
+              onChange={handleChange}
+              className="form-input"
+              placeholder="Adresse complète *"
+              required
             />
           </div>
           <div className="form-group">
@@ -110,18 +176,32 @@ const DeliveryAddressPage = () => {
               value={address.city}
               onChange={handleChange}
               className="form-input"
-              placeholder="Entrez votre ville"
+              placeholder="Ville *"
+              required
             />
           </div>
           <div className="form-group">
             <input
               type="text"
-              id="postalCode"
-              name="postalCode"
-              value={address.postalCode}
+              id="state"
+              name="state"
+              value={address.state}
               onChange={handleChange}
               className="form-input"
-              placeholder="Entrez votre code postal"
+              placeholder="Région / État *"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="text"
+              id="pincode"
+              name="pincode"
+              value={address.pincode}
+              onChange={handleChange}
+              className="form-input"
+              placeholder="Code postal *"
+              required
             />
           </div>
           <div className="form-group">
@@ -132,11 +212,22 @@ const DeliveryAddressPage = () => {
               name="country"
               value={address.country}
               onChange={handleChange}
-              placeholder="Entrez votre pays"
+              placeholder="Pays"
+            />
+          </div>
+          <div className="form-group">
+            <input
+              className="form-input"
+              type="text"
+              id="other"
+              name="other"
+              value={address.other}
+              onChange={handleChange}
+              placeholder="Informations supplémentaires (optionnel)"
             />
           </div>
           <button type="submit" className="submit-btn" disabled={isLoading || orderLoading}>
-            {isLoading ? "Enregistrement..." : orderLoading ? "Création de la commande..." : "Confirmer la livraison"}
+            {isLoading ? "Enregistrement..." : orderLoading ? "Création de la commande..." : "Passer la commande"}
           </button>
         </form>
 
