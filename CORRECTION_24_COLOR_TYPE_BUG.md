@@ -66,7 +66,7 @@ if (product.tags && Array.isArray(product.tags)) {
 
 ## 3. SOLUTION APPLIQUÉE
 
-### Code corrigé
+### Code corrigé - Ligne 119 (generateProductKeywords)
 ```javascript
 // ✅ NOUVEAU CODE - CORRECT
 // Ajouter les couleurs si disponibles
@@ -85,11 +85,29 @@ if (product.color) {
 }
 ```
 
+### Code corrigé - Ligne 225 (searchByKeyword)
+```javascript
+// ✅ NOUVEAU CODE - CORRECT
+// Recherche dans la couleur (gérer tableau et string)
+if (product.color) {
+  if (Array.isArray(product.color)) {
+    // Si color est un tableau, chercher dans chaque couleur
+    if (product.color.some(c => typeof c === 'string' && c.toLowerCase().includes(searchLower))) {
+      score += 5;
+    }
+  } else if (typeof product.color === 'string' && product.color.toLowerCase().includes(searchLower)) {
+    // Si color est une string simple
+    score += 5;
+  }
+}
+```
+
 ### Avantages de la solution
 1. ✅ **Gère les tableaux**: Itère sur chaque couleur
 2. ✅ **Gère les strings**: Rétrocompatibilité
 3. ✅ **Sécurité**: Vérifie le type avant toLowerCase()
 4. ✅ **Cohérence**: Même pattern que pour `tags`
+5. ✅ **Recherche améliorée**: Cherche dans toutes les couleurs avec .some()
 
 ---
 
@@ -97,7 +115,7 @@ if (product.color) {
 
 ### Client/src/components/SearchBar.js
 ```diff
-Lignes 113-129:
+Lignes 113-129 (Fonction generateProductKeywords):
 
      // Ajouter les tags si disponibles
      if (product.tags && Array.isArray(product.tags)) {
@@ -119,6 +137,30 @@ Lignes 113-129:
 +        keywords.add(product.color.toLowerCase());
 +      }
      }
+```
+
+```diff
+Lignes 220-236 (Fonction searchByKeyword):
+
+     // Recherche dans les mots-clés générés
+     if (productKeywords.some(kw => kw === searchLower)) score += 15;
+     else if (productKeywords.some(kw => kw.includes(searchLower))) score += 5;
+     
+     // Recherche dans la couleur
+-    if (product.color?.toLowerCase().includes(searchLower)) score += 5;
++    if (product.color) {
++      if (Array.isArray(product.color)) {
++        // Si color est un tableau, chercher dans chaque couleur
++        if (product.color.some(c => typeof c === 'string' && c.toLowerCase().includes(searchLower))) {
++          score += 5;
++        }
++      } else if (typeof product.color === 'string' && product.color.toLowerCase().includes(searchLower)) {
++        // Si color est une string simple
++        score += 5;
++      }
++    }
+     
+     return { product, score };
 ```
 
 ---
@@ -215,28 +257,37 @@ grep -r "\.color\.toLowerCase" Client/src/
 ## 10. COMMANDES EXÉCUTÉES
 
 ```bash
-# 1. Modification du fichier
+# 1. Modification du fichier (2 endroits)
 # Fichier: Client/src/components/SearchBar.js
-# Ligne 119: Correction gestion color comme tableau
+# Ligne 119: Correction gestion color comme tableau (dans generateProductKeywords)
+# Ligne 225: Correction recherche color avec .some() (dans searchByKeyword)
 
 # 2. Redémarrage client
 cd /home/blackrdp/sanny/san/ecomerce_sanny/Client
 pm2 restart sanny-client
 
-# 3. Vérification
-pm2 status
-# sanny-client: restart #84 ✅
+# 3. Vérification compilation
+pm2 logs sanny-client --lines 20 --nostream
+# Résultat: "Compiled successfully!" ✅
+
+# 4. Commit Git
+cd /home/blackrdp/sanny/san/ecomerce_sanny
+git add -A
+git commit -m "Correction #24: Fix TypeError product.color.toLowerCase (2 occurrences)"
 ```
 
 ---
 
 ## RÉSUMÉ
 
-**Problème**: `TypeError: product.color.toLowerCase is not a function`  
+**Problème**: `TypeError: product.color.toLowerCase is not a function` (2 occurrences)  
 **Cause**: `product.color` est un tableau JSON, pas une string  
-**Solution**: Itérer sur le tableau avec forEach + vérification de type  
+**Solution**: 
+- Ligne 119: Itérer sur le tableau avec forEach + vérification de type  
+- Ligne 225: Chercher dans le tableau avec .some() + vérification de type  
 **Statut**: ✅ **CORRIGÉ**  
-**Restart**: #84 (sanny-client)  
+**Restart**: #85 (sanny-client)  
+**Compilation**: ✅ Réussie
 
 ---
 

@@ -221,8 +221,18 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
         if (productKeywords.some(kw => kw === searchLower)) score += 15;
         else if (productKeywords.some(kw => kw.includes(searchLower))) score += 5;
         
-        // Recherche dans la couleur
-        if (product.color?.toLowerCase().includes(searchLower)) score += 5;
+        // Recherche dans la couleur (gérer tableau et string)
+        if (product.color) {
+          if (Array.isArray(product.color)) {
+            // Si color est un tableau, chercher dans chaque couleur
+            if (product.color.some(c => typeof c === 'string' && c.toLowerCase().includes(searchLower))) {
+              score += 5;
+            }
+          } else if (typeof product.color === 'string' && product.color.toLowerCase().includes(searchLower)) {
+            // Si color est une string simple
+            score += 5;
+          }
+        }
         
         return { product, score };
       })
