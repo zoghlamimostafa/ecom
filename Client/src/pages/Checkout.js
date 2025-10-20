@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { createOrder } from '../features/user/userSlice';
+import { createOrder, getUserCart } from '../features/user/userSlice';
 import Container from '../components/Container';
 import Meta from '../components/Meta';
 import './Checkout.css';
@@ -25,6 +25,13 @@ const Checkout = () => {
     const buyNowItem = useSelector(state => state.auth.buyNowItem);
     const { user } = useSelector(state => state.auth);
     const itemsToDisplay = buyNowItem ? [buyNowItem] : cartState;
+    
+    // 🔄 Charger le panier au montage du composant (si pas de Buy Now)
+    useEffect(() => {
+        if (user && !buyNowItem) {
+            dispatch(getUserCart());
+        }
+    }, [dispatch, user, buyNowItem]);
     
     // Frais de livraison standard (7 TND - cohérent avec Cart.js)
     const SHIPPING_COST = 7.00;
