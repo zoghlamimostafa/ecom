@@ -18,6 +18,7 @@ const colorRouter = require("./routes/colorRoute");
 const categoryRouter = require("./routes/prodcategoryRoute");
 const enqRouter = require("./routes/enqRoute");
 const refreshTokenRouter = require("./routes/refreshToken");
+const searchRouter = require("./routes/searchRoute");
 const session = require('express-session');
 // const images = require ("./routes/imageRoutes");             // Temporarily commented
 
@@ -158,6 +159,7 @@ app.use("/api/upload", uploadRouter);
 app.use("/api/color", colorRouter);
 app.use("/api/enquiry", enqRouter);
 app.use("/api/category", categoryRouter);
+app.use("/api/search", searchRouter);
 // app.use("/api/images", images);        // Temporarily commented
 app.use("/api/token", refreshTokenRouter); // Added route for refreshing tokens
 
