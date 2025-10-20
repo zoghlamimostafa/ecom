@@ -739,18 +739,21 @@ module.exports = {
   
   // Récupérer les commandes de l'utilisateur connecté
   getMyOrders: asyncHandler(async (req, res) => {
-    const { _id } = req.user;
+    const userId = req.user?.id; // Sequelize utilise 'id', pas '_id'
 
-    if (!_id) {
+    if (!userId) {
+      console.error('❌ ID utilisateur manquant dans req.user:', req.user);
       return res.status(400).json({ 
         success: false,
         message: "ID utilisateur invalide" 
       });
     }
 
+    console.log('✅ Récupération des commandes pour userId:', userId);
+
     try {
       const orders = await Order.findAll({
-        where: { userId: _id },
+        where: { userId: userId },
         include: [
           {
             model: OrderItem,
