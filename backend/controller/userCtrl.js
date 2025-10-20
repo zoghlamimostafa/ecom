@@ -1,5 +1,5 @@
 // ===== CONTRÔLEUR UTILISATEURS CORRIGÉ =====
-const { User, Cart, Product, Coupon, Order, Color, Op } = require('../models');
+const { User, Cart, Product, Coupon, Order, OrderItem, Color, Op } = require('../models');
 const generateResetToken = require('../config/generateResetToken');
 const asyncHandler = require("express-async-handler");
 const { generateToken } = require("../config/jwtToken");
@@ -735,13 +735,360 @@ module.exports = {
     }
   }),
   
+  // ===== ORDER MANAGEMENT =====
+  
+  // Récupérer les commandes de l'utilisateur connecté
+  getMyOrders: asyncHandler(async (req, res) => {
+    const { _id } = req.user;
+
+    if (!_id) {
+      return res.status(400).json({ 
+        success: false,
+        message: "ID utilisateur invalide" 
+      });
+    }
+
+    try {
+      const orders = await Order.findAll({
+        where: { userId: _id },
+        include: [
+          {
+            model: OrderItem,
+            as: 'orderItems',
+            include: [
+              {
+                model: Product,
+                as: 'product',
+                attributes: ['id', 'title', 'price', 'images', 'slug']
+              }
+            ]
+          }
+        ],
+        order: [['createdAt', 'DESC']]
+      });
+
+      // Normaliser les données des produits
+      const normalizedOrders = orders.map(order => {
+        const orderData = order.toJSON();
+        if (orderData.orderItems) {
+          orderData.orderItems = orderData.orderItems.map(item => {
+            if (item.product) {
+              item.product = normalizeProductData(item.product);
+            }
+            return item;
+          });
+        }
+        return orderData;
+      });
+
+      res.json(normalizedOrders);
+    } catch (error) {
+      console.error("❌ Erreur lors de la récupération des commandes:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Erreur lors de la récupération des commandes",
+        error: error.message 
+      });
+    }
+  }),
+
+  // Créer une commande depuis le panier
+  createOrder: asyncHandler(async (req, res) => {
+    const { _id } = req.user;
+    const { shippingInfo, paymentInfo } = req.body;
+
+    try {
+      // Validation des données de livraison
+      if (!shippingInfo || !shippingInfo.firstName || !shippingInfo.address || !shippingInfo.city) {
+        return res.status(400).json({
+          success: false,
+          message: "Informations de livraison incomplètes"
+        });
+      }
+
+      // Récupérer le panier de l'utilisateur
+      const cartItems = await Cart.findAll({
+        where: { userId: _id },
+        include: [
+          {
+            model: Product,
+            as: 'product',
+            attributes: ['id', 'title', 'price', 'quantity', 'images']
+          }
+        ]
+      });
+
+      if (!cartItems || cartItems.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Votre panier est vide"
+        });
+      }
+
+      // Calculer le total
+      let totalPrice = 0;
+      const orderItemsData = [];
+
+      for (const item of cartItems) {
+        if (!item.product) {
+          continue;
+        }
+
+        // Vérifier le stock
+        if (item.product.quantity < item.quantity) {
+          return res.status(400).json({
+            success: false,
+            message: `Stock insuffisant pour ${item.product.title}`
+          });
+        }
+
+        const itemTotal = item.price * item.quantity;
+        totalPrice += itemTotal;
+
+        orderItemsData.push({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+          color: item.color
+        });
+      }
+
+      // Créer la commande
+      const order = await Order.create({
+        userId: _id,
+        shippingInfo,
+        paymentInfo: paymentInfo || { method: 'COD' },
+        totalPrice,
+        totalPriceAfterDiscount: totalPrice,
+        orderStatus: paymentInfo?.method === 'COD' ? 'Cash on Delivery' : 'Not Processed'
+      });
+
+      // Créer les OrderItems
+      for (const itemData of orderItemsData) {
+        await OrderItem.create({
+          orderId: order.id,
+          ...itemData
+        });
+      }
+
+      // Mettre à jour le stock des produits
+      for (const item of cartItems) {
+        if (item.product) {
+          await Product.update(
+            {
+              quantity: item.product.quantity - item.quantity,
+              sold: (item.product.sold || 0) + item.quantity
+            },
+            { where: { id: item.productId } }
+          );
+        }
+      }
+
+      // Vider le panier
+      await Cart.destroy({ where: { userId: _id } });
+
+      // Récupérer la commande complète avec les items
+      const completeOrder = await Order.findByPk(order.id, {
+        include: [
+          {
+            model: OrderItem,
+            as: 'orderItems',
+            include: [
+              {
+                model: Product,
+                as: 'product',
+                attributes: ['id', 'title', 'price', 'images', 'slug']
+              }
+            ]
+          }
+        ]
+      });
+
+      res.json({
+        success: true,
+        message: "Commande créée avec succès",
+        order: completeOrder
+      });
+
+    } catch (error) {
+      console.error("❌ Erreur lors de la création de la commande:", error);
+      res.status(500).json({
+        success: false,
+        message: "Erreur lors de la création de la commande",
+        error: error.message
+      });
+    }
+  }),
+
+  // Récupérer toutes les commandes (admin)
+  getAllOrders: asyncHandler(async (req, res) => {
+    try {
+      const orders = await Order.findAll({
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'firstname', 'lastname', 'email', 'mobile']
+          },
+          {
+            model: OrderItem,
+            as: 'orderItems',
+            include: [
+              {
+                model: Product,
+                as: 'product',
+                attributes: ['id', 'title', 'price', 'images', 'slug']
+              }
+            ]
+          }
+        ],
+        order: [['createdAt', 'DESC']]
+      });
+
+      res.json({
+        success: true,
+        count: orders.length,
+        orders
+      });
+    } catch (error) {
+      console.error("❌ Erreur lors de la récupération de toutes les commandes:", error);
+      res.status(500).json({
+        success: false,
+        message: "Erreur lors de la récupération des commandes",
+        error: error.message
+      });
+    }
+  }),
+
+  // Récupérer une commande par ID utilisateur (admin)
+  getOrderByUserId: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      const orders = await Order.findAll({
+        where: { userId: id },
+        include: [
+          {
+            model: OrderItem,
+            as: 'orderItems',
+            include: [
+              {
+                model: Product,
+                as: 'product',
+                attributes: ['id', 'title', 'price', 'images', 'slug']
+              }
+            ]
+          }
+        ],
+        order: [['createdAt', 'DESC']]
+      });
+
+      res.json({
+        success: true,
+        count: orders.length,
+        orders
+      });
+    } catch (error) {
+      console.error("❌ Erreur lors de la récupération des commandes:", error);
+      res.status(500).json({
+        success: false,
+        message: "Erreur lors de la récupération des commandes",
+        error: error.message
+      });
+    }
+  }),
+
+  // Mettre à jour le statut d'une commande (admin)
+  updateOrderStatus: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    try {
+      const validStatuses = ['Not Processed', 'Cash on Delivery', 'Processing', 'Dispatched', 'Cancelled', 'Delivered'];
+      
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({
+          success: false,
+          message: "Statut invalide"
+        });
+      }
+
+      const order = await Order.findByPk(id);
+      
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          message: "Commande non trouvée"
+        });
+      }
+
+      await order.update({ orderStatus: status });
+
+      const updatedOrder = await Order.findByPk(id, {
+        include: [
+          {
+            model: OrderItem,
+            as: 'orderItems',
+            include: [
+              {
+                model: Product,
+                as: 'product'
+              }
+            ]
+          }
+        ]
+      });
+
+      res.json({
+        success: true,
+        message: "Statut de la commande mis à jour",
+        order: updatedOrder
+      });
+    } catch (error) {
+      console.error("❌ Erreur lors de la mise à jour du statut:", error);
+      res.status(500).json({
+        success: false,
+        message: "Erreur lors de la mise à jour du statut",
+        error: error.message
+      });
+    }
+  }),
+
+  // Supprimer une commande (admin)
+  deleteOrder: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      const order = await Order.findByPk(id);
+      
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          message: "Commande non trouvée"
+        });
+      }
+
+      // Supprimer les OrderItems associés
+      await OrderItem.destroy({ where: { orderId: id } });
+      
+      // Supprimer la commande
+      await order.destroy();
+
+      res.json({
+        success: true,
+        message: "Commande supprimée avec succès"
+      });
+    } catch (error) {
+      console.error("❌ Erreur lors de la suppression de la commande:", error);
+      res.status(500).json({
+        success: false,
+        message: "Erreur lors de la suppression de la commande",
+        error: error.message
+      });
+    }
+  }),
+
   forgotPasswordToken: () => { throw new Error('Function not implemented yet'); },
-  getAllOrders: () => { throw new Error('Function not implemented yet'); },
-  getMyOrders: () => { throw new Error('Function not implemented yet'); },
-  createOrder: () => { throw new Error('Function not implemented yet'); },
-  updateOrderStatus: () => { throw new Error('Function not implemented yet'); },
-  deleteOrder: () => { throw new Error('Function not implemented yet'); },
-  getOrderByUserId: () => { throw new Error('Function not implemented yet'); },
   getUserProductWishlist,
   getUserCart,
 };
