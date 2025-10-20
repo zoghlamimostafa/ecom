@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { createOrder, getUserCart } from '../features/user/userSlice';
+import { getProductImageUrl } from '../utils/imageHelper';
 import Container from '../components/Container';
 import Meta from '../components/Meta';
 import './Checkout.css';
@@ -235,18 +236,11 @@ const Checkout = () => {
                             <div className="card-body">
                                 {/* Liste produits */}
                                 <div className="order-items mb-3">
-                                    {itemsToDisplay.map((item) => {
-                                        // ️ Gestion des images (normalisées par le backend)
-                                        let imageUrl = "https://via.placeholder.com/80";
-                                        
-                                        // 1. Priorité: item.images (déjà normalisé par getUserCart)
-                                        if (item.images && Array.isArray(item.images) && item.images.length > 0) {
-                                            imageUrl = item.images[0].url;
-                                        }
-                                        // 2. Fallback: product.images (normalisé aussi)
-                                        else if (item.product?.images && Array.isArray(item.product.images) && item.product.images.length > 0) {
-                                            imageUrl = item.product.images[0].url;
-                                        }
+                                                                        {itemsToDisplay.map((item) => {
+                                        // Utiliser imageHelper pour gérer les URLs correctement
+                                        const imageUrl = getProductImageUrl(
+                                            item.images || item.product?.images
+                                        );
                                         
                                         // Données du produit
                                         const title = item.title || item.product?.title || 'Produit';
@@ -260,7 +254,7 @@ const Checkout = () => {
                                                         alt={title}
                                                         onError={(e) => {
                                                             e.target.onerror = null;
-                                                            e.target.src = "https://via.placeholder.com/80";
+                                                            e.target.src = "/images/default-product.jpg";
                                                         }}
                                                     />
                                                 </div>
