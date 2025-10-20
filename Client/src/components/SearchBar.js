@@ -116,7 +116,17 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
     
     // Ajouter les couleurs si disponibles
     if (product.color) {
-      keywords.add(product.color.toLowerCase());
+      if (Array.isArray(product.color)) {
+        // Si color est un tableau JSON
+        product.color.forEach(c => {
+          if (typeof c === 'string') {
+            keywords.add(c.toLowerCase());
+          }
+        });
+      } else if (typeof product.color === 'string') {
+        // Si color est une string simple
+        keywords.add(product.color.toLowerCase());
+      }
     }
     
     // Ajouter mots du titre (tokenization)
