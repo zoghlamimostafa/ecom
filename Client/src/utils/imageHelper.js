@@ -39,6 +39,39 @@ const getBackendUrl = () => {
   return 'http://localhost:4000';
 };
 
+/**
+ * Normalise une URL d'image en enlevant les domaines hardcodés
+ * et en ne gardant que le chemin relatif
+ */
+const normalizeImageUrl = (url) => {
+  if (!url || typeof url !== 'string') return url;
+  
+  // Si c'est une URL Cloudinary, la garder telle quelle
+  if (url.includes('cloudinary.com') || url.includes('res.cloudinary')) {
+    return url;
+  }
+  
+  // Enlever les domaines hardcodés (localhost, IP Azure, IP interne)
+  const patterns = [
+    'http://localhost:4000',
+    'http://127.0.0.1:4000',
+    'http://74.235.205.26:4000',
+    'http://10.1.0.4:4000',
+    'https://localhost:4000',
+    'https://127.0.0.1:4000',
+    'https://74.235.205.26:4000',
+    'https://10.1.0.4:4000'
+  ];
+  
+  for (const pattern of patterns) {
+    if (url.startsWith(pattern)) {
+      return url.replace(pattern, '');
+    }
+  }
+  
+  return url;
+};
+
 export const getProductImageUrl = (images, index = 0) => {
   const BACKEND_URL = getBackendUrl();
   const defaultImage = '/images/default-product.jpg';
@@ -69,9 +102,15 @@ export const getProductImageUrl = (images, index = 0) => {
 
   // Si objet avec .url ou .path ou .public_id
   if (typeof images === 'object') {
-    const url = images.url || images.path || images.public_id || '';
+    let url = images.url || images.path || images.public_id || '';
     if (url && typeof url === 'string') {
+      // Normaliser l'URL d'abord
+      url = normalizeImageUrl(url);
+      
+      // Si c'est une URL externe (Cloudinary, etc.), la retourner telle quelle
       if (url.startsWith('http://') || url.startsWith('https://')) return url;
+      
+      // Sinon, ajouter le backend URL approprié
       if (url.startsWith('/')) return `${BACKEND_URL}${url}`;
       return `${BACKEND_URL}/images/${url}`;
     }
@@ -85,9 +124,16 @@ export const getProductImageUrl = (images, index = 0) => {
   // Si string
   if (typeof images === 'string') {
     if (!images || images === 'null' || images === 'undefined') return defaultImage;
-    if (images.startsWith('http://') || images.startsWith('https://')) return images;
-    if (images.startsWith('/')) return `${BACKEND_URL}${images}`;
-    return `${BACKEND_URL}/images/${images}`;
+    
+    // Normaliser l'URL d'abord
+    let url = normalizeImageUrl(images);
+    
+    // Si c'est une URL externe (Cloudinary, etc.), la retourner telle quelle
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    
+    // Sinon, ajouter le backend URL approprié
+    if (url.startsWith('/')) return `${BACKEND_URL}${url}`;
+    return `${BACKEND_URL}/images/${url}`;
   }
 
   return defaultImage;
@@ -125,23 +171,20 @@ export const getAllProductImageUrls = (images) => {
       return [defaultImage];
     }
     
-    try {
-      // Tenter de parser l'URL pour vérifier si elle est valide
-      const url = new URL(images);
-      // Si c'est déjà une URL valide (avec protocole), la retourner telle quelle
-      return [images];
-    } catch (e) {
-      // Ce n'est pas une URL valide, donc c'est un chemin relatif
-      if (images.startsWith('/')) {
-        // Éviter la double préfixation si l'URL contient déjà le BACKEND_URL
-        if (images.includes(BACKEND_URL)) {
-          return [images];
-        }
-        return [`${BACKEND_URL}${images}`];
-      }
-      // Sinon ajouter le préfixe /images/
-      return [`${BACKEND_URL}/images/${images}`];
+    // Normaliser l'URL d'abord
+    let url = normalizeImageUrl(images);
+    
+    // Si c'est une URL externe (Cloudinary, etc.), la retourner telle quelle
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return [url];
     }
+    
+    // Sinon, ajouter le backend URL approprié
+    if (url.startsWith('/')) {
+      return [`${BACKEND_URL}${url}`];
+    }
+    
+    return [`${BACKEND_URL}/images/${url}`];
   }
   
   // Si c'est un tableau
@@ -152,8 +195,13 @@ export const getAllProductImageUrls = (images) => {
     
     return images.map(image => {
       if (typeof image === 'object' && image !== null) {
-        const url = image.url || image.public_id || image.path || '';
+        let url = image.url || image.public_id || image.path || '';
         if (!url || url === 'null') return defaultImage;
+        
+        // Normaliser l'URL
+        url = normalizeImageUrl(url);
+        
+        // Si c'est une URL externe, la retourner telle quelle
         if (url.startsWith('http://') || url.startsWith('https://')) {
           return url;
         }
@@ -164,13 +212,18 @@ export const getAllProductImageUrls = (images) => {
       }
       if (typeof image === 'string') {
         if (!image || image === 'null' || image === 'undefined') return defaultImage;
-        if (image.startsWith('http://') || image.startsWith('https://')) {
-          return image;
+        
+        // Normaliser l'URL
+        let url = normalizeImageUrl(image);
+        
+        // Si c'est une URL externe, la retourner telle quelle
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+          return url;
         }
-        if (image.startsWith('/')) {
-          return `${BACKEND_URL}${image}`;
+        if (url.startsWith('/')) {
+          return `${BACKEND_URL}${url}`;
         }
-        return `${BACKEND_URL}/images/${image}`;
+        return `${BACKEND_URL}/images/${url}`;
       }
       return defaultImage;
     });
@@ -178,8 +231,12 @@ export const getAllProductImageUrls = (images) => {
   
   // Si c'est un objet direct
   if (typeof images === 'object') {
-    const url = images.url || images.public_id || images.path || '';
+    let url = images.url || images.public_id || images.path || '';
     if (!url || url === 'null') return [defaultImage];
+    
+    // Normaliser l'URL
+    url = normalizeImageUrl(url);
+    
     let finalUrl;
     if (url.startsWith('http://') || url.startsWith('https://')) {
       finalUrl = url;
