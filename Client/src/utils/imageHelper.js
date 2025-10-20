@@ -6,8 +6,41 @@
  * @param {Number} index - Index de l'image (par défaut 0)
  * @returns {String} - URL de l'image ou image par défaut
  */
+/**
+ * Détermine l'URL du backend automatiquement
+ * - Si REACT_APP_API_URL est défini, l'utiliser
+ * - Sinon, détecter selon window.location.hostname
+ */
+const getBackendUrl = () => {
+  // 1. Priorité: Variable d'environnement
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  
+  // 2. Détection automatique selon l'hôte
+  const hostname = window.location.hostname;
+  
+  // Si on accède via l'IP publique Azure
+  if (hostname === '74.235.205.26') {
+    return 'http://74.235.205.26:4000';
+  }
+  
+  // Si on accède via localhost
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:4000';
+  }
+  
+  // Si on accède via l'IP interne
+  if (hostname === '10.1.0.4') {
+    return 'http://10.1.0.4:4000';
+  }
+  
+  // 3. Fallback par défaut
+  return 'http://localhost:4000';
+};
+
 export const getProductImageUrl = (images, index = 0) => {
-  const BACKEND_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+  const BACKEND_URL = getBackendUrl();
   const defaultImage = '/images/default-product.jpg';
   if (!images) return defaultImage;
 
@@ -66,7 +99,7 @@ export const getProductImageUrl = (images, index = 0) => {
  * @returns {Array} - Tableau d'URLs
  */
 export const getAllProductImageUrls = (images) => {
-  const BACKEND_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+  const BACKEND_URL = getBackendUrl();
   const defaultImage = '/images/default-product.jpg';
   
   if (!images) {
