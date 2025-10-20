@@ -20,10 +20,24 @@ const CategoryProducts = () => {
 
     useEffect(() => {
         if (productState && categoryId) {
-            const filtered = productState.filter(
-                product => product.category === categoryId || 
-                           product.categoryId === parseInt(categoryId)
-            );
+            // Convertir categoryId en nombre et en string pour comparaison
+            const categoryIdNum = parseInt(categoryId);
+            const categoryIdStr = categoryId.toString();
+            
+            const filtered = productState.filter(product => {
+                // Convertir product.category en string pour comparaison fiable
+                const productCategory = product.category ? product.category.toString() : '';
+                const productSubcategory = product.subcategory ? product.subcategory.toString() : '';
+                
+                // Filtrer par catégorie principale OU sous-catégorie
+                return productCategory === categoryIdStr || 
+                       productSubcategory === categoryIdStr ||
+                       productCategory === categoryIdNum.toString();
+            });
+            
+            console.log('🔍 Filtrage catégorie:', categoryId);
+            console.log('📦 Produits trouvés:', filtered.length);
+            
             setFilteredProducts(filtered);
         }
     }, [productState, categoryId]);

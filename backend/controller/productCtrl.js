@@ -1,10 +1,11 @@
 // ===== CONTRÔLEUR PRODUITS CORRIGÉ =====
-const { Product, User, Order, Category, Brand, Color } = require('../models');
+const { Product, User, Order, Category, Brand, Color, Cart, Wishlist, ProductRating, OrderItem } = require('../models');
 const { Op } = require('sequelize');
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const fs = require("fs");
 const cloudinaryUploadImg = require("../utils/cloudinary");
+const { normalizeProductData } = require('../utils/imageNormalizer');
 
 // ===== CRUD OPERATIONS =====
 
@@ -24,11 +25,20 @@ const createProduct = asyncHandler(async (req, res) => {
       images 
     } = req.body;
 
-    // Validation des champs obligatoires
-    if (!title || !description || !price || !category || !brand || !quantity) {
+    // Validation des champs obligatoires (brand est maintenant optionnel)
+    if (!title || !description || !price || !category || !quantity) {
       return res.status(400).json({
         success: false,
         message: "Tous les champs obligatoires doivent être remplis"
+      });
+    }
+
+    // ✅ VALIDATION DES IMAGES - Au moins une image requise
+    if (!images || (Array.isArray(images) && images.length === 0) || 
+        (typeof images === 'string' && (images === '[]' || images === ''))) {
+      return res.status(400).json({
+        success: false,
+        message: "Au moins une image est requise"
       });
     }
 
@@ -76,16 +86,32 @@ const createProduct = asyncHandler(async (req, res) => {
       color: Array.isArray(color) ? JSON.stringify(color) : color,
       tags,
       quantity: parseInt(quantity),
-      images: Array.isArray(images) ? JSON.stringify(images) : images
+      // Images: toujours stocker en string JSON, peu importe le format reçu
+      images: typeof images === 'string' ? images : JSON.stringify(images || [])
     };
+
+    console.log("📦 Product data à sauvegarder:", {
+      title,
+      imagesType: typeof images,
+      imagesValue: images,
+      imagesSaved: productData.images
+    });
 
     // Créer le produit
     const newProduct = await Product.create(productData);
+    
+    // Retourner le produit avec images normalisées
+    const normalizedProduct = normalizeProductData(newProduct);
+    
+    console.log("✅ Produit créé et normalisé:", {
+      id: normalizedProduct.id,
+      images: normalizedProduct.images
+    });
 
     res.status(201).json({
       success: true,
       message: "Produit créé avec succès",
-      product: newProduct
+      product: normalizedProduct
     });
   } catch (error) {
     res.status(500).json({
@@ -163,26 +189,10 @@ const getAllProduct = asyncHandler(async (req, res) => {
       categoryMap[cat.id] = cat.toJSON();
     });
 
-    // Traiter les données pour le frontend
+    // Traiter les données pour le frontend avec normalisation
     const products = rows.map(product => {
-      const productData = product.toJSON();
-      
-      // Parser les JSON si nécessaire
-      if (productData.color && typeof productData.color === 'string') {
-        try {
-          productData.color = JSON.parse(productData.color);
-        } catch (e) {
-          productData.color = [];
-        }
-      }
-      
-      if (productData.images && typeof productData.images === 'string') {
-        try {
-          productData.images = JSON.parse(productData.images);
-        } catch (e) {
-          productData.images = [];
-        }
-      }
+      const productJson = product.toJSON();
+      let productData = normalizeProductData(productJson);
       
       // Ajouter les informations de catégorie
       if (productData.category && categoryMap[productData.category]) {
@@ -217,7 +227,7 @@ const getAllProduct = asyncHandler(async (req, res) => {
   }
 });
 
-// READ - Récupérer un produit par ID
+// READ - Récupérer un produit par ID ou Slug
 const getaProduct = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
@@ -225,37 +235,36 @@ const getaProduct = asyncHandler(async (req, res) => {
     if (!id) {
       return res.status(400).json({
         success: false,
-        message: "ID produit requis"
+        message: "ID ou slug produit requis"
       });
     }
 
-    const product = await Product.findByPk(id);
+    // Chercher par ID ou par slug
+    let product;
+    
+    // Si c'est un nombre, chercher par ID
+    if (!isNaN(id)) {
+      product = await Product.findByPk(id);
+    }
+    
+    // Si pas trouvé par ID ou si c'est un slug, chercher par slug
+    if (!product) {
+      product = await Product.findOne({ where: { slug: id } });
+    }
 
     if (!product) {
+      console.log('❌ Produit non trouvé pour:', id);
       return res.status(404).json({
         success: false,
         message: "Produit non trouvé"
       });
     }
+    
+    console.log('✅ Produit trouvé:', product.id, '-', product.title);
 
-    // Traiter les données JSON
-    const productData = product.toJSON();
-    
-    if (productData.color && typeof productData.color === 'string') {
-      try {
-        productData.color = JSON.parse(productData.color);
-      } catch (e) {
-        productData.color = [];
-      }
-    }
-    
-    if (productData.images && typeof productData.images === 'string') {
-      try {
-        productData.images = JSON.parse(productData.images);
-      } catch (e) {
-        productData.images = [];
-      }
-    }
+    // Normaliser les données du produit
+    const productJson = product.toJSON();
+    let productData = normalizeProductData(productJson);
     
     // Récupérer les informations de catégorie
     if (productData.category) {
@@ -297,6 +306,13 @@ const updateProduct = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const updateData = { ...req.body };
     
+    console.log("📝 UPDATE PRODUCT - ID:", id);
+    console.log("📝 Update data reçu:", {
+      title: updateData.title,
+      price: updateData.price,
+      images: updateData.images ? (Array.isArray(updateData.images) ? `Array(${updateData.images.length})` : typeof updateData.images) : 'undefined'
+    });
+    
     if (!id) {
       return res.status(400).json({
         success: false,
@@ -313,9 +329,15 @@ const updateProduct = asyncHandler(async (req, res) => {
       });
     }
 
+    console.log("📝 Produit actuel:", {
+      titre_actuel: product.title,
+      prix_actuel: product.price
+    });
+
     // Générer un nouveau slug si le titre change
     if (updateData.title && updateData.title !== product.title) {
       updateData.slug = slugify(updateData.title.toLowerCase());
+      console.log("📝 Nouveau slug généré:", updateData.slug);
       
       // Vérifier l'unicité du nouveau slug
       const existingProduct = await Product.findOne({ 
@@ -360,22 +382,29 @@ const updateProduct = asyncHandler(async (req, res) => {
       updateData.color = JSON.stringify(updateData.color);
     }
     
-    if (updateData.images && Array.isArray(updateData.images)) {
-      updateData.images = JSON.stringify(updateData.images);
+    // Images: toujours stocker en string JSON
+    if (updateData.images) {
+      updateData.images = typeof updateData.images === 'string' 
+        ? updateData.images 
+        : JSON.stringify(updateData.images);
     }
+    
+    console.log("📦 Update data:", {
+      id,
+      imagesType: typeof updateData.images,
+      imagesValue: updateData.images
+    });
 
     // Mettre à jour le produit
     await Product.update(updateData, { where: { id: id } });
     
-    // Récupérer le produit mis à jour
-    const updatedProduct = await Product.findByPk(id, {
-      include: [
-        {
-          model: Category,
-          as: 'categoryInfo',
-          attributes: ['id', 'title', 'slug']
-        }
-      ]
+    // Récupérer le produit mis à jour et le normaliser
+    const updatedProductRaw = await Product.findByPk(id);
+    const updatedProduct = normalizeProductData(updatedProductRaw);
+    
+    console.log("✅ Produit mis à jour et normalisé:", {
+      id: updatedProduct.id,
+      images: updatedProduct.images
     });
 
     res.json({
@@ -397,6 +426,8 @@ const deleteProduct = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
     
+    console.log(`🗑️ Demande de suppression du produit ID: ${id}`);
+    
     if (!id) {
       return res.status(400).json({
         success: false,
@@ -407,20 +438,53 @@ const deleteProduct = asyncHandler(async (req, res) => {
     // Vérifier si le produit existe
     const product = await Product.findByPk(id);
     if (!product) {
+      console.log(`❌ Produit ${id} non trouvé`);
       return res.status(404).json({
         success: false,
         message: "Produit non trouvé"
       });
     }
 
-    // Supprimer le produit
+    console.log(`✅ Produit trouvé: ${product.title}`);
+
+    // Supprimer les relations avant de supprimer le produit (évite les erreurs FK)
+    // Les modèles sont déjà importés en haut du fichier
+    
+    // 1. Supprimer de tous les paniers
+    const deletedCarts = await Cart.destroy({ where: { productId: id } });
+    console.log(`🛒 Supprimé ${deletedCarts} items de Cart`);
+    
+    // 2. Supprimer de toutes les wishlists
+    const deletedWishlists = await Wishlist.destroy({ where: { productId: id } });
+    console.log(`❤️ Supprimé ${deletedWishlists} items de Wishlist`);
+    
+    // 3. Supprimer tous les ratings/avis
+    const deletedRatings = await ProductRating.destroy({ where: { productId: id } });
+    console.log(`⭐ Supprimé ${deletedRatings} ratings`);
+    
+    // 4. Vérifier les commandes existantes avec ce produit
+    const orderItems = await OrderItem.findAll({ where: { productId: id } });
+    if (orderItems && orderItems.length > 0) {
+      console.log(`⚠️ Attention: ${orderItems.length} commandes contiennent ce produit`);
+      // On ne supprime PAS les OrderItems pour préserver l'historique des commandes
+      // On définit juste le productId à null pour indiquer que le produit n'existe plus
+      await OrderItem.update(
+        { productId: null },
+        { where: { productId: id } }
+      );
+      console.log(`📦 OrderItems mis à jour (productId = null)`);
+    }
+
+    // 5. Enfin, supprimer le produit
     await Product.destroy({ where: { id: id } });
+    console.log(`✅ Produit ${id} supprimé avec succès`);
 
     res.json({
       success: true,
       message: "Produit supprimé avec succès"
     });
   } catch (error) {
+    console.error(`❌ Erreur lors de la suppression du produit ${req.params.id}:`, error);
     res.status(500).json({
       success: false,
       message: "Erreur lors de la suppression du produit",

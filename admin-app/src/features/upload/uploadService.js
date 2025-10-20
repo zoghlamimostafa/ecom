@@ -36,7 +36,11 @@ const uploadImg = async (data) => {
         ...config.headers,
         'Content-Type': 'multipart/form-data',
       },
-      timeout: 30000, // 30 secondes pour l'upload
+      timeout: 120000, // 2 minutes pour l'upload (augmenté)
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        console.log(`📊 Upload progress: ${percentCompleted}%`);
+      },
     };
     
     console.log("📸 Envoi requête vers:", `${base_url}upload/`);

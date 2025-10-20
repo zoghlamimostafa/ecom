@@ -48,7 +48,17 @@ const Jardin = () => {
         }));
     };
 
-    const infoProducts = Array.isArray(productState) ? productState.filter(item => item.tags === "jardin") : [];
+    const infoProducts = Array.isArray(productState) ? productState.filter(item => {
+        const productCategory = item.category ? item.category.toString() : '';
+        const productSubcategory = item.subcategory ? item.subcategory.toString() : '';
+        return productCategory === '326' || productSubcategory === '326';
+    }) : [];
+    
+    console.log('🔍 [Jardin] Filtrage:', {
+        totalProducts: productState?.length || 0,
+        filteredCount: infoProducts.length,
+        categoryFilter: '326'
+    });
 
     return (
         <Container class1='new-informatique-container py-5'>

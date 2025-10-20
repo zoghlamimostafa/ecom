@@ -107,10 +107,17 @@ const getProducts = async (filters = {}) => {
 
 const getSingleProduct = async (id) => {
   const response = await axios.get(`${base_url}product/${id}`);
+  console.log('📦 getSingleProduct response:', response.data);
+  
   if (response.data) {
+    // Le backend retourne {success: true, product: {...}}
+    const productData = response.data.product || response.data;
+    console.log('📦 Product data extracted:', productData);
+    
     // Normaliser le produit unique avant de le retourner
-    return normalizeProductData(response.data);
+    return normalizeProductData(productData);
   }
+  return null;
 }
 
 

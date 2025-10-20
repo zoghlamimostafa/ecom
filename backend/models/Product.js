@@ -40,7 +40,7 @@ const Product = sequelize.define('Product', {
   },
   brand: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true  // ✅ Marque non obligatoire
   },
   quantity: {
     type: DataTypes.INTEGER,

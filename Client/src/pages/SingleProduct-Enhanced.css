@@ -1,0 +1,777 @@
+/* ============================================
+   SINGLE PRODUCT - DESIGN ULTRA MODERNE 2025
+   ============================================ */
+
+:root {
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --orange-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  --dark-gradient: linear-gradient(135deg, #434343 0%, #000000 100%);
+  --shadow-soft: 0 10px 40px rgba(0,0,0,0.1);
+  --shadow-hover: 0 20px 60px rgba(0,0,0,0.15);
+  --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   LAYOUT PRINCIPAL
+   ============================================ */
+
+.modern-single-product-layout {
+  display: grid;
+  grid-template-columns: 550px 1fr;
+  gap: 60px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  animation: fadeInUp 0.8s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   GALERIE D'IMAGES - Ultra Moderne
+   ============================================ */
+
+.product-image-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 100px;
+  align-self: flex-start;
+}
+
+.main-image-container {
+  position: relative;
+  background: #ffffff;
+  border-radius: 24px;
+  overflow: hidden;
+  padding: 30px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(0,0,0,0.05);
+  transition: var(--transition-smooth);
+}
+
+.main-image-container:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-4px);
+}
+
+.main-image-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--primary-gradient);
+}
+
+.product-main-image {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  display: block;
+}
+
+/* Badge flottant */
+.product-badge {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: var(--orange-gradient);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 8px 20px rgba(245,87,108,0.4);
+  z-index: 10;
+}
+
+/* ============================================
+   THUMBNAILS - Design Premium
+   ============================================ */
+
+.product-thumbnails {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 16px;
+}
+
+.thumbnail-image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 16px;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: var(--transition-smooth);
+  background: #f8f9fa;
+  padding: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.thumbnail-image:hover {
+  border-color: #667eea;
+  transform: scale(1.08) rotate(2deg);
+  box-shadow: 0 8px 20px rgba(102,126,234,0.3);
+}
+
+.thumbnail-image.active {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  box-shadow: 0 0 0 4px rgba(102,126,234,0.2);
+  transform: scale(1.05);
+}
+
+/* ============================================
+   DÉTAILS PRODUIT - Layout Premium
+   ============================================ */
+
+.product-details-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ============================================
+   HEADER SECTION - Élégant
+   ============================================ */
+
+.product-header-section {
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 32px;
+}
+
+.product-breadcrumb {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.product-brand-tag {
+  background: var(--primary-gradient);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  box-shadow: 0 6px 20px rgba(102,126,234,0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.product-brand-tag::before {
+  content: '✦';
+  font-size: 16px;
+}
+
+.product-category-tag {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  color: #667eea;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 2px solid rgba(102,126,234,0.2);
+}
+
+.modern-product-title {
+  font-size: 36px;
+  font-weight: 800;
+  background: var(--dark-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.3;
+  margin: 20px 0;
+  letter-spacing: -0.5px;
+}
+
+/* ============================================
+   RATING - Design Moderne
+   ============================================ */
+
+.product-rating-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 24px 0;
+  flex-wrap: wrap;
+  gap: 20px;
+  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.rating-stars-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rating-count {
+  font-size: 15px;
+  color: #666;
+  font-weight: 600;
+  background: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.write-review-link {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 24px;
+  border: 2px solid #667eea;
+  border-radius: 30px;
+  transition: var(--transition-smooth);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.write-review-link::after {
+  content: '✍';
+  font-size: 16px;
+}
+
+.write-review-link:hover {
+  background: var(--primary-gradient);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102,126,234,0.3);
+}
+
+/* ============================================
+   PRIX - Display Spectaculaire
+   ============================================ */
+
+.price-display {
+  margin: 32px 0;
+  position: relative;
+}
+
+.current-price {
+  font-size: 48px;
+  font-weight: 900;
+  background: var(--orange-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
+  display: inline-block;
+  position: relative;
+}
+
+.current-price::after {
+  content: 'TND';
+  font-size: 20px;
+  font-weight: 700;
+  color: #999;
+  margin-left: 8px;
+  vertical-align: super;
+}
+
+.price-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: 16px;
+  box-shadow: 0 4px 12px rgba(17,153,142,0.3);
+}
+
+/* ============================================
+   DESCRIPTION - Card Élégante
+   ============================================ */
+
+.product-description-section {
+  background: white;
+  padding: 32px;
+  border-radius: 24px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(0,0,0,0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.product-description-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--success-gradient);
+}
+
+.product-description-section h3 {
+  font-size: 22px;
+  font-weight: 700;
+  background: var(--dark-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.product-description-section h3::before {
+  content: '📋';
+  font-size: 24px;
+}
+
+.product-description-text {
+  color: #555;
+  line-height: 1.8;
+  font-size: 16px;
+}
+
+.product-description-text p {
+  margin-bottom: 12px;
+}
+
+/* ============================================
+   SPÉCIFICATIONS - Grid Moderne
+   ============================================ */
+
+.product-specifications {
+  display: grid;
+  gap: 16px;
+  padding: 32px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.spec-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+  border-radius: 12px;
+  transition: var(--transition-smooth);
+}
+
+.spec-item:hover {
+  background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+  transform: translateX(8px);
+}
+
+.spec-label {
+  font-weight: 700;
+  color: #333;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spec-label::before {
+  content: '▸';
+  color: #667eea;
+  font-size: 18px;
+}
+
+.spec-value {
+  font-weight: 600;
+  color: #667eea;
+  font-size: 15px;
+  background: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+}
+
+/* ============================================
+   SÉLECTION COULEUR - Design Premium
+   ============================================ */
+
+.color-selection-section {
+  padding: 32px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.color-selection-section h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.color-selection-section h4::before {
+  content: '🎨';
+  font-size: 22px;
+}
+
+.color-options-container {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   PANEL D'ACTIONS - Ultra Premium
+   ============================================ */
+
+.product-action-panel {
+  background: white;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(0,0,0,0.05);
+  position: sticky;
+  top: 20px;
+  transition: var(--transition-smooth);
+}
+
+.product-action-panel:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+/* Quantité */
+.quantity-selection {
+  margin-bottom: 32px;
+}
+
+.quantity-label {
+  display: block;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 16px;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.quantity-input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  overflow: hidden;
+  width: fit-content;
+  background: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.quantity-btn {
+  background: transparent;
+  border: none;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 22px;
+  font-weight: 700;
+  color: #667eea;
+  transition: var(--transition-smooth);
+}
+
+.quantity-btn:hover {
+  background: var(--primary-gradient);
+  color: white;
+  transform: scale(1.1);
+}
+
+.quantity-input {
+  border: none;
+  width: 80px;
+  height: 50px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 20px;
+  color: #333;
+  background: white;
+}
+
+.quantity-input:focus {
+  outline: none;
+}
+
+/* ============================================
+   BOUTONS D'ACTION - Design Spectaculaire
+   ============================================ */
+
+.action-buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px 32px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  border: none;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.action-button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.action-button.primary {
+  background: var(--orange-gradient);
+  color: white;
+  box-shadow: 0 8px 25px rgba(245,87,108,0.3);
+}
+
+.action-button.primary:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 35px rgba(245,87,108,0.5);
+}
+
+.action-button.secondary {
+  background: var(--primary-gradient);
+  color: white;
+  box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+}
+
+.action-button.secondary:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 35px rgba(102,126,234,0.5);
+}
+
+.action-button.outline {
+  background: transparent;
+  color: #667eea;
+  border: 2px solid #667eea;
+}
+
+.action-button.outline:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+}
+
+/* Icônes dans les boutons */
+.action-button svg {
+  font-size: 22px;
+  transition: var(--transition-smooth);
+}
+
+.action-button:hover svg {
+  transform: scale(1.2) rotate(10deg);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - Mobile First
+   ============================================ */
+
+@media (max-width: 1200px) {
+  .modern-single-product-layout {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 30px 16px;
+  }
+  
+  .product-image-gallery {
+    position: static;
+  }
+  
+  .product-action-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .modern-product-title {
+    font-size: 28px;
+  }
+  
+  .current-price {
+    font-size: 36px;
+  }
+  
+  .product-thumbnails {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 12px;
+  }
+  
+  .product-rating-display {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+  }
+  
+  .product-description-section,
+  .product-specifications,
+  .color-selection-section,
+  .product-action-panel {
+    padding: 20px;
+  }
+  
+  .action-button {
+    padding: 16px 24px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modern-single-product-layout {
+    padding: 20px 12px;
+    gap: 24px;
+  }
+  
+  .modern-product-title {
+    font-size: 22px;
+  }
+  
+  .current-price {
+    font-size: 28px;
+  }
+  
+  .main-image-container {
+    padding: 16px;
+  }
+  
+  .product-brand-tag,
+  .product-category-tag {
+    font-size: 11px;
+    padding: 6px 14px;
+  }
+  
+  .product-breadcrumb {
+    gap: 8px;
+  }
+  
+  .action-button {
+    padding: 14px 20px;
+    font-size: 13px;
+  }
+  
+  .quantity-input-wrapper {
+    width: 100%;
+  }
+  
+  .quantity-input {
+    flex: 1;
+  }
+}
+
+/* ============================================
+   ANIMATIONS & INTERACTIONS
+   ============================================ */
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.product-badge {
+  animation: pulse 2s infinite;
+}
+
+/* Hover effect sur les cartes */
+.product-description-section,
+.product-specifications,
+.color-selection-section {
+  transition: var(--transition-smooth);
+}
+
+.product-description-section:hover,
+.product-specifications:hover,
+.color-selection-section:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Focus states pour accessibilité */
+.action-button:focus,
+.quantity-btn:focus,
+.thumbnail-image:focus,
+.write-review-link:focus {
+  outline: 3px solid #667eea;
+  outline-offset: 3px;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Loading animation */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.loading-skeleton {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+  background-size: 1000px 100%;
+}

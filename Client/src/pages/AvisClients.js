@@ -3,7 +3,6 @@ import Meta from '../components/Meta';
 import BrandCrumb from '../components/BrandCrumb';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../contexts/TranslationContext';
-import { FaUsers, FaShoppingBag, FaStar, FaShippingFast } from 'react-icons/fa';
 
 const AvisClients = () => {
   const { t } = useTranslation();
@@ -130,68 +129,6 @@ const AvisClients = () => {
                 </div>
               </div>
             ))}
-          </div>
-          
-          {/* Statistics Section - Améliorée */}
-          <div className="row mt-5">
-            <div className="col-12">
-              <div className="stats-section-modern">
-                <div className="stats-header text-center mb-4">
-                  <h3 className="stats-title">{t('ourAchievements') || 'Nos Réalisations'}</h3>
-                  <p className="stats-subtitle">{t('inNumbers') || 'En Chiffres'}</p>
-                </div>
-                <div className="row g-4">
-                  <div className="col-lg-3 col-md-6 col-6">
-                    <div className="stat-card-modern">
-                      <div className="stat-icon-wrapper customers">
-                        <FaUsers className="stat-icon" />
-                      </div>
-                      <div className="stat-content">
-                        <h4 className="stat-number">{t('stats2500Plus')}</h4>
-                        <p className="stat-label">{t('satisfiedCustomers')}</p>
-                      </div>
-                      <div className="stat-bg-circle"></div>
-                    </div>
-                  </div>
-                  <div className="col-lg-3 col-md-6 col-6">
-                    <div className="stat-card-modern">
-                      <div className="stat-icon-wrapper products">
-                        <FaShoppingBag className="stat-icon" />
-                      </div>
-                      <div className="stat-content">
-                        <h4 className="stat-number">{t('stats15KPlus')}</h4>
-                        <p className="stat-label">{t('productsSold')}</p>
-                      </div>
-                      <div className="stat-bg-circle"></div>
-                    </div>
-                  </div>
-                  <div className="col-lg-3 col-md-6 col-6">
-                    <div className="stat-card-modern">
-                      <div className="stat-icon-wrapper rating">
-                        <FaStar className="stat-icon" />
-                      </div>
-                      <div className="stat-content">
-                        <h4 className="stat-number">{t('stats49Rating')}</h4>
-                        <p className="stat-label">{t('averageRating')}</p>
-                      </div>
-                      <div className="stat-bg-circle"></div>
-                    </div>
-                  </div>
-                  <div className="col-lg-3 col-md-6 col-6">
-                    <div className="stat-card-modern">
-                      <div className="stat-icon-wrapper delivery">
-                        <FaShippingFast className="stat-icon" />
-                      </div>
-                      <div className="stat-content">
-                        <h4 className="stat-number">{t('statsExpress')}</h4>
-                        <p className="stat-label">{t('expressDelivery')}</p>
-                      </div>
-                      <div className="stat-bg-circle"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

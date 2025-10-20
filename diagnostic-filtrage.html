@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Diagnostic Filtrage Client</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .section {
+            background: #2d2d2d;
+            border: 1px solid #00ff00;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        h2 {
+            color: #00ffff;
+            margin-top: 0;
+        }
+        .product {
+            background: #3d3d3d;
+            padding: 10px;
+            margin: 8px 0;
+            border-left: 3px solid #ffff00;
+        }
+        .match {
+            border-left-color: #00ff00;
+        }
+        .no-match {
+            border-left-color: #ff0000;
+        }
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+            border-radius: 3px;
+        }
+        button:hover {
+            background: #00cc00;
+        }
+        .warning {
+            color: #ff6600;
+        }
+        .success {
+            color: #00ff00;
+        }
+        .error {
+            color: #ff0000;
+        }
+        input {
+            background: #2d2d2d;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px;
+            margin: 5px;
+            font-family: inherit;
+        }
+        pre {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 DIAGNOSTIC FILTRAGE - Sanny Store</h1>
+    
+    <div class="section">
+        <h2>📦 1. Charger les Produits depuis l'API</h2>
+        <button onclick="loadProducts()">Charger Produits</button>
+        <div id="products-info"></div>
+    </div>
+
+    <div class="section">
+        <h2>🧪 2. Tester le Filtrage</h2>
+        <label>ID Catégorie: </label>
+        <input type="text" id="category-id" value="379" placeholder="ex: 4, 7, 379">
+        <button onclick="testFilter()">Tester Filtrage</button>
+        <div id="filter-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>🔄 3. Comparer avec Redux (si disponible)</h2>
+        <button onclick="checkRedux()">Vérifier Redux Store</button>
+        <div id="redux-info"></div>
+    </div>
+
+    <div class="section">
+        <h2>📊 4. Tableau Récapitulatif</h2>
+        <div id="summary"></div>
+    </div>
+
+    <script>
+        let products = [];
+
+        async function loadProducts() {
+            const info = document.getElementById('products-info');
+            info.innerHTML = '<p class="warning">⏳ Chargement...</p>';
+            
+            try {
+                const response = await fetch('http://127.0.0.1:4000/api/product');
+                const data = await response.json();
+                products = data.products || data;
+                
+                let html = `<p class="success">✅ ${products.length} produits chargés</p>`;
+                html += '<div style="margin-top: 10px;">';
+                
+                products.forEach(p => {
+                    html += `
+                        <div class="product">
+                            <strong>[ID: ${p.id}] ${p.title}</strong><br>
+                            • Catégorie: <span style="color: #ffff00;">${p.category}</span> (type: ${typeof p.category})<br>
+                            • Sous-catégorie: <span style="color: #ffff00;">${p.subcategory || 'null'}</span><br>
+                            • Catégorie Name: ${p.categoryName || 'N/A'}
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                info.innerHTML = html;
+                
+                // Créer le tableau récapitulatif
+                updateSummary();
+                
+            } catch (error) {
+                info.innerHTML = `<p class="error">❌ Erreur: ${error.message}</p>`;
+            }
+        }
+
+        function testFilter() {
+            const categoryId = document.getElementById('category-id').value;
+            const result = document.getElementById('filter-result');
+            
+            if (products.length === 0) {
+                result.innerHTML = '<p class="error">❌ Chargez d\'abord les produits !</p>';
+                return;
+            }
+            
+            console.log(`\n🧪 TEST FILTRAGE - Catégorie: ${categoryId}`);
+            console.log('═══════════════════════════════════════════════════════════════');
+            
+            const filtered = products.filter(product => {
+                const productCategory = product.category ? product.category.toString() : '';
+                const productSubcategory = product.subcategory ? product.subcategory.toString() : '';
+                const catIdStr = categoryId.toString();
+                
+                const matchCat = productCategory === catIdStr;
+                const matchSubcat = productSubcategory === catIdStr;
+                const match = matchCat || matchSubcat;
+                
+                console.log(`Produit: ${product.title}`);
+                console.log(`  category: "${productCategory}" === "${catIdStr}" ? ${matchCat}`);
+                console.log(`  subcategory: "${productSubcategory}" === "${catIdStr}" ? ${matchSubcat}`);
+                console.log(`  → Match: ${match ? '✅' : '❌'}\n`);
+                
+                return match;
+            });
+            
+            let html = `<h3>Résultat pour Catégorie ${categoryId}:</h3>`;
+            html += `<p class="success">📊 ${filtered.length} produit(s) trouvé(s)</p>`;
+            
+            if (filtered.length > 0) {
+                filtered.forEach(p => {
+                    html += `
+                        <div class="product match">
+                            <strong>✅ [ID: ${p.id}] ${p.title}</strong><br>
+                            • Catégorie: ${p.category}<br>
+                            • Sous-catégorie: ${p.subcategory || 'null'}
+                        </div>
+                    `;
+                });
+            } else {
+                html += '<p class="warning">⚠️ Aucun produit ne correspond à cette catégorie</p>';
+            }
+            
+            // Afficher les produits NON matchés
+            const notMatched = products.filter(p => !filtered.includes(p));
+            if (notMatched.length > 0) {
+                html += '<h3>Produits NON affichés:</h3>';
+                notMatched.forEach(p => {
+                    html += `
+                        <div class="product no-match">
+                            <strong>❌ [ID: ${p.id}] ${p.title}</strong><br>
+                            • Catégorie: ${p.category}<br>
+                            • Sous-catégorie: ${p.subcategory || 'null'}
+                        </div>
+                    `;
+                });
+            }
+            
+            result.innerHTML = html;
+            console.log(`✅ Résultat: ${filtered.length} produit(s) trouvé(s)`);
+        }
+
+        function checkRedux() {
+            const info = document.getElementById('redux-info');
+            
+            // Méthode 1: __REDUX_STATE__
+            if (window.__REDUX_STATE__) {
+                const reduxProducts = window.__REDUX_STATE__.product?.product || [];
+                info.innerHTML = `
+                    <p class="success">✅ Redux Store trouvé (__REDUX_STATE__)</p>
+                    <p>Produits dans Redux: ${reduxProducts.length}</p>
+                    <pre>${JSON.stringify(reduxProducts, null, 2)}</pre>
+                `;
+                return;
+            }
+            
+            // Méthode 2: Chercher dans window
+            let found = false;
+            for (let key in window) {
+                if (key.includes('redux') || key.includes('store')) {
+                    info.innerHTML += `<p>Trouvé: ${key}</p>`;
+                    found = true;
+                }
+            }
+            
+            if (!found) {
+                info.innerHTML = `
+                    <p class="warning">⚠️ Redux Store non accessible via window</p>
+                    <p>💡 Ouvrez Redux DevTools (F12 → Redux) pour inspecter manuellement</p>
+                    <p>Ou ajoutez ceci dans votre code React:</p>
+                    <pre>window.__REDUX_STATE__ = store.getState();</pre>
+                `;
+            }
+        }
+
+        function updateSummary() {
+            const summary = document.getElementById('summary');
+            
+            if (products.length === 0) {
+                summary.innerHTML = '<p class="warning">⚠️ Chargez d\'abord les produits</p>';
+                return;
+            }
+            
+            // Grouper par catégorie
+            const grouped = {};
+            products.forEach(p => {
+                const cat = p.category || 'null';
+                if (!grouped[cat]) {
+                    grouped[cat] = {
+                        id: cat,
+                        name: p.categoryName || 'Inconnue',
+                        products: []
+                    };
+                }
+                grouped[cat].products.push(p);
+            });
+            
+            let html = '<table style="width: 100%; border-collapse: collapse;">';
+            html += '<thead style="background: #3d3d3d;"><tr>';
+            html += '<th style="border: 1px solid #00ff00; padding: 8px;">ID Catégorie</th>';
+            html += '<th style="border: 1px solid #00ff00; padding: 8px;">Nom</th>';
+            html += '<th style="border: 1px solid #00ff00; padding: 8px;">Nb Produits</th>';
+            html += '<th style="border: 1px solid #00ff00; padding: 8px;">Produits</th>';
+            html += '<th style="border: 1px solid #00ff00; padding: 8px;">Action</th>';
+            html += '</tr></thead><tbody>';
+            
+            Object.values(grouped).forEach(cat => {
+                html += '<tr>';
+                html += `<td style="border: 1px solid #00ff00; padding: 8px; text-align: center;">${cat.id}</td>`;
+                html += `<td style="border: 1px solid #00ff00; padding: 8px;">${cat.name}</td>`;
+                html += `<td style="border: 1px solid #00ff00; padding: 8px; text-align: center;">${cat.products.length}</td>`;
+                html += `<td style="border: 1px solid #00ff00; padding: 8px;">${cat.products.map(p => p.title).join(', ')}</td>`;
+                html += `<td style="border: 1px solid #00ff00; padding: 8px; text-align: center;">
+                    <button onclick="testSpecific('${cat.id}')">Tester</button>
+                </td>`;
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            summary.innerHTML = html;
+        }
+
+        function testSpecific(categoryId) {
+            document.getElementById('category-id').value = categoryId;
+            testFilter();
+        }
+
+        // Charger automatiquement au démarrage
+        window.addEventListener('load', () => {
+            loadProducts();
+        });
+    </script>
+</body>
+</html>

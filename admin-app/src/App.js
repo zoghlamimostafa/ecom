@@ -21,7 +21,7 @@ import Addblogcat from "./pages/Addblogcat";
 import Addcolor from "./pages/Addcolor";
 import Addcat from "./pages/Addcat";
 import Addbrand from "./pages/Addbrand";
-import Addproduct from "./pages/Addproduct";
+import AddproductIntelligent from "./pages/AddproductIntelligent";
 import Couponlist from "./pages/Couponlist";
 import AddCoupon from "./pages/AddCoupon";
 import ViewEnq from "./pages/ViewEnq";
@@ -73,8 +73,8 @@ function App() {
           <Route path="brand" element={<Addbrand />} />
           <Route path="brand/:id" element={<Addbrand />} />
           <Route path="list-product" element={<Productlist />} />
-          <Route path="product" element={<Addproduct />} />
-          <Route path="product/:id" element={<Addproduct />} />
+          <Route path="product" element={<AddproductIntelligent />} />
+          <Route path="product/:id" element={<AddproductIntelligent />} />
         </Route>
       </Routes>
       </AuthChecker>

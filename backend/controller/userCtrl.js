@@ -10,6 +10,7 @@ const jwt = require("jsonwebtoken");
 const uniqid = require("uniqid");
 const verifyResetToken = require("../config/verifyResetToken");
 const bcrypt = require('bcrypt');
+const { normalizeProductData } = require('../utils/imageNormalizer');
 
 // ===== CRUD OPERATIONS =====
 
@@ -496,6 +497,120 @@ const logout = asyncHandler(async (req, res) => {
   }
 });
 
+// GET - Wishlist with full product objects (for frontend)
+const getUserProductWishlist = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.user.id;
+    console.log("🔍 getUserProductWishlist - userId:", userId);
+    
+    // Get all wishlist entries for this user
+    const wishlistEntries = await require('../models/Wishlist').findAll({
+      where: { userId },
+    });
+    console.log("🔍 Wishlist entries count:", wishlistEntries.length);
+    
+    const productIds = wishlistEntries.map(w => w.productId);
+    // Fetch all products in the wishlist
+    const products = await Product.findAll({
+      where: { id: productIds },
+    });
+    console.log("🔍 Products found:", products.length);
+    
+    // Normaliser tous les produits
+    const result = products.map(product => {
+      const productJson = product.toJSON();
+      console.log("🔍 Product AVANT normalisation:", {
+        id: productJson.id,
+        title: productJson.title,
+        images: productJson.images,
+        imagesType: typeof productJson.images
+      });
+      
+      const normalized = normalizeProductData(productJson);
+      
+      console.log("🔍 Product APRES normalisation:", {
+        id: normalized.id,
+        title: normalized.title,
+        images: normalized.images
+      });
+      
+      return normalized;
+    });
+    
+    console.log("✅ getUserProductWishlist - Returning", result.length, "products");
+    res.json(result);
+  } catch (error) {
+    console.error("❌ getUserProductWishlist error:", error);
+    res.status(500).json({ message: 'Erreur lors de la récupération de la wishlist', error: error.message });
+  }
+});
+
+// GET - Cart with full product objects (for frontend)
+const getUserCart = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.user.id;
+    console.log("🔍 getUserCart - userId:", userId);
+    
+    // Get all cart entries for this user
+    const cartEntries = await require('../models/Cart').findAll({
+      where: { userId },
+    });
+    console.log("🔍 Cart entries count:", cartEntries.length);
+    
+    // Fetch all products in the cart
+    const productIds = cartEntries.map(c => c.productId);
+    const products = await Product.findAll({
+      where: { id: productIds },
+    });
+    console.log("🔍 Products found:", products.length);
+    
+    // Map productId to product object normalisé
+    const productMap = {};
+    products.forEach(product => {
+      const productJson = product.toJSON();
+      console.log("🔍 Cart Product AVANT normalisation:", {
+        id: productJson.id,
+        title: productJson.title,
+        images: productJson.images,
+        imagesType: typeof productJson.images
+      });
+      
+      const normalizedProduct = normalizeProductData(productJson);
+      
+      console.log("🔍 Cart Product APRES normalisation:", {
+        id: normalizedProduct.id,
+        title: normalizedProduct.title,
+        images: normalizedProduct.images
+      });
+      
+      productMap[product.id] = normalizedProduct;
+    });
+    
+    // Build cart response with product details
+    const result = cartEntries.map(cartItem => {
+      const cartData = cartItem.toJSON();
+      const product = productMap[cartItem.productId] || null;
+      
+      // Ajouter les images normalisées au niveau du cart item pour un accès facile
+      if (product && product.images) {
+        cartData.images = product.images;
+        console.log("✅ Images copiées au niveau racine pour productId:", cartItem.productId);
+      }
+      
+      return {
+        ...cartData,
+        product,
+      };
+    });
+    
+    console.log("✅ getUserCart - Returning", result.length, "cart items");
+    res.json(result);
+  } catch (error) {
+    console.error("❌ getUserCart error:", error);
+    res.status(500).json({ message: 'Erreur lors de la récupération du panier', error: error.message });
+  }
+});
+
 // Autres fonctions existantes maintenues pour compatibilité...
 // (handleRefreshToken, updatePassword, forgotPasswordToken, etc.)
 // [Le reste du code existant reste inchangé]
@@ -570,12 +685,63 @@ module.exports = {
     }
   }),
   
+  // DELETE - Remove product from cart
+  removeProductFromCart: asyncHandler(async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { cartItemId } = req.body;
+      
+      console.log("🗑️ removeProductFromCart - userId:", userId, "cartItemId:", cartItemId);
+      
+      if (!cartItemId) {
+        return res.status(400).json({ 
+          success: false,
+          message: 'ID du produit manquant' 
+        });
+      }
+      
+      // Vérifier que l'item existe et appartient à l'utilisateur
+      const cartItem = await Cart.findOne({
+        where: { 
+          id: cartItemId,
+          userId: userId 
+        }
+      });
+      
+      if (!cartItem) {
+        console.log("❌ Cart item not found or doesn't belong to user");
+        return res.status(404).json({ 
+          success: false,
+          message: 'Article non trouvé dans votre panier' 
+        });
+      }
+      
+      // Supprimer l'item
+      await cartItem.destroy();
+      
+      console.log("✅ Cart item deleted successfully");
+      
+      res.json({ 
+        success: true,
+        message: 'Produit supprimé du panier avec succès' 
+      });
+    } catch (error) {
+      console.error("❌ removeProductFromCart error:", error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Erreur lors de la suppression du produit', 
+        error: error.message 
+      });
+    }
+  }),
+  
   forgotPasswordToken: () => { throw new Error('Function not implemented yet'); },
   getAllOrders: () => { throw new Error('Function not implemented yet'); },
   getMyOrders: () => { throw new Error('Function not implemented yet'); },
   createOrder: () => { throw new Error('Function not implemented yet'); },
-  removeProductFromCart: () => { throw new Error('Function not implemented yet'); },
   updateOrderStatus: () => { throw new Error('Function not implemented yet'); },
   deleteOrder: () => { throw new Error('Function not implemented yet'); },
-  getOrderByUserId: () => { throw new Error('Function not implemented yet'); }
+  getOrderByUserId: () => { throw new Error('Function not implemented yet'); },
+  getUserProductWishlist,
+  getUserCart,
 };

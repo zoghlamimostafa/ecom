@@ -8,6 +8,8 @@ import { getWishlist } from "../features/products/productSlice";
 import Container from '../components/Container';
 import Meta from '../components/Meta';
 import SEOEnhancer from '../components/SEOEnhancer';
+
+import { getProductImageUrl } from '../utils/imageHelper';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -52,10 +54,21 @@ const Cart = () => {
   };
 
   const handleDeleteCartItem = (itemId) => {
-    dispatch(deleteCartProduct(itemId));
-    setTimeout(() => {
-      dispatch(getUserCart());
-    }, 200);
+    console.log("🗑️ Suppression item du cart:", itemId);
+    
+    dispatch(deleteCartProduct(itemId))
+      .unwrap()
+      .then(() => {
+        toast.success(t('productRemovedFromCart') || 'Produit supprimé du panier');
+        // Rafraîchir le panier après suppression
+        setTimeout(() => {
+          dispatch(getUserCart());
+        }, 300);
+      })
+      .catch((error) => {
+        console.error("❌ Erreur suppression cart:", error);
+        toast.error("Erreur lors de la suppression du produit");
+      });
   };
 
   const handleToggleWishlist = async (productId) => {
@@ -136,54 +149,65 @@ const Cart = () => {
                     <div className="cart-items-container">
                     {safeUserCartState.map((item) => {
                       // Vérifications de sécurité pour éviter les erreurs
-                      if (!item) {
-                        console.warn('Cart item is null or undefined');
-                        return null;
-                      }
-
-                      // Pour Sequelize, les données du produit sont dans item.product
-                      // Pour MongoDB, les données sont dans item.productId
+                      if (!item) return null;
                       const product = item.product || item.productId;
+                      if (!product) return null;
                       
-                      if (!product) {
-                        console.warn('Cart item missing product data:', item);
-                        return null;
-                      }
-
-                      // Gestion des images - support SQLite/MongoDB
-                      let imageUrl = '/images/default-product.jpg';
-                      if (product.images) {
-                        if (Array.isArray(product.images) && product.images.length > 0) {
-                          // Si c'est un tableau d'objets avec url
-                          imageUrl = product.images[0]?.url || product.images[0] || imageUrl;
-                        } else if (typeof product.images === 'string') {
-                          // Si c'est une chaîne directe
-                          imageUrl = product.images;
+                      // Récupérer les images - priorité: item.images > product.images
+                      let images = item.images || product.images;
+                      
+                      // 🔄 Parser JSON si c'est une string
+                      if (typeof images === 'string') {
+                        const trimmed = images.trim();
+                        if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+                          try {
+                            images = JSON.parse(trimmed);
+                          } catch (e) {
+                            console.warn('⚠️ Failed to parse cart item images:', e.message);
+                          }
                         }
                       }
                       
+                      let imageUrl = null;
+                      
+                      // Extraire la première image valide
+                      if (Array.isArray(images) && images.length > 0) {
+                        const firstImage = images[0];
+                        if (typeof firstImage === 'string') {
+                          imageUrl = firstImage;
+                        } else if (firstImage && typeof firstImage === 'object') {
+                          // Priorité: url > path > public_id
+                          imageUrl = firstImage.url || firstImage.path || firstImage.public_id;
+                        }
+                      }
+                      
+                      // Vérifier que l'URL est valide et n'est pas l'image par défaut
+                      const showImage = !!imageUrl && 
+                                       typeof imageUrl === 'string' && 
+                                       imageUrl.trim() !== '' && 
+                                       !imageUrl.includes('default-product') &&
+                                       imageUrl !== 'null' &&
+                                       imageUrl !== 'undefined';
+                      
                       const productTitle = product.title || 'Produit sans nom';
                       const productPrice = item.price || product.price || 0;
-                      const itemId = item.id || item.id; // Support SQLite et MongoDB
-                      // ID du produit pour wishlist
+                      const itemId = item.id || item.id;
                       const productId = product.id || product.id || item.productId;
-
                       return (
                         <div key={itemId} className='cart-item-modern mb-4'>
                           <div className='cart-item-content'>
                             <div className='cart-item-image-section'>
                               <div className='cart-item-image-wrapper'>
-                                <img 
-                                  src={imageUrl} 
-                                  alt={productTitle} 
-                                  className="cart-item-image"
-                                  onError={(e) => {
-                                    e.target.src = '/images/default-product.jpg';
-                                  }}
-                                />
+                                {showImage && (
+                                  <img
+                                    src={imageUrl}
+                                    alt={productTitle}
+                                    className="cart-item-image"
+                                    onError={e => { e.target.style.display = 'none'; }}
+                                  />
+                                )}
                               </div>
                             </div>
-                            
                             <div className='cart-item-details'>
                               <h5 className="cart-item-title">{productTitle}</h5>
                               {item.color && (
@@ -197,12 +221,10 @@ const Cart = () => {
                                 <span className="price-value">{productPrice} TND</span>
                               </div>
                             </div>
-
                             <div className='cart-item-price-section'>
                               <p className="cart-item-unit-price">{productPrice} TND</p>
                               <span className="price-unit-label">prix unitaire</span>
                             </div>
-                            
                             <div className='cart-item-quantity-section'>
                               <label className="quantity-label">Quantité</label>
                               <div className='cart-quantity-controls'>
@@ -211,33 +233,31 @@ const Cart = () => {
                                 <button className="cart-quantity-btn-modern" onClick={() => handleQuantityChange(itemId, (quantity[itemId] || item.quantity) + 1)}>+</button>
                               </div>
                             </div>
-                            
                             <div className='cart-item-total-section'>
                               <p className="cart-item-total-price">{(productPrice * (quantity[itemId] || item.quantity)).toFixed(2)} TND</p>
                               <span className="total-label">total</span>
                             </div>
-                            
                             <div className='cart-item-actions'>
-                          <button 
-                            className={`cart-action-btn cart-wishlist-btn-modern ${isInWishlist(productId) ? 'active' : ''}`}
-                            onClick={() => handleToggleWishlist(productId)}
-                            disabled={wishlistLoading[productId]}
-                            title={isInWishlist(productId) ? t('removeFromWishlistTitle') : t('addToWishlistTitle')}
-                          >
-                            {wishlistLoading[productId] ? (
-                              <div className="spinner-border cart-spinner" role="status">
-                                <span className="visually-hidden">Loading...</span>
-                              </div>
-                            ) : isInWishlist(productId) ? (
-                              <AiFillHeart />
-                            ) : (
-                              <AiOutlineHeart />
-                            )}
-                          </button>
-                          <button className="cart-action-btn cart-delete-btn-modern" onClick={() => handleDeleteCartItem(itemId)}>
-                            <MdDelete />
-                          </button>
-                        </div>
+                              <button
+                                className={`cart-action-btn cart-wishlist-btn-modern ${isInWishlist(productId) ? 'active' : ''}`}
+                                onClick={() => handleToggleWishlist(productId)}
+                                disabled={wishlistLoading[productId]}
+                                title={isInWishlist(productId) ? t('removeFromWishlistTitle') : t('addToWishlistTitle')}
+                              >
+                                {wishlistLoading[productId] ? (
+                                  <div className="spinner-border cart-spinner" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                  </div>
+                                ) : isInWishlist(productId) ? (
+                                  <AiFillHeart />
+                                ) : (
+                                  <AiOutlineHeart />
+                                )}
+                              </button>
+                              <button className="cart-action-btn cart-delete-btn-modern" onClick={() => handleDeleteCartItem(itemId)}>
+                                <MdDelete />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       );

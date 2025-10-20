@@ -58,7 +58,17 @@ const Auto = () => {
     };
 
     // Filtrer les produits avec le tag "auto" dans les produits
-    const infoProducts = Array.isArray(productState) ? productState.filter(item => item.tags === "auto") : [];
+    const infoProducts = Array.isArray(productState) ? productState.filter(item => {
+        const productCategory = item.category ? item.category.toString() : '';
+        const productSubcategory = item.subcategory ? item.subcategory.toString() : '';
+        return productCategory === '39' || productSubcategory === '39';
+    }) : [];
+    
+    console.log('🔍 [Auto] Filtrage:', {
+        totalProducts: productState?.length || 0,
+        filteredCount: infoProducts.length,
+        categoryFilter: '39'
+    });
 
     return (
         <Container class1='new-informatique-container py-5'>

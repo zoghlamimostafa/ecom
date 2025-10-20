@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aperçu Design Minimaliste - SingleProduct</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #000;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .section {
+            padding: 20px;
+            border-radius: 12px;
+            background: #f9f9f9;
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .section.old h2 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .section.new h2 {
+            background: #FF6F00;
+            color: white;
+        }
+
+        .button-demo {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* ANCIENS BOUTONS */
+        .btn-old-primary {
+            padding: 18px 32px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-old-secondary {
+            padding: 18px 32px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-old-outline {
+            padding: 18px 32px;
+            border: 2px solid #667eea;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            background: transparent;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* NOUVEAUX BOUTONS */
+        .btn-new-primary {
+            padding: 18px 32px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            background: #FF6F00;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-new-primary:hover {
+            background: #E65100;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(255,111,0,0.5);
+        }
+
+        .btn-new-secondary {
+            padding: 18px 32px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            background: #000000;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-new-secondary:hover {
+            background: #1a1a1a;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+        }
+
+        .btn-new-outline {
+            padding: 18px 32px;
+            border: 2px solid #FF6F00;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            background: transparent;
+            color: #FF6F00;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-new-outline:hover {
+            background: #FF6F00;
+            color: white;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(255,111,0,0.3);
+        }
+
+        .badge-demo {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        /* ANCIENS BADGES */
+        .badge-old-brand {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .badge-old-category {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #667eea;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* NOUVEAUX BADGES */
+        .badge-new-brand {
+            background: #FF6F00;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .badge-new-category {
+            background: #F5F5F5;
+            color: #000000;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            border: 2px solid #FF6F00;
+        }
+
+        .price-demo {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .price-old {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .price-new {
+            font-size: 48px;
+            font-weight: 900;
+            color: #FF6F00;
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 20px 0;
+            font-size: 24px;
+        }
+
+        .star-old {
+            color: #FFD700;
+        }
+
+        .star-new {
+            color: #FF6F00;
+        }
+
+        .info-box {
+            background: #fff3e0;
+            border-left: 4px solid #FF6F00;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+
+        .info-box h3 {
+            color: #FF6F00;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .info-box ul li {
+            padding: 8px 0;
+        }
+
+        .info-box ul li::before {
+            content: '✅ ';
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Aperçu Design Minimaliste - SingleProduct</h1>
+        
+        <div class="comparison">
+            <!-- ANCIEN DESIGN -->
+            <div class="section old">
+                <h2>❌ Avant (Coloré)</h2>
+                
+                <h3>Boutons</h3>
+                <div class="button-demo">
+                    <button class="btn-old-primary">🛒 Ajouter au Panier</button>
+                    <button class="btn-old-secondary">💰 Acheter Maintenant</button>
+                    <button class="btn-old-outline">🔗 Comparer</button>
+                </div>
+
+                <h3 style="margin-top: 20px;">Badges</h3>
+                <div class="badge-demo">
+                    <span class="badge-old-brand">✦ SAMSUNG</span>
+                    <span class="badge-old-category">Smartphones</span>
+                </div>
+
+                <div class="price-demo">
+                    <div class="price-old">1299 TND</div>
+                </div>
+
+                <div class="stars">
+                    <span class="star-old">★</span>
+                    <span class="star-old">★</span>
+                    <span class="star-old">★</span>
+                    <span class="star-old">★</span>
+                    <span class="star-old">☆</span>
+                </div>
+            </div>
+
+            <!-- NOUVEAU DESIGN -->
+            <div class="section new">
+                <h2>✅ Après (Minimaliste)</h2>
+                
+                <h3>Boutons</h3>
+                <div class="button-demo">
+                    <button class="btn-new-primary">🛒 Ajouter au Panier</button>
+                    <button class="btn-new-secondary">💰 Acheter Maintenant</button>
+                    <button class="btn-new-outline">🔗 Comparer</button>
+                </div>
+
+                <h3 style="margin-top: 20px;">Badges</h3>
+                <div class="badge-demo">
+                    <span class="badge-new-brand">✦ SAMSUNG</span>
+                    <span class="badge-new-category">Smartphones</span>
+                </div>
+
+                <div class="price-demo">
+                    <div class="price-new">1299 TND</div>
+                </div>
+
+                <div class="stars">
+                    <span class="star-new">★</span>
+                    <span class="star-new">★</span>
+                    <span class="star-new">★</span>
+                    <span class="star-new">★</span>
+                    <span style="color: #ddd">☆</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>🎯 Modifications Appliquées</h3>
+            <ul>
+                <li>Barre sous la description retirée</li>
+                <li>Boutons simplifiés : Orange #FF6F00 et Noir #000000</li>
+                <li>Tous les dégradés colorés supprimés</li>
+                <li>Étoiles en orange au lieu de jaune</li>
+                <li>Badges minimalistes blanc/orange</li>
+                <li>Prix en orange vif sans dégradé</li>
+                <li>Palette stricte : Blanc, Orange, Noir uniquement</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f5f5f5; border-radius: 12px;">
+            <h3>🔄 Pour voir ces changements en direct :</h3>
+            <p style="margin: 10px 0; font-size: 18px;">
+                <strong>Ctrl + Shift + R</strong> dans votre navigateur
+            </p>
+            <p style="color: #666;">
+                Puis naviguez vers : <code style="background: #fff; padding: 4px 8px; border-radius: 4px;">http://74.235.205.26:5000/product/:slug</code>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

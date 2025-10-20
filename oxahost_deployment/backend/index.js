@@ -43,8 +43,8 @@ app.use(cors({
 }));
 
 app.use(cookieParser());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({ limit: '500mb' })); // Limite très élevée
+app.use(bodyParser.urlencoded({ extended: false, limit: '500mb' }));
 
 // Health check route
 app.get('/api/', (req, res) => {

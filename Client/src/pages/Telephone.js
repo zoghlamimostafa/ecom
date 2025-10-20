@@ -1,4 +1,5 @@
 import './ProductCategory.css';
+import { getProductImageUrl } from '../utils/imageHelper';
 import React, { useEffect } from 'react';
 import ReactStars from "react-rating-stars-component";
 import { useNavigate } from 'react-router-dom';
@@ -64,7 +65,17 @@ const Telephone = () => {
         }));
     };
 
-    const infoProducts = Array.isArray(productState) ? productState.filter(item => item.tags === "tele") : [];
+    const infoProducts = Array.isArray(productState) ? productState.filter(item => {
+        const productCategory = item.category ? item.category.toString() : '';
+        const productSubcategory = item.subcategory ? item.subcategory.toString() : '';
+        return productCategory === '379' || productSubcategory === '379';
+    }) : [];
+    
+    console.log('🔍 [Telephone] Filtrage:', {
+        totalProducts: productState?.length || 0,
+        filteredCount: infoProducts.length,
+        categoryFilter: '379'
+    });
 
     return (
         <Container class1='new-informatique-container py-5'>
@@ -75,7 +86,7 @@ const Telephone = () => {
                     <div key={index} className={"new-informatique-card"}>
                         <div className='new-informatique-card-inner'>
                             <div className='new-informatique-image' onClick={() => navigate("/product/" + (item?.slug || item?.id))} style={{ cursor: 'pointer' }}>
-                                <img src={item?.images[0]?.url} alt="product" />
+                                <img src={getProductImageUrl(item?.images)} alt="product" />
                             </div>
                             <div className='new-informatique-details'>
                                 <h6 className='new-informatique-brand'>{item?.brand}</h6>

@@ -65,7 +65,17 @@ const Animaux = () => {
         }));
     };
 
-    const infoProducts = Array.isArray(productState) ? productState.filter(item => item.tags === "animaux") : [];
+    const infoProducts = Array.isArray(productState) ? productState.filter(item => {
+        const productCategory = item.category ? item.category.toString() : '';
+        const productSubcategory = item.subcategory ? item.subcategory.toString() : '';
+        return productCategory === '277' || productSubcategory === '277';
+    }) : [];
+    
+    console.log('🔍 [Animaux] Filtrage:', {
+        totalProducts: productState?.length || 0,
+        filteredCount: infoProducts.length,
+        categoryFilter: '277'
+    });
 
     return (
         <Container class1='new-informatique-container py-5'>

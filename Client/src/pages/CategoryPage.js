@@ -17,7 +17,6 @@ const CategoryPage = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState('title');
   const [viewMode, setViewMode] = useState('grid');
 
   useEffect(() => {
@@ -68,40 +67,44 @@ const CategoryPage = () => {
 
   useEffect(() => {
     if (productState && category) {
-      // Filtrer les produits par catégorie ID
+      // Récupérer tous les IDs de catégories à filtrer (catégorie + sous-catégories)
+      const categoryIdsToFilter = [category.id];
+      if (subcategories && subcategories.length > 0) {
+        categoryIdsToFilter.push(...subcategories.map(sub => sub.id));
+      }
+      
+      console.log('🔍 Filtrage CategoryPage:', {
+        categoryId: category.id,
+        categoryTitle: category.title,
+        subcategoriesCount: subcategories?.length || 0,
+        allIdsToFilter: categoryIdsToFilter
+      });
+      
+      // Filtrer les produits par catégorie ID ou sous-catégorie ID
       const filtered = productState.filter(product => {
-        if (!product.category) return false;
+        if (!product.category && !product.subcategory) return false;
         
-        // Comparer l'ID de la catégorie du produit avec l'ID de la catégorie actuelle
-        const productCategoryId = typeof product.category === 'object' 
-          ? product.category.id || product.category.id
-          : product.category;
+        // Convertir en string pour comparaison fiable
+        const productCategory = product.category ? product.category.toString() : '';
+        const productSubcategory = product.subcategory ? product.subcategory.toString() : '';
         
-        const currentCategoryId = category.id || category.id;
+        // Vérifier si le produit appartient à cette catégorie ou ses sous-catégories
+        const matchesCategory = categoryIdsToFilter.some(catId => {
+          const catIdStr = catId.toString();
+          return productCategory === catIdStr || productSubcategory === catIdStr;
+        });
         
-        return productCategoryId === currentCategoryId || 
-               productCategoryId === parseInt(currentCategoryId);
-      });
-
-      // Trier les produits
-      const sorted = [...filtered].sort((a, b) => {
-        switch (sortBy) {
-          case 'price-asc':
-            return a.price - b.price;
-          case 'price-desc':
-            return b.price - a.price;
-          case 'title':
-            return a.title.localeCompare(b.title);
-          case 'newest':
-            return new Date(b.createdAt) - new Date(a.createdAt);
-          default:
-            return 0;
+        if (matchesCategory) {
+          console.log(`   ✅ Produit trouvé: [ID: ${product.id}] ${product.title} (cat: ${productCategory}, subcat: ${productSubcategory})`);
         }
+        
+        return matchesCategory;
       });
 
-      setFilteredProducts(sorted);
+      console.log(`   📊 Total produits trouvés: ${filtered.length}`);
+      setFilteredProducts(filtered);
     }
-  }, [productState, category, subcategories, sortBy]);
+  }, [productState, category, subcategories]);
 
   const getIconClass = (iconName) => {
     return iconName || 'fas fa-folder';
@@ -181,23 +184,12 @@ const CategoryPage = () => {
             </div>
           )}
 
-          {/* Contrôles de tri et d'affichage */}
+          {/* Contrôles d'affichage */}
           <div className="category-controls">
             <div className="category-controls-left">
-              <div className="sort-controls">
-                <label htmlFor="sort-select">Trier par:</label>
-                <select
-                  id="sort-select"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="sort-select"
-                >
-                  <option value="title">{t('nameAZ')}</option>
-                  <option value="price-asc">Prix croissant</option>
-                  <option value="price-desc">Prix décroissant</option>
-                  <option value="newest">{t('newest')}</option>
-                </select>
-              </div>
+              <span className="results-count">
+                {filteredProducts.length} {t('productsFound') || 'produits trouvés'}
+              </span>
             </div>
             
             <div className="category-controls-right">

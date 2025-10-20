@@ -17,11 +17,11 @@ class SecureFileUpload {
         
         this.allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
         
-        // Tailles maximales (en bytes)
+        // Tailles maximales (en bytes) - Aucune limite pratique
         this.maxSizes = {
-            image: 5 * 1024 * 1024, // 5MB
-            avatar: 1 * 1024 * 1024, // 1MB
-            default: 2 * 1024 * 1024 // 2MB
+            image: 500 * 1024 * 1024, // 500MB
+            avatar: 500 * 1024 * 1024, // 500MB
+            default: 500 * 1024 * 1024 // 500MB
         };
         
         // Répertoire de upload sécurisé (hors webroot)

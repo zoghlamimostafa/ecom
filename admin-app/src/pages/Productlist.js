@@ -268,12 +268,16 @@ const Productlist = () => {
     };
   });
 
+
   const handleDelete = (productId) => {
-    dispatch(deleteProduct(productId));
+    dispatch(deleteProduct(productId)).then(() => {
+      // Clear any error message after successful delete
+      dispatch(resetState());
+      setTimeout(() => {
+        dispatch(getProducts());
+      }, 100);
+    });
     setOpen(false);
-    setTimeout(() => {
-      dispatch(getProducts());
-    }, 100);
   };
 
   return (

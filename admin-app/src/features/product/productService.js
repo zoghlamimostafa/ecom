@@ -149,19 +149,41 @@ const deleteProduct = async (productId) => {
 
 const getProduct = async (productId) => {
   try {
+    console.log(`📖 Récupération du produit ${productId} depuis:`, `${base_url}product/${productId}`);
     const response = await axios.get(`${base_url}product/${productId}`, getConfig());
+    console.log("✅ Produit récupéré:", response.data);
+    
+    // Le backend renvoie { success: true, product: {...} }
+    if (response.data && response.data.product) {
+      return response.data.product;
+    }
+    
+    // Fallback au cas où la structure serait différente
     return response.data;
   } catch (error) {
+    console.error("❌ Erreur lors de la récupération du produit:", error);
     const errorMessage = error.response?.data?.message || error.message || "Erreur lors de la récupération du produit";
     throw new Error(errorMessage);
   }
 };
 
-const updateProduct = async ({ id, productData }) => {
+const updateProduct = async (productData) => {
   try {
-    const response = await axios.put(`${base_url}product/${id}`, productData, getConfig());
+    const { id, ...dataToUpdate } = productData;
+    console.log(`📝 Mise à jour du produit ${id} avec:`, dataToUpdate);
+    console.log("🔗 API URL:", `${base_url}product/${id}`);
+    
+    const response = await axios.put(`${base_url}product/${id}`, dataToUpdate, getConfig());
+    console.log("✅ Produit mis à jour:", response.data);
+    
+    // Le backend peut renvoyer { success: true, product: {...} } ou directement le produit
+    if (response.data && response.data.product) {
+      return response.data.product;
+    }
+    
     return response.data;
   } catch (error) {
+    console.error("❌ Erreur lors de la mise à jour:", error);
     const errorMessage = error.response?.data?.message || error.message || "Erreur lors de la mise à jour du produit";
     throw new Error(errorMessage);
   }

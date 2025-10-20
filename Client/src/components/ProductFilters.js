@@ -45,7 +45,11 @@ const ProductFilters = ({ onFilterChange, activeFilters = {} }) => {
     }))] || [];
     
     const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-    const categories = categoryState?.filter(cat => cat.level === 0).map(cat => cat.title) || [];
+    // ✅ FIX: Utiliser {id, title} au lieu de juste title pour avoir l'ID
+    const categories = categoryState?.filter(cat => cat.level === 0).map(cat => ({
+        id: cat.id,
+        title: cat.title
+    })) || [];
 
     const toggleSection = (section) => {
         setIsOpen(prev => ({ ...prev, [section]: !prev[section] }));
@@ -177,13 +181,13 @@ const ProductFilters = ({ onFilterChange, activeFilters = {} }) => {
                         <div className="filter-content">
                             <div className="filter-checkboxes">
                                 {categories.slice(0, 8).map((category, index) => (
-                                    <label key={index} className="filter-checkbox-label">
+                                    <label key={category.id || index} className="filter-checkbox-label">
                                         <input
                                             type="checkbox"
-                                            checked={localFilters.categories.includes(category)}
-                                            onChange={() => toggleArrayFilter('categories', category)}
+                                            checked={localFilters.categories.includes(category.id)}
+                                            onChange={() => toggleArrayFilter('categories', category.id)}
                                         />
-                                        <span className="checkbox-text">{category}</span>
+                                        <span className="checkbox-text">{category.title}</span>
                                     </label>
                                 ))}
                             </div>

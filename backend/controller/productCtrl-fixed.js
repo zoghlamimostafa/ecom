@@ -72,7 +72,6 @@ const getaProduct = asyncHandler(async (req, res) => {
   
   try {
     let findProduct;
-    
     // Check if the id is a valid number (MySQL ID) or a slug
     if (!isNaN(id)) {
       // It's a MySQL ID
@@ -81,12 +80,15 @@ const getaProduct = asyncHandler(async (req, res) => {
       // It's a slug
       findProduct = await Product.findOne({ where: { slug: id } });
     }
-    
     if (!findProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
-    
-    res.json(findProduct);
+    // Parse images if needed
+    let productData = findProduct.toJSON ? findProduct.toJSON() : findProduct;
+    if (productData.images && typeof productData.images === 'string') {
+      try { productData.images = JSON.parse(productData.images); } catch { productData.images = []; }
+    }
+    res.json(productData);
   } catch (error) {
     throw new Error(error);
   }
@@ -141,7 +143,15 @@ const getAllProduct = asyncHandler(async (req, res) => {
     }
 
     const products = await Product.findAll(options);
-    res.json(products);
+    // Parse images for each product
+    const parsedProducts = products.map(prod => {
+      let data = prod.toJSON ? prod.toJSON() : prod;
+      if (data.images && typeof data.images === 'string') {
+        try { data.images = JSON.parse(data.images); } catch { data.images = []; }
+      }
+      return data;
+    });
+    res.json(parsedProducts);
   } catch (error) {
     throw new Error(error);
   }

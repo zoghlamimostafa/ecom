@@ -42,29 +42,50 @@ export const uploadSlice = createSlice({
       })
       .addCase(uploadImg.fulfilled, (state, action) => {
         console.log("🎉 UploadSlice.fulfilled - Upload réussi !");
-        console.log("📊 Payload reçu:", action.payload);
+        console.log("📊 Payload brut reçu:", action.payload);
         console.log("📊 Type de payload:", typeof action.payload);
         console.log("📊 Est un array:", Array.isArray(action.payload));
         
+        let normalizedImages = [];
+        
         if (Array.isArray(action.payload)) {
           console.log("📊 Nombre d'images:", action.payload.length);
-          action.payload.forEach((img, index) => {
-            console.log(`📸 Image ${index}:`, {
-              url: img.url,
-              public_id: img.public_id,
-              asset_id: img.asset_id
-            });
+          
+          // Normaliser chaque image pour être sûr d'avoir le bon format
+          normalizedImages = action.payload.map((img, index) => {
+            console.log(`📸 Image ${index} brute:`, img);
+            
+            // Extraire url et public_id de façon sûre
+            const url = img?.url || img;
+            const public_id = img?.public_id || `image-${Date.now()}-${index}`;
+            
+            const normalized = {
+              url: typeof url === 'string' ? url : String(url),
+              public_id: typeof public_id === 'string' ? public_id : String(public_id)
+            };
+            
+            console.log(`📸 Image ${index} normalisée:`, normalized);
+            return normalized;
           });
         } else {
           console.warn("⚠️ Payload n'est pas un array:", action.payload);
+          // Si ce n'est pas un array, essayer de le convertir
+          if (action.payload) {
+            normalizedImages = [{
+              url: String(action.payload.url || action.payload),
+              public_id: String(action.payload.public_id || `image-${Date.now()}`)
+            }];
+          }
         }
+        
+        console.log("✅ Images normalisées:", normalizedImages);
         
         state.isLoading = false;
         state.isError = false;
         state.isSuccess = true;
-        state.images = action.payload;
+        state.images = normalizedImages;
         
-        console.log("✅ État Redux mis à jour - images:", state.images);
+        console.log("✅ État Redux final - images:", state.images);
       })
       .addCase(uploadImg.rejected, (state, action) => {
         state.isLoading = false;

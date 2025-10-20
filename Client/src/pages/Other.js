@@ -48,7 +48,17 @@ const Other = () => {
         }));
     };
 
-    const infoProducts = Array.isArray(productState) ? productState.filter(item => item.tags === "other") : [];
+    const infoProducts = Array.isArray(productState) ? productState.filter(item => {
+        const productCategory = item.category ? item.category.toString() : '';
+        const productSubcategory = item.subcategory ? item.subcategory.toString() : '';
+        return productCategory === '387' || productSubcategory === '387';
+    }) : [];
+    
+    console.log('🔍 [Other] Filtrage:', {
+        totalProducts: productState?.length || 0,
+        filteredCount: infoProducts.length,
+        categoryFilter: '387'
+    });
 
     return (
         <Container class1='new-informatique-container py-5'>

@@ -7,84 +7,56 @@
  * @returns {String} - URL de l'image ou image par défaut
  */
 export const getProductImageUrl = (images, index = 0) => {
+  const BACKEND_URL = process.env.REACT_APP_API_URL || 'http://74.235.205.26:4000';
   const defaultImage = '/images/default-product.jpg';
-  
-  // Si null ou undefined
-  if (!images) {
-    return defaultImage;
-  }
-  
-  // Si c'est une chaîne directe
+  if (!images) return defaultImage;
+
+  // 🔄 Parser JSON si c'est une string JSON
   if (typeof images === 'string') {
-    // Si chaîne vide ou "null" en string
-    if (!images || images === 'null' || images === 'undefined') {
-      return defaultImage;
+    const trimmed = images.trim();
+    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+      try {
+        images = JSON.parse(trimmed);
+        // Continue avec le parsing normal maintenant que c'est un objet/array
+      } catch (e) {
+        console.warn('⚠️ Failed to parse images JSON:', e.message);
+      }
     }
-    // Si c'est une URL Cloudinary ou externe
-    if (images.startsWith('http://') || images.startsWith('https://')) {
-      return images;
-    }
-    // Si c'est un chemin local
-    if (images.startsWith('/')) {
-      return images;
-    }
-    // Sinon ajouter le préfixe /images/
-    return `/images/${images}`;
   }
-  
-  // Si c'est un tableau
+
+  // Si tableau, on prend le premier élément non vide
   if (Array.isArray(images)) {
-    if (images.length === 0) {
-      return defaultImage;
+    for (let i = 0; i < images.length; i++) {
+      const img = images[i];
+      const url = getProductImageUrl(img);
+      if (url && !url.includes('default-product')) return url;
     }
-    
-    const image = images[index] || images[0];
-    
-    // Si l'élément du tableau est un objet avec url
-    if (typeof image === 'object' && image !== null) {
-      const url = image.url || image.public_id || image.path || '';
-      if (!url || url === 'null') return defaultImage;
-      // Si URL complète
-      if (url.startsWith('http://') || url.startsWith('https://')) {
-        return url;
-      }
-      // Si chemin local
-      if (url.startsWith('/')) {
-        return url;
-      }
-      return `/images/${url}`;
-    }
-    
-    // Si l'élément est une chaîne
-    if (typeof image === 'string') {
-      if (!image || image === 'null' || image === 'undefined') {
-        return defaultImage;
-      }
-      if (image.startsWith('http://') || image.startsWith('https://')) {
-        return image;
-      }
-      if (image.startsWith('/')) {
-        return image;
-      }
-      return `/images/${image}`;
-    }
-    
     return defaultImage;
   }
-  
-  // Si c'est un objet direct
+
+  // Si objet avec .url ou .path ou .public_id
   if (typeof images === 'object') {
-    const url = images.url || images.public_id || images.path || '';
-    if (!url || url === 'null') return defaultImage;
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
+    const url = images.url || images.path || images.public_id || '';
+    if (url && typeof url === 'string') {
+      if (url.startsWith('http://') || url.startsWith('https://')) return url;
+      if (url.startsWith('/')) return `${BACKEND_URL}${url}`;
+      return `${BACKEND_URL}/images/${url}`;
     }
-    if (url.startsWith('/')) {
-      return url;
+    // Si l'objet est un File (upload direct)
+    if (images instanceof File && images.name) {
+      return `${BACKEND_URL}/images/${images.name}`;
     }
-    return `/images/${url}`;
+    return defaultImage;
   }
-  
+
+  // Si string
+  if (typeof images === 'string') {
+    if (!images || images === 'null' || images === 'undefined') return defaultImage;
+    if (images.startsWith('http://') || images.startsWith('https://')) return images;
+    if (images.startsWith('/')) return `${BACKEND_URL}${images}`;
+    return `${BACKEND_URL}/images/${images}`;
+  }
+
   return defaultImage;
 };
 
@@ -94,10 +66,24 @@ export const getProductImageUrl = (images, index = 0) => {
  * @returns {Array} - Tableau d'URLs
  */
 export const getAllProductImageUrls = (images) => {
+  const BACKEND_URL = process.env.REACT_APP_API_URL || 'http://74.235.205.26:4000';
   const defaultImage = '/images/default-product.jpg';
   
   if (!images) {
     return [defaultImage];
+  }
+  
+  // 🔄 Parser JSON si c'est une string JSON
+  if (typeof images === 'string') {
+    const trimmed = images.trim();
+    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+      try {
+        images = JSON.parse(trimmed);
+        // Continue avec le parsing normal maintenant que c'est un objet/array
+      } catch (e) {
+        console.warn('⚠️ Failed to parse images JSON:', e.message);
+      }
+    }
   }
   
   // Si c'est une chaîne directe
@@ -105,10 +91,24 @@ export const getAllProductImageUrls = (images) => {
     if (!images || images === 'null' || images === 'undefined') {
       return [defaultImage];
     }
-    const url = images.startsWith('http') || images.startsWith('/') 
-      ? images 
-      : `/images/${images}`;
-    return [url];
+    
+    try {
+      // Tenter de parser l'URL pour vérifier si elle est valide
+      const url = new URL(images);
+      // Si c'est déjà une URL valide (avec protocole), la retourner telle quelle
+      return [images];
+    } catch (e) {
+      // Ce n'est pas une URL valide, donc c'est un chemin relatif
+      if (images.startsWith('/')) {
+        // Éviter la double préfixation si l'URL contient déjà le BACKEND_URL
+        if (images.includes(BACKEND_URL)) {
+          return [images];
+        }
+        return [`${BACKEND_URL}${images}`];
+      }
+      // Sinon ajouter le préfixe /images/
+      return [`${BACKEND_URL}/images/${images}`];
+    }
   }
   
   // Si c'est un tableau
@@ -121,15 +121,23 @@ export const getAllProductImageUrls = (images) => {
       if (typeof image === 'object' && image !== null) {
         const url = image.url || image.public_id || image.path || '';
         if (!url || url === 'null') return defaultImage;
-        return url.startsWith('http') || url.startsWith('/') 
-          ? url 
-          : `/images/${url}`;
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+          return url;
+        }
+        if (url.startsWith('/')) {
+          return `${BACKEND_URL}${url}`;
+        }
+        return `${BACKEND_URL}/images/${url}`;
       }
       if (typeof image === 'string') {
         if (!image || image === 'null' || image === 'undefined') return defaultImage;
-        return image.startsWith('http') || image.startsWith('/') 
-          ? image 
-          : `/images/${image}`;
+        if (image.startsWith('http://') || image.startsWith('https://')) {
+          return image;
+        }
+        if (image.startsWith('/')) {
+          return `${BACKEND_URL}${image}`;
+        }
+        return `${BACKEND_URL}/images/${image}`;
       }
       return defaultImage;
     });
@@ -139,9 +147,14 @@ export const getAllProductImageUrls = (images) => {
   if (typeof images === 'object') {
     const url = images.url || images.public_id || images.path || '';
     if (!url || url === 'null') return [defaultImage];
-    const finalUrl = url.startsWith('http') || url.startsWith('/') 
-      ? url 
-      : `/images/${url}`;
+    let finalUrl;
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      finalUrl = url;
+    } else if (url.startsWith('/')) {
+      finalUrl = `${BACKEND_URL}${url}`;
+    } else {
+      finalUrl = `${BACKEND_URL}/images/${url}`;
+    }
     return [finalUrl];
   }
   

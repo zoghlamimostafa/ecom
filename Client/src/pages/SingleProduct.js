@@ -38,6 +38,12 @@ const SingleProduct = () => {
   const productState1 = useSelector(state => state?.product?.product);
   const authState = useSelector(state => state?.auth?.user); // Corrected path
 
+  // Logs de débogage
+  console.log('🔍 SingleProduct Debug:');
+  console.log('  Slug:', getProductSlug);
+  console.log('  ProductState:', productState);
+  console.log('  Images:', productState?.images);
+
   // Etat pour éviter les appels multiples
   const [loading, setLoading] = useState(true); 
 
@@ -72,9 +78,12 @@ const SingleProduct = () => {
   }, [cartState, productState]);
 
   useEffect(() => {
-    if (productState?.images) {
-      const imageUrl = getProductImageUrl(productState.images);
+    if (productState?.images && Array.isArray(productState.images) && productState.images.length > 0) {
+      // Prendre la première image et la normaliser
+      const firstImage = productState.images[0];
+      const imageUrl = typeof firstImage === 'object' ? firstImage.url : firstImage;
       setSelectedImage(imageUrl);
+      console.log('🖼️ Image sélectionnée:', imageUrl);
     }
   }, [productState]);
 
@@ -177,7 +186,7 @@ const SingleProduct = () => {
     width: undefined,
     height: undefined,
     zoomWidth: 300,
-    img: selectedImage || productState?.images?.[0]?.url || "images/watch.jpg"
+    img: selectedImage || "/images/default-product.jpg"
   };
 
   const copyToClipboard = (text) => {
@@ -199,39 +208,48 @@ const SingleProduct = () => {
           {/* Section Image - Responsive */}
           <div className="product-image-gallery">
             <div className="main-image-container">
+              {/* Badge flottant */}
+              {productState?.quantity > 0 && (
+                <div className="product-badge">En Stock</div>
+              )}
+              {productState?.quantity === 0 && (
+                <div className="product-badge" style={{background: 'linear-gradient(135deg, #eb3349 0%, #f45c43 100%)'}}>
+                  Rupture
+                </div>
+              )}
+              
               <ReactImageZoom
                 {...props}
                 zoomScale={2}
                 shouldReplaceImage={true}
                 width={undefined}
                 height={undefined}
-                zoomLensStyle={{ backgroundColor: 'rgba(255,111,0,0.6)' }}
+                zoomLensStyle={{ backgroundColor: 'rgba(102,126,234,0.4)' }}
                 className="product-main-image"
               />
             </div>
 
             {/* Thumbnails responsive */}
             <div className="product-thumbnails">
-              {productState?.images?.map((item, index) => (
-                <img
-                  key={index}
-                  src={item?.url}
-                  className={`thumbnail-image ${selectedImage === item?.url ? 'active' : ''}`}
-                  alt={`${productState?.title} ${index + 1}`}
-                  onClick={() => setSelectedImage(item?.url)}
-                />
-              ))}
+              {productState?.images && Array.isArray(productState.images) && productState.images.map((item, index) => {
+                // Normaliser l'URL de l'image
+                const imageUrl = typeof item === 'object' ? item.url : item;
+                return (
+                  <img
+                    key={index}
+                    src={imageUrl}
+                    className={`thumbnail-image ${selectedImage === imageUrl ? 'active' : ''}`}
+                    alt={`${productState?.title} ${index + 1}`}
+                    onClick={() => setSelectedImage(imageUrl)}
+                  />
+                );
+              })}
             </div>
           </div>
 
           {/* Section Détails - Responsive */}
           <div className="product-details-panel">
             <div className="product-header-section">
-              <div className="product-breadcrumb">
-                <span className="product-brand-tag">{productState?.brand}</span>
-                {productState?.Category && <span className="product-category-tag">{productState?.Category}</span>}
-              </div>
-              
               <h1 className="modern-product-title">{productState?.title}</h1>
               
               {/* Rating responsive */}
@@ -246,36 +264,38 @@ const SingleProduct = () => {
                   />
                   <span className="rating-count">({productState?.totalratings || 0} avis)</span>
                 </div>
-                <a href="#review" className="write-review-link">Écrire un avis</a>
+                <a href="#review" className="write-review-link">
+                  ✍️ Écrire un avis
+                </a>
               </div>
 
               <div className="price-display">
-                <span className="current-price">{productState?.price} TND</span>
+                <span className="current-price">{productState?.price} DT</span>
+                {productState?.quantity > 0 && <span className="price-badge">Disponible</span>}
               </div>
             </div>
 
             {/* Description responsive */}
             <div className="product-description-section">
               <h3>Description</h3>
-              <p className="product-description-text">{productState?.description}</p>
+              <div 
+                className="product-description-text" 
+                dangerouslySetInnerHTML={{ __html: productState?.description }}
+              />
             </div>
 
-            {/* Informations produit */}
+            {/* Informations produit - Disponibilité uniquement */}
             <div className="product-specifications">
               <div className="spec-item">
-                <span className="spec-label">Marque :</span>
-                <span className="spec-value">{productState?.brand}</span>
-              </div>
-              <div className="spec-item">
-                <span className="spec-label">Catégorie :</span>
-                <span className="spec-value">{productState?.Category}</span>
+                <span className="spec-label">Disponibilité</span>
+                <span className="spec-value">{productState?.quantity > 0 ? `${productState?.quantity} en stock` : 'Rupture de stock'}</span>
               </div>
             </div>
 
             {/* Sélecteur de couleur responsive */}
-            {!alreadyAdded && (
+            {!alreadyAdded && productState?.color && Array.isArray(productState.color) && productState.color.length > 0 && (
               <div className="color-selection-section">
-                <h4>Couleur disponible :</h4>
+                <h4>Couleur disponible</h4>
                 <div className="color-options-container">
                   <Color setColor={setColor} colorData={productState?.color} />
                 </div>
@@ -350,43 +370,41 @@ const SingleProduct = () => {
         </div>
       </Container>
 
-      {/* Product Description */}
-      <Container class1="description-wrapper py-5 home-wrapper-2">
-        <div className="row">
-          <div className="col-12">
-            <h3 className="description-heading">Description</h3>
-            {productState?.description}
-          </div>
-        </div>
-      </Container>
-
-      {/* Write Review Section */}
+      {/* Write Review Section - Amélioré */}
       {orderProduct && (
         <Container class1="reviews py-5 home-wrapper-2" id="review">
           <div className="row">
             <div className="col-12">
-              <h3 className="review-heading">Write a Review</h3>
-              <div className="d-flex align-items-center gap-10 mb-4">
-                <ReactStars
-                  count={5}
-                  size={24}
-                  value={star}
-                  onChange={(newRating) => setStar(newRating)}
-                  activeColor="#ffd700"
+              <div className="review-section-modern">
+                <h3 className="review-heading-modern">✍️ Écrire un Avis</h3>
+                <p className="review-subtitle">Partagez votre expérience avec ce produit</p>
+                
+                <div className="review-rating-section">
+                  <label className="rating-label">Votre note :</label>
+                  <ReactStars
+                    count={5}
+                    size={32}
+                    value={star}
+                    onChange={(newRating) => setStar(newRating)}
+                    activeColor="#FF6F00"
+                    color="#ddd"
+                  />
+                </div>
+                
+                <textarea
+                  className="review-textarea-modern"
+                  name="comment"
+                  placeholder="Décrivez votre expérience avec ce produit..."
+                  onChange={(e) => setComment(e.target.value)}
+                  value={comment}
+                  rows="5"
                 />
-              </div>
-              <textarea
-                className="form-control"
-                name="comment"
-                placeholder="Write Your Review"
-                onChange={(e) => setComment(e.target.value)}
-                value={comment}
-                rows="4"
-              />
-              <div className="d-flex justify-content-end mt-3">
-                <button className="button review-btn" onClick={addRatingToProduct}>
-                  Submit Review
-                </button>
+                
+                <div className="review-submit-wrapper">
+                  <button className="review-submit-btn" onClick={addRatingToProduct}>
+                    📝 Publier mon Avis
+                  </button>
+                </div>
               </div>
             </div>
           </div>

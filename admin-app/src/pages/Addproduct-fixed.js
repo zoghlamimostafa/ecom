@@ -302,7 +302,7 @@ const Addproduct = () => {
           
           <div className="bg-white border-1 p-5 text-center">
             <div className="upload-section">
-              <h5>📸 Upload d'Images</h5>
+              <h5>📸 Upload de Fichiers</h5>
               <Dropzone 
                 onDrop={(acceptedFiles) => {
                   console.log("📸 Files dropped:", acceptedFiles.length);
@@ -310,22 +310,15 @@ const Addproduct = () => {
                     dispatch(uploadImg(acceptedFiles));
                   }
                 }}
-                accept={{
-                  'image/*': ['.jpeg', '.jpg', '.png', '.gif']
-                }}
-                maxFiles={10}
-                onDropRejected={(rejectedFiles) => {
-                  console.log("❌ Files rejected:", rejectedFiles);
-                  toast.error("Fichiers rejetés. Veuillez utiliser des images (JPEG, PNG, GIF)");
-                }}
+                // Pas de restriction
               >
                 {({ getRootProps, getInputProps }) => (
                   <div {...getRootProps()} className="dropzone p-4 border border-dashed">
                     <input {...getInputProps()} />
                     <div className="text-center">
-                      <p className="mb-2">Glissez-déposez des images ici, ou cliquez pour sélectionner</p>
+                      <p className="mb-2">Glissez-déposez des fichiers ici, ou cliquez pour sélectionner</p>
                       <small className="text-muted">
-                        Formats acceptés: JPEG, PNG, GIF (max 10MB par fichier)
+                        Tous types de fichiers acceptés | Aucune limite
                       </small>
                     </div>
                   </div>

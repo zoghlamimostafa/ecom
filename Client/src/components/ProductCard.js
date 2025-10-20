@@ -7,7 +7,7 @@ import { addProdToCart, toggleProductWishlist } from '../features/user/userSlice
 import { AiOutlineHeart, AiFillHeart, AiOutlineShoppingCart, AiOutlineEye } from 'react-icons/ai';
 import { toast } from 'react-toastify';
 import { useTranslation } from '../contexts/TranslationContext';
-import { getProductImageUrl } from '../utils/imageHelper';
+import { getProductImageUrl, getAllProductImageUrls } from '../utils/imageHelper';
 import './ProductCard.css'; // Import des styles CSS
 
 const ProductCard = ({ data, gridView = true }) => {
@@ -90,12 +90,16 @@ const ProductCard = ({ data, gridView = true }) => {
         
         setIsLoading(true);
         try {
+            // Normaliser les images une seule fois
+            const normalizedImages = getAllProductImageUrls(productData.images);
+            
             const cartData = {
                 productId: productData.productId,
                 quantity: 1,
                 price: productData.price,
                 title: productData.title,
-                images: productData.images
+                images: normalizedImages, // Images normalisées
+                imageUrl: normalizedImages[0] // Première image pour l'affichage principal
             };
             
             await dispatch(addProdToCart(cartData)).unwrap();
@@ -287,6 +291,14 @@ const ProductCard = ({ data, gridView = true }) => {
                         </div>
                         <div className="product-overlay">
                             <div className="overlay-actions">
+                                <button 
+                                    className="overlay-btn cart"
+                                    onClick={handleAddToCart}
+                                    disabled={isLoading}
+                                    title="Ajout rapide au panier"
+                                >
+                                    {isLoading ? '⏳' : <AiOutlineShoppingCart />}
+                                </button>
                                 <button 
                                     className={`overlay-btn wishlist ${isInWishlist ? 'active' : ''}`}
                                     onClick={handleAddToWishlist}

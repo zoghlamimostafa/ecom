@@ -65,12 +65,12 @@ app.use(generalLimiter);
 // 5. CORS sécurisé
 app.use(corsSecure);
 
-// 6. Parsing sécurisé du body
+// 6. Parsing sécurisé du body - Limites augmentées pour images haute qualité
 app.use(bodyParser.json({ 
-    limit: '10mb', // Réduit la limite pour sécurité
+    limit: '50mb', // Augmenté pour support images haute résolution
     verify: (req, res, buf) => {
         // Vérifier la taille du payload
-        if (buf.length > 10485760) { // 10MB
+        if (buf.length > 52428800) { // 50MB (50 * 1024 * 1024)
             securityLogger.warn('Large payload detected', {
                 ip: req.ip,
                 size: buf.length,
@@ -80,7 +80,7 @@ app.use(bodyParser.json({
         }
     }
 }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 // 7. Cookie parsing sécurisé
 app.use(cookieParser());

@@ -16,9 +16,13 @@ import {
   FaRocket, FaShieldAlt, FaCheckCircle, FaShippingFast, 
   FaCreditCard, FaUndo, FaHeadset, FaClock, FaAward,
   FaBaby, FaHome, FaSpa, FaMobileAlt, FaFutbol, FaGamepad,
-  FaMusic, FaCamera, FaPaw, FaUtensils, FaTree, FaBoxOpen
+  FaMusic, FaCamera, FaPaw, FaUtensils, FaTree, FaBoxOpen,
+  FaShoppingCart, FaTags, FaPercentage, FaStar
 } from 'react-icons/fa';
+import TestimonialsSection from '../components/TestimonialsSection';
 import '../styles/Home.css';
+import '../styles/Testimonials.css';
+import '../styles/ServicesGuarantee.css';
 
 const Home = () => {
   const { t } = useTranslation();
@@ -53,8 +57,8 @@ const Home = () => {
     'Sports': <FaFutbol />,
     'Maison': <FaHome />,
     'Home': <FaHome />,
-    'Beauté': <FaHeartbeat />,
-    'Beauty': <FaHeartbeat />,
+    'Beauté': <FaSpa />,
+    'Beauty': <FaSpa />,
     'Auto': <FaCar />,
     'Automobile': <FaCar />,
     
@@ -66,14 +70,18 @@ const Home = () => {
     'Ordinateurs': <FaLaptop />,
     'Tablettes': <FaMobileAlt />,
     'Écouteurs': <FaMusic />,
+    'Audio': <FaMusic />,
     
     // Sous-catégories Vêtements
     'Femme': <FaTshirt />,
     'Homme': <FaTshirt />,
     'Enfants': <FaBaby />,
+    'Bébé': <FaBaby />,
+    'Baby': <FaBaby />,
     'Accessoires Mode': <FaSpa />,
     'Chaussures': <FaTshirt />,
     'Bijoux': <FaSpa />,
+    'Montres': <FaClock />,
     
     // Sous-catégories Sport
     'Fitness': <FaHeartbeat />,
@@ -82,6 +90,7 @@ const Home = () => {
     'Running': <FaFutbol />,
     'Yoga': <FaHeartbeat />,
     'Sports Collectifs': <FaFutbol />,
+    'Camping': <FaTree />,
     
     // Sous-catégories Maison
     'Cuisine': <FaUtensils />,
@@ -90,31 +99,35 @@ const Home = () => {
     'Jardin': <FaTree />,
     'Meubles': <FaHome />,
     'Électroménager': <FaHome />,
+    'Rangement': <FaBoxOpen />,
     
     // Sous-catégories Beauté
-    'Maquillage': <FaHeartbeat />,
+    'Maquillage': <FaSpa />,
     'Parfums': <FaSpa />,
     'Soins': <FaSpa />,
-    'Cheveux': <FaHeartbeat />,
-    'Ongles': <FaHeartbeat />,
+    'Cheveux': <FaSpa />,
+    'Ongles': <FaSpa />,
+    'Bien-être': <FaHeartbeat />,
     
-    // Autres
+    // Autres catégories
     'Informatique': <FaLaptop />,
     'Computers': <FaLaptop />,
     'Livres': <FaBook />,
     'Books': <FaBook />,
-    'Bébé': <FaBaby />,
-    'Baby': <FaBaby />,
-    'Santé': <FaSpa />,
-    'Health': <FaSpa />,
+    'Santé': <FaHeartbeat />,
+    'Health': <FaHeartbeat />,
     'Jeux': <FaGamepad />,
     'Games': <FaGamepad />,
+    'Jouets': <FaGamepad />,
+    'Toys': <FaGamepad />,
     'Musique': <FaMusic />,
     'Music': <FaMusic />,
     'Photo': <FaCamera />,
     'Camera': <FaCamera />,
     'Animaux': <FaPaw />,
     'Pets': <FaPaw />,
+    'Bagagerie': <FaBoxOpen />,
+    'Sacs': <FaBoxOpen />,
     'Autres': <FaBoxOpen />,
     'Other': <FaBoxOpen />
   };
@@ -160,9 +173,51 @@ const Home = () => {
         subtitle={t('buyAndSellConfidently')}
       />
 
+      {/* E-commerce Trust Bar */}
+      <div className="ecommerce-trust-bar">
+        <Container>
+          <div className="trust-bar-items">
+            <div className="trust-item">
+              <FaShoppingCart className="trust-icon" />
+              <div className="trust-text">
+                <span className="trust-number">{allProducts?.length || 0}+</span>
+                <span className="trust-label">Produits</span>
+              </div>
+            </div>
+            <div className="trust-item">
+              <FaShieldAlt className="trust-icon" />
+              <div className="trust-text">
+                <span className="trust-number">100%</span>
+                <span className="trust-label">Sécurisé</span>
+              </div>
+            </div>
+            <div className="trust-item">
+              <FaShippingFast className="trust-icon" />
+              <div className="trust-text">
+                <span className="trust-number">24/48h</span>
+                <span className="trust-label">Livraison</span>
+              </div>
+            </div>
+            <div className="trust-item">
+              <FaHeadset className="trust-icon" />
+              <div className="trust-text">
+                <span className="trust-number">24/7</span>
+                <span className="trust-label">Support</span>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </div>
+
       {/* Promotions Section */}
       <Container class1="promotions-wrapper py-5">
-        <h2 className="section-title">{t('bestOffersOfTheMoment')}</h2>
+        <div className="section-title-wrapper">
+          <div className="title-with-badge">
+            <h2 className="section-title">{t('bestOffersOfTheMoment')}</h2>
+            <span className="promo-badge"><FaPercentage /> Promos</span>
+          </div>
+          <p className="section-subtitle">{t('discoverBestDeals')}</p>
+        </div>
         <div className="row">
           {featuredProducts && featuredProducts.length > 0 ? (
             featuredProducts.slice(0, 4).map((product) => (
@@ -183,11 +238,12 @@ const Home = () => {
 
       {/* Section Produits Populaires */}
       <Container class1="popular-products-wrapper py-5" style={{backgroundColor: "var(--sanny-bg-light)"}}>
-        <div className="row">
-          <div className="col-12 text-center mb-4">
+        <div className="section-title-wrapper">
+          <div className="title-with-badge">
             <h2 className="section-title">{t('popularProducts')}</h2>
-            <p className="section-subtitle">{t('discoverMostAppreciated')}</p>
+            <span className="popular-badge"><FaStar /> Populaire</span>
           </div>
+          <p className="section-subtitle">{t('discoverMostAppreciated')}</p>
         </div>
         <div className="row">
           {popularProducts && popularProducts.length > 0 ? (
@@ -218,11 +274,12 @@ const Home = () => {
 
       {/* Section Nouveaux Produits */}
       <Container class1="new-products-wrapper py-5">
-        <div className="row">
-          <div className="col-12 text-center mb-4">
+        <div className="section-title-wrapper">
+          <div className="title-with-badge">
             <h2 className="section-title">{t('newProducts')}</h2>
-            <p className="section-subtitle">{t('latestArrivals')}</p>
+            <span className="new-badge"><FaTags /> Nouveau</span>
           </div>
+          <p className="section-subtitle">{t('latestArrivals')}</p>
         </div>
         <div className="row">
           {allProducts && allProducts.length > 0 ? (
@@ -249,7 +306,10 @@ const Home = () => {
 
       {/* Categories Section - Carrousel Automatique */}
       <Container class1="categories-carousel-wrapper py-5" style={{backgroundColor: "var(--sanny-bg-light)"}}>
-        <h2 className="section-title">{t('exploreCategories')}</h2>
+        <div className="section-title-wrapper">
+          <h2 className="section-title">{t('exploreCategories')}</h2>
+          <p className="section-subtitle">Trouvez exactement ce que vous cherchez</p>
+        </div>
         <div className="categories-carousel-container">
           <div className="categories-carousel-track">
             {allCategories && allCategories.length > 0 ? (
@@ -290,7 +350,10 @@ const Home = () => {
 
       {/* Carrousel des Marques */}
       <Container class1="brands-carousel-wrapper py-5">
-        <h2 className="section-title">{t('ourPartnerBrands')}</h2>
+        <div className="section-title-wrapper">
+          <h2 className="section-title">{t('ourPartnerBrands')}</h2>
+          <p className="section-subtitle">Des marques de confiance</p>
+        </div>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <BrandCarousel brands={brands} />
         </div>
@@ -298,13 +361,9 @@ const Home = () => {
 
       {/* Pourquoi Sanny Section */}
       <Container class1="why-sanny-wrapper py-5">
-        <div className="row">
-            <div className="col-12 text-center">
-                <h2 className="section-title">{t('whyChooseSanny')}</h2>
-                <p className="why-sanny-subtitle">
-                    {t('whyChooseSannySubtitle')}
-                </p>
-            </div>
+        <div className="section-title-wrapper">
+          <h2 className="section-title">{t('whyChooseSanny')}</h2>
+          <p className="section-subtitle">{t('whyChooseSannySubtitle')}</p>
         </div>
         <div className="row justify-content-center g-4">
             <div className="col-lg-4 col-md-6">
@@ -345,72 +404,82 @@ const Home = () => {
 
       {/* Section Garanties et Services - Carrousel Animé */}
       <Container class1="services-guarantee-wrapper py-5">
-        <div className="row">
-          <div className="col-12 text-center mb-5">
-            <h2 className="section-title">{t('ourGuarantees')}</h2>
-          </div>
+        <div className="section-title-wrapper">
+          <h2 className="section-title">{t('ourGuarantees')}</h2>
+          <p className="section-subtitle">{t('ourGuaranteesSubtitle')}</p>
         </div>
-        <div className="services-carousel">
+        <div className="services-carousel-container">
           <div className="services-track">
-            <div className="service-carousel-card">
+            <div className="service-card">
               <div className="service-icon">
                 <FaShippingFast />
               </div>
-              <h4 className="service-title">{t('fastDeliveryCarousel')}</h4>
+              <h4 className="service-title">{t('fastDelivery')}</h4>
+              <p className="service-description">{t('fastDeliveryDesc')}</p>
             </div>
-            <div className="service-carousel-card">
+            <div className="service-card">
               <div className="service-icon">
                 <FaCreditCard />
               </div>
-              <h4 className="service-title">{t('securePaymentCarousel')}</h4>
+              <h4 className="service-title">{t('securePayment')}</h4>
+              <p className="service-description">{t('securePaymentDesc')}</p>
             </div>
-            <div className="service-carousel-card">
+            <div className="service-card">
               <div className="service-icon">
                 <FaUndo />
               </div>
-              <h4 className="service-title">{t('freeReturnCarousel')}</h4>
+              <h4 className="service-title">{t('freeReturn')}</h4>
+              <p className="service-description">{t('freeReturnDesc')}</p>
             </div>
-            <div className="service-carousel-card">
+            <div className="service-card">
               <div className="service-icon">
                 <FaHeadset />
               </div>
-              <h4 className="service-title">{t('support247Carousel')}</h4>
+              <h4 className="service-title">{t('support247')}</h4>
+              <p className="service-description">{t('support247Desc')}</p>
             </div>
-            <div className="service-carousel-card">
+            <div className="service-card">
               <div className="service-icon">
                 <FaClock />
               </div>
-              <h4 className="service-title">{t('expressDeliveryCarousel')}</h4>
+              <h4 className="service-title">{t('expressDelivery')}</h4>
+              <p className="service-description">{t('expressDeliveryDesc')}</p>
             </div>
-            <div className="service-carousel-card">
+            <div className="service-card">
               <div className="service-icon">
                 <FaAward />
               </div>
-              <h4 className="service-title">{t('qualityGuaranteeCarousel')}</h4>
+              <h4 className="service-title">{t('qualityGuarantee')}</h4>
+              <p className="service-description">{t('qualityGuaranteeDesc')}</p>
             </div>
-            {/* Duplication pour l'effet infini */}
-            <div className="service-carousel-card">
+            {/* Duplicate cards for infinite scroll effect */}
+            <div className="service-card">
               <div className="service-icon">
                 <FaShippingFast />
               </div>
-              <h4 className="service-title">{t('fastDeliveryCarousel')}</h4>
+              <h4 className="service-title">{t('fastDelivery')}</h4>
+              <p className="service-description">{t('fastDeliveryDesc')}</p>
             </div>
-            <div className="service-carousel-card">
+            <div className="service-card">
               <div className="service-icon">
                 <FaCreditCard />
               </div>
-              <h4 className="service-title">{t('securePaymentCarousel')}</h4>
+              <h4 className="service-title">{t('securePayment')}</h4>
+              <p className="service-description">{t('securePaymentDesc')}</p>
             </div>
-            <div className="service-carousel-card">
+            <div className="service-card">
               <div className="service-icon">
                 <FaUndo />
               </div>
-              <h4 className="service-title">{t('freeReturnCarousel')}</h4>
+              <h4 className="service-title">{t('freeReturn')}</h4>
+              <p className="service-description">{t('freeReturnDesc')}</p>
             </div>
           </div>
         </div>
       </Container>
 
+      {/* Testimonials Section */}
+      <TestimonialsSection />
 
     </>
   );

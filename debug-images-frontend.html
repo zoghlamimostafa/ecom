@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Debug - Images Cart & Wishlist</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        h2 { color: #666; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        .test-section { margin: 20px 0; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            border-left: 4px solid #007bff;
+        }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+        .warning { color: #ffc107; font-weight: bold; }
+        .info { color: #17a2b8; }
+        .image-preview {
+            display: inline-block;
+            margin: 10px;
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        .image-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            display: block;
+        }
+        .image-url {
+            font-size: 11px;
+            color: #666;
+            word-break: break-all;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug - Images Cart & Wishlist</h1>
+        <p class="info">Ce test vérifie que les images sont correctement reçues et affichées du backend</p>
+    </div>
+
+    <div class="container">
+        <h2>🔐 Étape 1: Connexion</h2>
+        <div class="test-section">
+            <input type="email" id="loginEmail" placeholder="Email" value="admin@gmail.com" style="padding: 8px; width: 250px;">
+            <input type="password" id="loginPassword" placeholder="Password" value="12345" style="padding: 8px; width: 250px;">
+            <button onclick="login()">Se connecter</button>
+        </div>
+        <div id="loginResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>📦 Étape 2: Tester le Panier (Cart)</h2>
+        <div class="test-section">
+            <button onclick="testCart()" id="btnTestCart" disabled>Récupérer le Cart</button>
+        </div>
+        <div id="cartResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>❤️ Étape 3: Tester la Wishlist</h2>
+        <div class="test-section">
+            <button onclick="testWishlist()" id="btnTestWishlist" disabled>Récupérer la Wishlist</button>
+        </div>
+        <div id="wishlistResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>🛍️ Étape 4: Tester un Produit</h2>
+        <div class="test-section">
+            <input type="number" id="productId" placeholder="Product ID" value="41" style="padding: 8px; width: 150px;">
+            <button onclick="testProduct()">Récupérer le Produit</button>
+        </div>
+        <div id="productResult"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:4000/api';
+        let authToken = null;
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const resultDiv = document.getElementById('loginResult');
+            
+            resultDiv.innerHTML = '<p class="info">Connexion en cours...</p>';
+            
+            try {
+                const response = await fetch(`${API_URL}/user/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Connexion réussie!</p>
+                        <p><strong>Token:</strong> ${authToken.substring(0, 50)}...</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    
+                    // Activer les autres boutons
+                    document.getElementById('btnTestCart').disabled = false;
+                    document.getElementById('btnTestWishlist').disabled = false;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">❌ Erreur: ${data.message || 'Connexion échouée'}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Erreur réseau: ${error.message}</p>`;
+            }
+        }
+
+        async function testCart() {
+            const resultDiv = document.getElementById('cartResult');
+            resultDiv.innerHTML = '<p class="info">Chargement du cart...</p>';
+            
+            if (!authToken) {
+                resultDiv.innerHTML = '<p class="error">❌ Veuillez vous connecter d\'abord</p>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/user/cart`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    let html = `<p class="success">✅ Cart récupéré avec succès!</p>`;
+                    html += `<p><strong>Nombre d'items:</strong> ${data.length || 0}</p>`;
+                    
+                    if (data && data.length > 0) {
+                        html += '<h3>Items dans le cart:</h3>';
+                        data.forEach((item, index) => {
+                            html += `<div style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 4px;">`;
+                            html += `<h4>Item ${index + 1}: ${item.product?.title || item.title || 'Sans titre'}</h4>`;
+                            html += `<p><strong>Product ID:</strong> ${item.productId || item.product?.id}</p>`;
+                            html += `<p><strong>Quantité:</strong> ${item.quantity}</p>`;
+                            html += `<p><strong>Prix:</strong> ${item.price} FCFA</p>`;
+                            
+                            // Analyser les images
+                            const images = item.images || item.product?.images;
+                            html += `<p><strong>Images (type):</strong> ${typeof images} | <strong>Is Array:</strong> ${Array.isArray(images)}</p>`;
+                            html += `<p><strong>Images (raw):</strong></p><pre>${JSON.stringify(images, null, 2)}</pre>`;
+                            
+                            if (Array.isArray(images) && images.length > 0) {
+                                html += '<div style="margin-top: 10px;"><strong>Aperçu des images:</strong></div>';
+                                images.forEach((img, imgIdx) => {
+                                    const imgUrl = typeof img === 'string' ? img : (img?.url || img?.path || img?.public_id);
+                                    if (imgUrl) {
+                                        html += `
+                                            <div class="image-preview">
+                                                <img src="${imgUrl}" onerror="this.parentElement.innerHTML='<p class=error>❌ Erreur chargement</p>'" />
+                                                <div class="image-url">Image ${imgIdx + 1}: ${imgUrl.substring(0, 60)}...</div>
+                                            </div>
+                                        `;
+                                    }
+                                });
+                            } else {
+                                html += '<p class="warning">⚠️ Aucune image disponible</p>';
+                            }
+                            
+                            html += `</div>`;
+                        });
+                    }
+                    
+                    html += '<h3>Réponse complète:</h3>';
+                    html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">❌ Erreur: ${data.message || 'Échec'}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Erreur réseau: ${error.message}</p>`;
+            }
+        }
+
+        async function testWishlist() {
+            const resultDiv = document.getElementById('wishlistResult');
+            resultDiv.innerHTML = '<p class="info">Chargement de la wishlist...</p>';
+            
+            if (!authToken) {
+                resultDiv.innerHTML = '<p class="error">❌ Veuillez vous connecter d\'abord</p>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/user/wishlist`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    let html = `<p class="success">✅ Wishlist récupérée avec succès!</p>`;
+                    html += `<p><strong>Nombre d'items:</strong> ${data.wishlist?.length || 0}</p>`;
+                    
+                    const wishlistItems = data.wishlist || [];
+                    
+                    if (wishlistItems.length > 0) {
+                        html += '<h3>Items dans la wishlist:</h3>';
+                        wishlistItems.forEach((item, index) => {
+                            const product = item.product || item;
+                            html += `<div style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 4px;">`;
+                            html += `<h4>Item ${index + 1}: ${product?.title || 'Sans titre'}</h4>`;
+                            html += `<p><strong>Product ID:</strong> ${product?.id}</p>`;
+                            html += `<p><strong>Prix:</strong> ${product?.price} FCFA</p>`;
+                            
+                            // Analyser les images
+                            const images = product?.images;
+                            html += `<p><strong>Images (type):</strong> ${typeof images} | <strong>Is Array:</strong> ${Array.isArray(images)}</p>`;
+                            html += `<p><strong>Images (raw):</strong></p><pre>${JSON.stringify(images, null, 2)}</pre>`;
+                            
+                            if (Array.isArray(images) && images.length > 0) {
+                                html += '<div style="margin-top: 10px;"><strong>Aperçu des images:</strong></div>';
+                                images.forEach((img, imgIdx) => {
+                                    const imgUrl = typeof img === 'string' ? img : (img?.url || img?.path || img?.public_id);
+                                    if (imgUrl) {
+                                        html += `
+                                            <div class="image-preview">
+                                                <img src="${imgUrl}" onerror="this.parentElement.innerHTML='<p class=error>❌ Erreur chargement</p>'" />
+                                                <div class="image-url">Image ${imgIdx + 1}: ${imgUrl.substring(0, 60)}...</div>
+                                            </div>
+                                        `;
+                                    }
+                                });
+                            } else {
+                                html += '<p class="warning">⚠️ Aucune image disponible</p>';
+                            }
+                            
+                            html += `</div>`;
+                        });
+                    }
+                    
+                    html += '<h3>Réponse complète:</h3>';
+                    html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">❌ Erreur: ${data.message || 'Échec'}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Erreur réseau: ${error.message}</p>`;
+            }
+        }
+
+        async function testProduct() {
+            const productId = document.getElementById('productId').value;
+            const resultDiv = document.getElementById('productResult');
+            resultDiv.innerHTML = '<p class="info">Chargement du produit...</p>';
+            
+            try {
+                const response = await fetch(`${API_URL}/product/${productId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    let html = `<p class="success">✅ Produit récupéré avec succès!</p>`;
+                    html += `<h3>${data.title}</h3>`;
+                    html += `<p><strong>Prix:</strong> ${data.price} FCFA</p>`;
+                    
+                    // Analyser les images
+                    const images = data.images;
+                    html += `<p><strong>Images (type):</strong> ${typeof images} | <strong>Is Array:</strong> ${Array.isArray(images)}</p>`;
+                    html += `<p><strong>Images (raw):</strong></p><pre>${JSON.stringify(images, null, 2)}</pre>`;
+                    
+                    if (Array.isArray(images) && images.length > 0) {
+                        html += '<div style="margin-top: 10px;"><strong>Aperçu des images:</strong></div>';
+                        images.forEach((img, imgIdx) => {
+                            const imgUrl = typeof img === 'string' ? img : (img?.url || img?.path || img?.public_id);
+                            if (imgUrl) {
+                                html += `
+                                    <div class="image-preview">
+                                        <img src="${imgUrl}" onerror="this.parentElement.innerHTML='<p class=error>❌ Erreur chargement</p>'" />
+                                        <div class="image-url">Image ${imgIdx + 1}: ${imgUrl}</div>
+                                    </div>
+                                `;
+                            }
+                        });
+                    } else {
+                        html += '<p class="warning">⚠️ Aucune image disponible</p>';
+                    }
+                    
+                    html += '<h3>Réponse complète:</h3>';
+                    html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">❌ Erreur: ${data.message || 'Échec'}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Erreur réseau: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

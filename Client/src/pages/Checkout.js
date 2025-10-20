@@ -23,15 +23,27 @@ const Checkout = () => {
     
     const cartState = useSelector(state => state.auth.cartProducts);
     const buyNowItem = useSelector(state => state.auth.buyNowItem);
+    const { user } = useSelector(state => state.auth);
     const itemsToDisplay = buyNowItem ? [buyNowItem] : cartState;
     
-    // Frais de livraison standard
-    const shippingCost = 8.00;
+    // 🔍 DEBUG: Afficher la structure des données du panier
+    console.log("🛒 DEBUG Checkout - cartState:", cartState);
+    console.log("🛒 DEBUG Checkout - itemsToDisplay:", itemsToDisplay);
+    if (itemsToDisplay && itemsToDisplay.length > 0) {
+        console.log("🛒 DEBUG Checkout - Premier item:", JSON.stringify(itemsToDisplay[0], null, 2));
+    }
+    
+    // Frais de livraison standard (7 TND - cohérent avec Cart.js)
+    const SHIPPING_COST = 7.00;
+    const FREE_SHIPPING_THRESHOLD = 100.00;
     
     // Calcul du sous-total (prix des produits uniquement)
     const subtotal = itemsToDisplay?.reduce((acc, item) => {
         return acc + (item.price * item.quantity);
     }, 0) || 0;
+    
+    // Calcul des frais de livraison (gratuit si > 100 TND)
+    const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
     
     // Total avec livraison
     const totalPrice = subtotal + shippingCost;
@@ -81,16 +93,22 @@ const Checkout = () => {
             <Container class1='checkout-wrapper py-5'>
                 <div className="row">
                     <div className="col-12">
-                        <h2 className="text-center mb-4">Finaliser votre commande</h2>
+                        <div className="checkout-header">
+                            <h2 className="checkout-title">🛍️ Finaliser votre commande</h2>
+                            <p className="checkout-subtitle">Remplissez vos informations pour recevoir votre commande</p>
+                        </div>
                     </div>
                 </div>
                 
                 <div className="row">
                     {/* Formulaire de livraison - Gauche */}
                     <div className="col-lg-7">
-                        <div className="card mb-4">
+                        <div className="card checkout-form-card mb-4">
                             <div className="card-body">
-                                <h5 className="mb-3">Informations de livraison</h5>
+                                <h5 className="section-title-checkout">
+                                    <span className="title-icon">📍</span>
+                                    Informations de livraison
+                                </h5>
                                 <form onSubmit={formik.handleSubmit}>
                                     <div className="row g-3">
                                         <div className="col-md-6">
@@ -168,11 +186,14 @@ const Checkout = () => {
                         </div>
 
                         {/* Méthode de paiement */}
-                        <div className="card">
+                        <div className="card checkout-payment-card">
                             <div className="card-body">
-                                <h5 className="mb-3">Méthode de paiement</h5>
+                                <h5 className="section-title-checkout">
+                                    <span className="title-icon">💳</span>
+                                    Méthode de paiement
+                                </h5>
                                 <div className="payment-methods">
-                                    <label className="payment-option d-flex align-items-center mb-2">
+                                    <label className={`payment-option ${selectedPaymentMethod === 'card' ? 'selected' : ''}`}>
                                         <input 
                                             type="radio" 
                                             name="payment" 
@@ -180,9 +201,11 @@ const Checkout = () => {
                                             checked={selectedPaymentMethod === 'card'}
                                             onChange={() => setSelectedPaymentMethod('card')}
                                         />
-                                        <span className="ms-2">Carte bancaire</span>
+                                        <span className="payment-icon">💳</span>
+                                        <span className="payment-label">Carte bancaire</span>
+                                        <span className="payment-badge">Sécurisé</span>
                                     </label>
-                                    <label className="payment-option d-flex align-items-center">
+                                    <label className={`payment-option ${selectedPaymentMethod === 'cod' ? 'selected' : ''}`}>
                                         <input 
                                             type="radio" 
                                             name="payment" 
@@ -190,7 +213,9 @@ const Checkout = () => {
                                             checked={selectedPaymentMethod === 'cod'}
                                             onChange={() => setSelectedPaymentMethod('cod')}
                                         />
-                                        <span className="ms-2">Paiement à la livraison</span>
+                                        <span className="payment-icon">💵</span>
+                                        <span className="payment-label">Paiement à la livraison</span>
+                                        <span className="payment-badge recommended">Recommandé</span>
                                     </label>
                                 </div>
                             </div>
@@ -199,54 +224,147 @@ const Checkout = () => {
 
                     {/* Résumé - Droite */}
                     <div className="col-lg-5">
-                        <div className="card">
-                            <div className="card-header bg-dark text-white">
-                                <h5 className="mb-0">Récapitulatif de commande</h5>
+                        <div className="card checkout-summary-card sticky-summary">
+                            <div className="card-header checkout-summary-header">
+                                <h5 className="mb-0">
+                                    <span className="summary-icon">🛒</span>
+                                    Récapitulatif de commande
+                                </h5>
+                                <span className="items-count">{itemsToDisplay?.length || 0} article(s)</span>
                             </div>
                             <div className="card-body">
                                 {/* Liste produits */}
                                 <div className="order-items mb-3">
-                                    {itemsToDisplay.map((item) => (
-                                        <div key={item.id} className="d-flex align-items-center mb-3 pb-3 border-bottom">
-                                            <img 
-                                                src={item.images?.[0]?.url || "https://via.placeholder.com/80"} 
-                                                alt={item.title}
-                                                style={{width: '60px', height: '60px', objectFit: 'cover'}}
-                                                className="rounded me-3"
-                                            />
-                                            <div className="flex-grow-1">
-                                                <h6 className="mb-1">{item.title}</h6>
-                                                <small className="text-muted">Qté: {item.quantity}</small>
+                                    {itemsToDisplay.map((item) => {
+                                        // 🔍 DEBUG: Structure des données
+                                        console.log("🖼️ DEBUG Item:", {
+                                            id: item.id,
+                                            title: item.title || item.product?.title,
+                                            images: item.images,
+                                            imagesType: typeof item.images,
+                                            productImages: item.product?.images,
+                                            productImagesType: typeof item.product?.images,
+                                            image: item.image
+                                        });
+                                        
+                                        // Gestion intelligente des images
+                                        let imageUrl = "https://via.placeholder.com/80";
+                                        
+                                        // 🔄 Parser JSON si nécessaire
+                                        let images = item.images;
+                                        if (typeof images === 'string') {
+                                          const trimmed = images.trim();
+                                          console.log("🔍 Parsing images string:", trimmed.substring(0, 100));
+                                          if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+                                            try {
+                                              images = JSON.parse(trimmed);
+                                              console.log("✅ Images parsed successfully:", images);
+                                            } catch (e) {
+                                              console.warn('⚠️ Failed to parse checkout images:', e.message);
+                                            }
+                                          }
+                                        }
+                                        
+                                        // 1. Priorité: images au niveau racine (depuis getUserCart)
+                                        if (images && Array.isArray(images) && images.length > 0) {
+                                            const firstImage = images[0];
+                                            // Si c'est un objet avec url
+                                            if (firstImage && typeof firstImage === 'object' && firstImage.url) {
+                                                imageUrl = firstImage.url;
+                                            } 
+                                            // Si c'est directement une string
+                                            else if (typeof firstImage === 'string') {
+                                                imageUrl = firstImage;
+                                            }
+                                        }
+                                        // 2. Fallback: images dans product.images
+                                        else if (item.product?.images) {
+                                            let productImages = item.product.images;
+                                            // Parser si string JSON
+                                            if (typeof productImages === 'string') {
+                                              const trimmed = productImages.trim();
+                                              if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+                                                try {
+                                                  productImages = JSON.parse(trimmed);
+                                                } catch (e) {
+                                                  console.warn('⚠️ Failed to parse product images:', e.message);
+                                                }
+                                              }
+                                            }
+                                            
+                                            if (Array.isArray(productImages) && productImages.length > 0) {
+                                              const firstImage = productImages[0];
+                                              if (firstImage && typeof firstImage === 'object' && firstImage.url) {
+                                                imageUrl = firstImage.url;
+                                              } else if (typeof firstImage === 'string') {
+                                                imageUrl = firstImage;
+                                              }
+                                            }
+                                        }
+                                        // 3. Fallback: item.image (singular) si existe
+                                        else if (item.image) {
+                                            imageUrl = typeof item.image === 'string' ? item.image : item.image.url;
+                                        }
+                                        
+                                        console.log("🖼️ URL finale:", imageUrl);
+                                        
+                                        // Utiliser les données du produit si disponibles
+                                        const title = item.title || item.product?.title || 'Produit';
+                                        const price = item.price || item.product?.price || 0;
+                                        
+                                        return (
+                                            <div key={item.id} className="checkout-product-item">
+                                                <div className="product-image-checkout">
+                                                    <img 
+                                                        src={imageUrl} 
+                                                        alt={title}
+                                                        onError={(e) => {
+                                                            console.error("❌ Erreur chargement image:", imageUrl);
+                                                            e.target.onerror = null;
+                                                            e.target.src = "https://via.placeholder.com/80";
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="product-details-checkout">
+                                                    <div className="product-title-checkout">{title}</div>
+                                                    <div className="product-quantity-checkout">
+                                                        <span className="quantity-badge">x{item.quantity}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="product-price-checkout">{(price * item.quantity).toFixed(2)} DT</div>
                                             </div>
-                                            <span className="fw-bold">{(item.price * item.quantity).toFixed(2)} TND</span>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
 
                                 {/* Calculs */}
-                                <div className="order-totals">
-                                    <div className="d-flex justify-content-between mb-2">
-                                        <span>Sous-total</span>
-                                        <span>{subtotal.toFixed(2)} TND</span>
+                                <div className="order-summary">
+                                    <div className="summary-row">
+                                        <span>📦 Sous-total</span>
+                                        <span>{subtotal.toFixed(2)} DT</span>
                                     </div>
-                                    <div className="d-flex justify-content-between mb-2">
-                                        <span>Livraison</span>
-                                        <span>{shippingCost.toFixed(2)} TND</span>
+                                    <div className="summary-row">
+                                        <span>🚚 Livraison</span>
+                                        {shippingCost === 0 ? (
+                                            <span className="shipping-free">GRATUIT</span>
+                                        ) : (
+                                            <span>{shippingCost.toFixed(2)} DT</span>
+                                        )}
                                     </div>
-                                    <hr />
-                                    <div className="d-flex justify-content-between mb-3">
-                                        <h5 className="mb-0">Total</h5>
-                                        <h5 className="mb-0 text-primary">{totalPrice.toFixed(2)} TND</h5>
-                                    </div>
+                                </div>
+
+                                <div className="order-total">
+                                    <span>Total à payer</span>
+                                    <span className="total-amount">{totalPrice.toFixed(2)} DT</span>
                                 </div>
 
                                 {/* Bouton de paiement */}
                                 <button 
                                     type="submit" 
-                                    className="btn btn-dark w-100 py-2"
+                                    className="btn-place-order"
                                     onClick={formik.handleSubmit}
                                 >
-                                    Finaliser le paiement
+                                    <span>Passer la commande</span>
                                 </button>
                             </div>
                         </div>

@@ -11,6 +11,7 @@ const Coupon = require('./Coupon');
 const Cart = require('./Cart');
 const Wishlist = require('./Wishlist');
 const Order = require('./Order');
+const OrderItem = require('./OrderItem');
 const Blog = require('./Blog');
 const BlogCategory = require('./BlogCategory');
 const BlogLike = require('./BlogLike');
@@ -44,6 +45,11 @@ const defineAssociations = () => {
   // Order associations
   Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
   Order.hasOne(Payment, { foreignKey: 'orderId', as: 'payment' });
+  Order.hasMany(OrderItem, { foreignKey: 'orderId', as: 'orderItems' });
+
+  // OrderItem associations
+  OrderItem.belongsTo(Order, { foreignKey: 'orderId', as: 'order' });
+  OrderItem.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
 
   // ProductRating associations
   ProductRating.belongsTo(User, { foreignKey: 'userId', as: 'user' });
@@ -80,6 +86,7 @@ module.exports = {
   Cart,
   Wishlist,
   Order,
+  OrderItem,
   Blog,
   BlogCategory,
   BlogLike,

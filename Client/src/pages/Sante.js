@@ -48,7 +48,17 @@ const Sante = () => {
         }));
     };
 
-    const infoProducts = Array.isArray(productState) ? productState.filter(item => item.tags === "sante") : [];
+    const infoProducts = Array.isArray(productState) ? productState.filter(item => {
+        const productCategory = item.category ? item.category.toString() : '';
+        const productSubcategory = item.subcategory ? item.subcategory.toString() : '';
+        return productCategory === '261' || productSubcategory === '261';
+    }) : [];
+    
+    console.log('🔍 [Sante] Filtrage:', {
+        totalProducts: productState?.length || 0,
+        filteredCount: infoProducts.length,
+        categoryFilter: '261'
+    });
 
     return (
         <Container class1='new-informatique-container py-5'>

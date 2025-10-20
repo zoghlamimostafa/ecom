@@ -65,7 +65,17 @@ const Jeux = () => {
         }));
     };
 
-    const infoProducts = Array.isArray(productState) ? productState.filter(item => item.tags === "jeux") : [];
+    const infoProducts = Array.isArray(productState) ? productState.filter(item => {
+        const productCategory = item.category ? item.category.toString() : '';
+        const productSubcategory = item.subcategory ? item.subcategory.toString() : '';
+        return productCategory === '345' || productSubcategory === '345';
+    }) : [];
+    
+    console.log('🔍 [Jeux] Filtrage:', {
+        totalProducts: productState?.length || 0,
+        filteredCount: infoProducts.length,
+        categoryFilter: '345'
+    });
 
     return (
         <Container class1='new-informatique-container py-5'>

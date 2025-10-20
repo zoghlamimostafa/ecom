@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const path = require('path');
 
 const cookieParser = require("cookie-parser");
 const dotenv = require('dotenv').config();
@@ -77,8 +78,27 @@ app.use(cors({
 }));
 
 app.use(cookieParser());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+
+// ⚠️ Ne PAS appliquer body-parser aux routes d'upload (multer s'en charge)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/upload')) {
+    console.log("⚠️ Skipping body-parser for upload route");
+    return next();
+  }
+  bodyParser.json({ limit: '500mb' })(req, res, next);
+});
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/upload')) {
+    return next();
+  }
+  bodyParser.urlencoded({ extended: false, limit: '500mb' })(req, res, next);
+});
+
+// 🖼️ Servir les images statiques
+const imagesPath = path.join(__dirname, 'public', 'images');
+app.use('/images', express.static(imagesPath));
+console.log('📁 Serving static images from:', imagesPath);
 
 // Debug middleware pour traquer les requêtes
 app.use((req, res, next) => {
@@ -125,7 +145,9 @@ app.get('/favicon.ico', (req, res) => {
     res.status(204).end();
 });
 
-app.use('/api/user', authRouter);
+const userRoute = require('./routes/userRoute');
+const authRoute = require('./routes/authRoute');
+app.use('/api/user', authRoute);
 app.use("/api/payment", paymentRouter);
 app.use('/api/product', productRouter);
 app.use('/api/blog', blogRoute);
@@ -145,8 +167,14 @@ app.use(errorHandler);
 module.exports = app;
 
 if (require.main === module) {
-    app.listen(PORT, '0.0.0.0', () => {
+    const server = app.listen(PORT, '0.0.0.0', () => {
         console.log(`Server is running at http://0.0.0.0:${PORT}`);
         console.log(`Also accessible at http://localhost:${PORT}`);
     });
+    
+    // Augmenter les timeouts pour les uploads volumineux
+    server.timeout = 300000; // 5 minutes
+    server.keepAliveTimeout = 65000; // 65 secondes
+    server.headersTimeout = 66000; // 66 secondes
+    console.log("⏱️ Server timeouts configured for large uploads");
 }

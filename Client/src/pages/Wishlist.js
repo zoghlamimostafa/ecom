@@ -9,7 +9,6 @@ import { AiFillHeart, AiOutlineShoppingCart, AiOutlineStar, AiFillStar } from 'r
 import { FiShoppingBag } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getProductImageUrl } from '../utils/imageHelper';
 import './Wishlist.css';
 
 const Wishlist = () => {
@@ -27,6 +26,7 @@ const Wishlist = () => {
     }, [dispatch, authState]);
 
     const wishlistState = useSelector((state) => state.auth.wishlist);
+    const safeWishlistState = Array.isArray(wishlistState) ? wishlistState : [];
 
     const removeFromWishlist = async (id) => {
         setRemoving(prev => ({ ...prev, [id]: true }));
@@ -107,92 +107,124 @@ const Wishlist = () => {
                             </p>
                         </div>
                         <div className="row">
-                        {wishlistState && wishlistState.map((item, index) => {
-                            const itemId = item.id || item.id;
-                            const imageUrl = getProductImageUrl(item?.images);
-                            
-                            // Debug log
-                            if (index === 0) {
-                                console.log('🖼️ Wishlist item images:', item?.images);
-                                console.log('🖼️ Resolved imageUrl:', imageUrl);
-                            }
-                            
-                            return (
-                                <div className="col-lg-3 col-md-4 col-sm-6 mb-4" key={index}>
-                                    <div className="wishlist-card-modern">
-                                        <button
-                                            onClick={() => removeFromWishlist(itemId)}
-                                            className="wishlist-remove-btn"
-                                            disabled={removing[itemId]}
-                                            title="Retirer de la wishlist"
-                                        >
-                                            {removing[itemId] ? (
-                                                <span className="spinner-border spinner-border-sm"></span>
-                                            ) : (
-                                                <AiFillHeart />
-                                            )}
-                                        </button>
+                            {safeWishlistState.map((item, index) => {
+                                // Vérifications de sécurité
+                                if (!item) return null;
+                                const product = item.product || item;
+                                if (!product) return null;
 
-                                        <Link to={`/product/${item?.slug || itemId}`} className="wishlist-image-link">
-                                            <div className="wishlist-image-container">
-                                                <img
-                                                    src={imageUrl}
-                                                    alt={item?.title}
-                                                    className="wishlist-product-image"
-                                                    onError={(e) => {
-                                                        e.target.src = '/images/default-product.jpg';
-                                                    }}
-                                                />
-                                                <div className="wishlist-image-overlay">
-                                                    <span>Voir le produit</span>
+                                // Récupérer les images normalisées du backend
+                                let images = product.images;
+                                
+                                // 🔄 Parser JSON si c'est une string
+                                if (typeof images === 'string') {
+                                  const trimmed = images.trim();
+                                  if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+                                    try {
+                                      images = JSON.parse(trimmed);
+                                    } catch (e) {
+                                      console.warn('⚠️ Failed to parse wishlist images:', e.message);
+                                    }
+                                  }
+                                }
+                                
+                                let imageUrl = null;
+
+                                // Extraire la première image valide
+                                if (Array.isArray(images) && images.length > 0) {
+                                    const firstImage = images[0];
+                                    if (typeof firstImage === 'string') {
+                                        imageUrl = firstImage;
+                                    } else if (firstImage && typeof firstImage === 'object') {
+                                        // Priorité: url > path > public_id
+                                        imageUrl = firstImage.url || firstImage.path || firstImage.public_id;
+                                    }
+                                }
+                                
+                                // Vérifier que l'URL est valide
+                                const showImage = !!imageUrl && 
+                                                typeof imageUrl === 'string' && 
+                                                imageUrl.trim() !== '' && 
+                                                !imageUrl.includes('default-product') &&
+                                                imageUrl !== 'null' &&
+                                                imageUrl !== 'undefined';
+
+                                const productTitle = product.title || 'Produit sans nom';
+                                const productPrice = product.price || 0;
+                                const productId = product.id || product.id;
+
+                                return (
+                                    <div className="col-md-6 col-lg-4 mb-4" key={`wishlist-item-${productId}-${index}`}>
+                                        <div className="wishlist-card">
+                                            <div className="wishlist-card-header">
+                                                <Link 
+                                                    to={`/product/${productId}`}
+                                                    className="wishlist-image-link"
+                                                >
+                                                    {showImage ? (
+                                                        <img 
+                                                            src={imageUrl}
+                                                            alt={productTitle}
+                                                            className="wishlist-product-image"
+                                                            loading="lazy"
+                                                            onError={(e) => {
+                                                                e.target.style.display = 'none';
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <div className="wishlist-no-image">
+                                                            <FiShoppingBag />
+                                                        </div>
+                                                    )}
+                                                </Link>
+                                                <button
+                                                    onClick={() => removeFromWishlist(productId)}
+                                                    className="wishlist-remove-btn"
+                                                    disabled={removing[productId]}
+                                                    aria-label="Retirer de la wishlist"
+                                                >
+                                                    <AiFillHeart className="heart-icon" />
+                                                </button>
+                                            </div>
+
+                                            <div className="wishlist-card-body">
+                                                <div className="product-brand">{product.brand || 'Sans marque'}</div>
+                                                <Link 
+                                                    to={`/product/${productId}`}
+                                                    className="wishlist-product-link"
+                                                >
+                                                    <h3 className="wishlist-product-title">{productTitle}</h3>
+                                                </Link>
+
+                                                {product.totalrating && (
+                                                    <div className="product-rating">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            i < Math.floor(product.totalrating) ? 
+                                                                <AiFillStar key={i} className="star-filled" /> : 
+                                                                <AiOutlineStar key={i} className="star-empty" />
+                                                        ))}
+                                                        <span className="rating-count">({product.totalrating})</span>
+                                                    </div>
+                                                )}
+
+                                                <div className="wishlist-card-footer">
+                                                    <div className="product-price">
+                                                        {productPrice.toFixed(2)} DT
+                                                    </div>
+                                                    <button
+                                                        onClick={() => addToCartFromWishlist(item)}
+                                                        className="btn-add-to-cart"
+                                                        disabled={adding[productId]}
+                                                    >
+                                                        <AiOutlineShoppingCart />
+                                                        <span>{adding[productId] ? 'Ajout...' : 'Ajouter'}</span>
+                                                    </button>
                                                 </div>
                                             </div>
-                                        </Link>
-
-                                        <div className="wishlist-card-body">
-                                            <Link to={`/product/${item?.slug || itemId}`} className="wishlist-product-link">
-                                                <h3 className="wishlist-product-title" title={item?.title}>
-                                                    {item?.title}
-                                                </h3>
-                                            </Link>
-                                            
-                                            {item?.brand && (
-                                                <p className="wishlist-product-brand">{item.brand}</p>
-                                            )}
-                                            
-                                            <div className="wishlist-price-section">
-                                                <span className="wishlist-price">
-                                                    {item?.price?.toFixed(2)} TND
-                                                </span>
-                                                {item?.oldPrice && (
-                                                    <span className="wishlist-old-price">
-                                                        {item.oldPrice.toFixed(2)} TND
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            <button 
-                                                className="btn-add-to-cart-wishlist"
-                                                onClick={() => addToCartFromWishlist(item)}
-                                                disabled={adding[itemId]}
-                                            >
-                                                {adding[itemId] ? (
-                                                    <>
-                                                        <span className="spinner-border spinner-border-sm me-2"></span>
-                                                        Ajout...
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <AiOutlineShoppingCart />
-                                                        <span>Ajouter au panier</span>
-                                                    </>
-                                                )}
-                                            </button>
                                         </div>
                                     </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
                         </div>
                     </>
                 )}

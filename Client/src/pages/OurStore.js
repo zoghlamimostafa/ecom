@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import BrandCrumb from '../components/BrandCrumb';
 import Meta from '../components/Meta';
 import SEOEnhancer from '../components/SEOEnhancer';
@@ -13,12 +14,29 @@ import './OurStore.css';
 const OurStore = () => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
+    const location = useLocation();
     const productState = useSelector((state) => state?.product?.product);
     
     const [gridView, setGridView] = useState(true);
     const [sort, setSort] = useState('-createdAt');
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilters, setActiveFilters] = useState({});
+
+    // Récupérer le paramètre category de l'URL
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const categoryParam = searchParams.get('category');
+        
+        if (categoryParam) {
+            console.log('🔍 Paramètre URL détecté - category:', categoryParam);
+            
+            // Ajouter la catégorie aux filtres actifs
+            setActiveFilters(prevFilters => ({
+                ...prevFilters,
+                categories: [parseInt(categoryParam)]
+            }));
+        }
+    }, [location.search]);
 
     useEffect(() => {
         dispatch(getAllProducts());
@@ -50,7 +68,17 @@ const OurStore = () => {
         }
 
         if (filters.categories && filters.categories.length > 0) {
-            filtered = filtered.filter(p => filters.categories.includes(p.category));
+            filtered = filtered.filter(p => {
+                // Convertir en string pour comparaison fiable
+                const productCategory = p.category ? p.category.toString() : '';
+                const productSubcategory = p.subcategory ? p.subcategory.toString() : '';
+                
+                // Vérifier catégorie principale OU sous-catégorie
+                return filters.categories.some(catId => {
+                    const catIdStr = catId ? catId.toString() : '';
+                    return productCategory === catIdStr || productSubcategory === catIdStr;
+                });
+            });
         }
 
         if (filters.colors && filters.colors.length > 0) {
@@ -167,21 +195,6 @@ const OurStore = () => {
                                     <span className="results-count">
                                         {filteredProducts.length} {t('productsFound') || 'produits trouvés'}
                                     </span>
-                                    <div className="sort-dropdown">
-                                        <FaSort style={{ marginRight: '8px', color: '#6c757d' }} />
-                                        <select 
-                                            value={sort} 
-                                            onChange={(e) => setSort(e.target.value)}
-                                            className="sort-select"
-                                        >
-                                            <option value="-createdAt">{t('newest') || 'Plus récents'}</option>
-                                            <option value="createdAt">{t('oldest') || 'Plus anciens'}</option>
-                                            <option value="title">{t('alphabeticalAZ') || 'A-Z'}</option>
-                                            <option value="-title">{t('alphabeticalZA') || 'Z-A'}</option>
-                                            <option value="price">{t('priceAscending') || 'Prix croissant'}</option>
-                                            <option value="-price">{t('priceDescending') || 'Prix décroissant'}</option>
-                                        </select>
-                                    </div>
                                 </div>
                             </div>
 
