@@ -797,8 +797,16 @@ module.exports = {
 
   // Créer une commande depuis le panier
   createOrder: asyncHandler(async (req, res) => {
-    const { _id } = req.user;
+    const userId = req.user?.id; // Sequelize utilise 'id', pas '_id'
     const { shippingInfo, paymentInfo } = req.body;
+
+    if (!userId) {
+      console.error('❌ ID utilisateur manquant dans req.user');
+      return res.status(400).json({
+        success: false,
+        message: "ID utilisateur invalide"
+      });
+    }
 
     try {
       // Validation des données de livraison
@@ -811,7 +819,7 @@ module.exports = {
 
       // Récupérer le panier de l'utilisateur
       const cartItems = await Cart.findAll({
-        where: { userId: _id },
+        where: { userId: userId },
         include: [
           {
             model: Product,
@@ -858,7 +866,7 @@ module.exports = {
 
       // Créer la commande
       const order = await Order.create({
-        userId: _id,
+        userId: userId,
         shippingInfo,
         paymentInfo: paymentInfo || { method: 'COD' },
         totalPrice,
@@ -888,7 +896,7 @@ module.exports = {
       }
 
       // Vider le panier
-      await Cart.destroy({ where: { userId: _id } });
+      await Cart.destroy({ where: { userId: userId } });
 
       // Récupérer la commande complète avec les items
       const completeOrder = await Order.findByPk(order.id, {
