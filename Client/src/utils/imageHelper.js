@@ -7,7 +7,7 @@
  * @returns {String} - URL de l'image ou image par défaut
  */
 export const getProductImageUrl = (images, index = 0) => {
-  const BACKEND_URL = process.env.REACT_APP_API_URL || 'http://74.235.205.26:4000';
+  const BACKEND_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
   const defaultImage = '/images/default-product.jpg';
   if (!images) return defaultImage;
 
@@ -66,7 +66,7 @@ export const getProductImageUrl = (images, index = 0) => {
  * @returns {Array} - Tableau d'URLs
  */
 export const getAllProductImageUrls = (images) => {
-  const BACKEND_URL = process.env.REACT_APP_API_URL || 'http://74.235.205.26:4000';
+  const BACKEND_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
   const defaultImage = '/images/default-product.jpg';
   
   if (!images) {
