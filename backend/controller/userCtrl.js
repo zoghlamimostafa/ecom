@@ -800,6 +800,9 @@ module.exports = {
     const userId = req.user?.id; // Sequelize utilise 'id', pas '_id'
     const { shippingInfo, paymentInfo } = req.body;
 
+    console.log('📦 Données reçues pour createOrder:', JSON.stringify(req.body, null, 2));
+    console.log('📋 shippingInfo:', JSON.stringify(shippingInfo, null, 2));
+
     if (!userId) {
       console.error('❌ ID utilisateur manquant dans req.user');
       return res.status(400).json({
@@ -811,6 +814,7 @@ module.exports = {
     try {
       // Validation des données de livraison
       if (!shippingInfo || !shippingInfo.firstName || !shippingInfo.address || !shippingInfo.city) {
+        console.error('❌ Validation échouée - shippingInfo incomplet:', shippingInfo);
         return res.status(400).json({
           success: false,
           message: "Informations de livraison incomplètes"

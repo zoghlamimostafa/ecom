@@ -14,7 +14,8 @@ const shippingSchema = yup.object({
     lastName: yup.string().required("Le nom de famille est requis"),
     address: yup.string().required("L'adresse est requise"),
     city: yup.string().required("La ville est requise"),
-    zipcode: yup.string().required("Le code postal est requis"),
+    state: yup.string().required("La région est requise"),
+    pincode: yup.string().required("Le code postal est requis"),
 });
 
 const Checkout = () => {
@@ -55,7 +56,8 @@ const Checkout = () => {
             lastName: '',
             address: '',
             city: '',
-            zipcode: '',
+            state: '',
+            pincode: '',
         },
         validationSchema: shippingSchema,
         onSubmit: (values) => {
@@ -169,16 +171,30 @@ const Checkout = () => {
                                         </div>
                                         
                                         <div className="col-md-6">
-                                            <label htmlFor="zipcode" className="form-label">Code Postal *</label>
+                                            <label htmlFor="state" className="form-label">Région / État *</label>
                                             <input 
                                                 type="text" 
-                                                id="zipcode" 
-                                                name="zipcode" 
-                                                className={`form-control ${formik.touched.zipcode && formik.errors.zipcode ? 'is-invalid' : ''}`}
-                                                {...formik.getFieldProps('zipcode')} 
+                                                id="state" 
+                                                name="state" 
+                                                className={`form-control ${formik.touched.state && formik.errors.state ? 'is-invalid' : ''}`}
+                                                {...formik.getFieldProps('state')} 
                                             />
-                                            {formik.touched.zipcode && formik.errors.zipcode && (
-                                                <div className="invalid-feedback">{formik.errors.zipcode}</div>
+                                            {formik.touched.state && formik.errors.state && (
+                                                <div className="invalid-feedback">{formik.errors.state}</div>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="col-md-6">
+                                            <label htmlFor="pincode" className="form-label">Code Postal *</label>
+                                            <input 
+                                                type="text" 
+                                                id="pincode" 
+                                                name="pincode" 
+                                                className={`form-control ${formik.touched.pincode && formik.errors.pincode ? 'is-invalid' : ''}`}
+                                                {...formik.getFieldProps('pincode')} 
+                                            />
+                                            {formik.touched.pincode && formik.errors.pincode && (
+                                                <div className="invalid-feedback">{formik.errors.pincode}</div>
                                             )}
                                         </div>
                                     </div>

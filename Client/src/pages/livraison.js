@@ -26,8 +26,6 @@ const DeliveryAddressPage = () => {
     other: ""
   });
 
-  const [orderCreated, setOrderCreated] = useState(false);
-
   useEffect(() => {
     if (user && user.address) {
       try {
@@ -76,56 +74,53 @@ const DeliveryAddressPage = () => {
       return;
     }
 
-    // Appel de l'action Redux pour enregistrer l'adresse
+    // Créer la commande directement avec les bonnes données
+    const orderData = {
+      shippingInfo: {
+        firstName: address.firstName,
+        lastName: address.lastName,
+        address: address.address,
+        city: address.city,
+        state: address.state,
+        pincode: address.pincode,
+        country: address.country || "Tunisie",
+        other: address.other || ""
+      },
+      paymentInfo: {
+        method: 'COD'
+      }
+    };
+
+    console.log('📦 Envoi des données de commande:', JSON.stringify(orderData, null, 2));
+
+    // Sauvegarder aussi l'adresse pour future utilisation
     dispatch(saveUserAddress(address));
+
+    // Créer la commande
+    dispatch(createNewOrder(orderData))
+      .then((response) => {
+        if (response.meta.requestStatus === 'fulfilled') {
+          toast.success("Commande créée avec succès !");
+          setTimeout(() => {
+            navigate("/my-orders");
+          }, 2000);
+        } else if (response.error) {
+          console.error("Order creation failed:", response.error);
+          toast.error(response.error.message || "Un problème est survenu lors de la création de la commande");
+        }
+      })
+      .catch((error) => {
+        console.error("Order creation failed:", error);
+        toast.error("Un problème est survenu lors de la création de la commande");
+      });
   };
 
   useEffect(() => {
-    if (isSuccess && !orderCreated) {
-      toast.success("Adresse enregistrée avec succès !");
-      
-      // Create order after address is saved successfully
-      const orderData = {
-        shippingInfo: {
-          firstName: address.firstName,
-          lastName: address.lastName,
-          address: address.address,
-          city: address.city,
-          state: address.state,
-          pincode: address.pincode,
-          country: address.country,
-          other: address.other || ""
-        },
-        paymentInfo: {
-          method: 'COD'
-        }
-      };
-      
-      dispatch(createNewOrder(orderData))
-        .then((response) => {
-          if (response.meta.requestStatus === 'fulfilled') {
-            setOrderCreated(true);
-            toast.success("Commande créée avec succès !");
-            
-            // Navigate to order confirmation or success page
-            setTimeout(() => {
-              navigate("/my-orders"); // Rediriger vers la page des commandes
-            }, 2000);
-          } else if (response.error) {
-            console.error("Order creation failed:", response.error);
-            toast.error(response.error.message || "Un problème est survenu lors de la création de la commande");
-          }
-        })
-        .catch((error) => {
-          console.error("Order creation failed:", error);
-          toast.error("Un problème est survenu lors de la création de la commande");
-        });
-    }
-    
+    // Afficher les messages d'erreur si la sauvegarde de l'adresse échoue
     if (isError) {
-      toast.error(message || "Une erreur est survenue lors de l'enregistrement de l'adresse.");
+      toast.error(message || "Une erreur est survenue.");
     }
-  }, [isSuccess, isError, message, dispatch, navigate, orderCreated, address]);
+  }, [isError, message]);
 
   return (
     <div className="payment-container">
