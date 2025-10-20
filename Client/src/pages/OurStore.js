@@ -22,10 +22,11 @@ const OurStore = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilters, setActiveFilters] = useState({});
 
-    // Récupérer le paramètre category de l'URL
+    // Récupérer les paramètres category et search de l'URL
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const categoryParam = searchParams.get('category');
+        const searchParam = searchParams.get('search');
         
         if (categoryParam) {
             console.log('🔍 Paramètre URL détecté - category:', categoryParam);
@@ -35,6 +36,11 @@ const OurStore = () => {
                 ...prevFilters,
                 categories: [parseInt(categoryParam)]
             }));
+        }
+        
+        if (searchParam) {
+            console.log('🔍 Paramètre URL détecté - search:', searchParam);
+            setSearchTerm(searchParam);
         }
     }, [location.search]);
 

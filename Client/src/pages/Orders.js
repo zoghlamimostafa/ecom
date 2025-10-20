@@ -8,19 +8,24 @@ const PageMesCommandes = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Utiliser userSlice au lieu d'ordersSlice
-  const { orders, isLoading, isError, message } = useSelector((state) => state.auth);
+  // Récupérer depuis state.auth pour user et state.user pour orders
   const { user } = useSelector((state) => state.auth);
+  const { orders, loading, error } = useSelector((state) => state.user);
+  
+  // Alias pour compatibilité avec le code existant
+  const isLoading = loading;
+  const isError = !!error;
+  const message = error;
 
   useEffect(() => {
     // Vérifier que l'utilisateur est connecté
     if (!user || !user.token) {
-      console.log('Utilisateur non connecté, redirection vers login');
+      console.log('❌ Utilisateur non connecté, redirection vers login');
       navigate('/login');
       return;
     }
 
-    console.log('Récupération des commandes pour l\'utilisateur connecté');
+    console.log('✅ Récupération des commandes pour l\'utilisateur:', user.id);
     dispatch(getOrders());
   }, [dispatch, user, navigate]);
 
