@@ -1,21 +1,22 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Container, Table, Spinner, Alert, Button } from 'react-bootstrap';
-import { getOrders } from '../features/user/userSlice'; // Utiliser userSlice au lieu d'ordersSlice
+import { fetchOrders } from '../features/user/ordersSlice'; // Utiliser ordersSlice
 import { useNavigate } from 'react-router-dom';
 
 const PageMesCommandes = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Récupérer depuis state.auth pour user et state.user pour orders
+  // Récupérer depuis state.auth pour user et state.orders pour orders
   const { user } = useSelector((state) => state.auth);
-  const { orders, loading, error } = useSelector((state) => state.user);
+  const ordersState = useSelector((state) => state.orders);
   
-  // Alias pour compatibilité avec le code existant
-  const isLoading = loading;
-  const isError = !!error;
-  const message = error;
+  // Extraire avec valeurs par défaut pour éviter undefined
+  const orders = ordersState?.orders || [];
+  const isLoading = ordersState?.loading || false;
+  const isError = ordersState?.error ? true : false;
+  const message = ordersState?.error || '';
 
   useEffect(() => {
     // Vérifier que l'utilisateur est connecté
@@ -26,7 +27,7 @@ const PageMesCommandes = () => {
     }
 
     console.log('✅ Récupération des commandes pour l\'utilisateur:', user.id);
-    dispatch(getOrders());
+    dispatch(fetchOrders());
   }, [dispatch, user, navigate]);
 
   // Gestion de l'erreur d'authentification
@@ -64,7 +65,7 @@ const PageMesCommandes = () => {
           </small>
           <div className="mt-3">
             <Button 
-              onClick={() => dispatch(getOrders())} 
+              onClick={() => dispatch(fetchOrders())} 
               variant="outline-primary" 
               size="sm"
               className="me-2"
