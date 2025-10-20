@@ -1,0 +1,41 @@
+{
+  "timestamp": "2025-10-20T15:30:35.302Z",
+  "general": {
+    "users": 44,
+    "products": 4,
+    "categories": 387,
+    "brands": 72,
+    "colors": 15,
+    "carts": 3,
+    "wishlists": 2,
+    "orders": 0,
+    "orderItems": 0,
+    "ratings": 0,
+    "dbSizeKB": "0.00"
+  },
+  "indexes": {
+    "total": 12,
+    "missing": 5
+  },
+  "images": {
+    "totalProducts": 4,
+    "withImages": 0,
+    "withoutImages": 4,
+    "totalImages": 0,
+    "cloudinaryImages": 0,
+    "localImages": 0,
+    "hardcodedUrls": 0,
+    "invalidImages": 0,
+    "imagesByProduct": {
+      "40": 0,
+      "41": 0,
+      "43": 0,
+      "44": 0
+    }
+  },
+  "integrity": {
+    "issues": [],
+    "count": 0,
+    "error": "User is not associated to Cart!"
+  }
+}
