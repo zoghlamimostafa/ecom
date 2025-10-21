@@ -1,0 +1,485 @@
+/* ============================================
+   ADMIN RESPONSIVE STYLES - MOBILE FIRST
+   ============================================ */
+
+/* Variables pour les breakpoints */
+:root {
+  --mobile-max: 768px;
+  --tablet-max: 1024px;
+  --sidebar-width-collapsed: 80px;
+  --sidebar-width-expanded: 200px;
+}
+
+/* ============================================
+   MOBILE STYLES (< 768px)
+   ============================================ */
+
+@media (max-width: 768px) {
+  
+  /* Layout général */
+  .ant-layout {
+    overflow-x: hidden;
+  }
+
+  /* Sidebar */
+  .ant-layout-sider {
+    position: fixed !important;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+  }
+
+  .ant-layout-sider-collapsed {
+    transform: translateX(-100%);
+  }
+
+  /* Overlay pour fermer le menu */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+  }
+
+  .sidebar-overlay.active {
+    display: block;
+  }
+
+  /* Layout principal */
+  .site-layout {
+    margin-left: 0 !important;
+  }
+
+  /* Header mobile */
+  .ant-layout-header {
+    padding: 0 16px !important;
+    height: 56px;
+    line-height: 56px;
+  }
+
+  .trigger {
+    font-size: 20px;
+    padding: 0 16px;
+  }
+
+  /* Logo dans sidebar */
+  .text-center.py-3 {
+    padding: 12px 0 !important;
+  }
+
+  .lg-logo {
+    font-size: 18px !important;
+  }
+
+  /* Menu items */
+  .ant-menu-item,
+  .ant-menu-submenu-title {
+    padding: 0 16px !important;
+    height: 48px;
+    line-height: 48px;
+  }
+
+  .ant-menu-item .fs-4,
+  .ant-menu-submenu-title .fs-4 {
+    font-size: 18px !important;
+  }
+
+  /* Content */
+  .ant-layout-content {
+    margin: 16px 8px !important;
+    padding: 16px !important;
+  }
+
+  /* Title */
+  .title {
+    font-size: 22px !important;
+  }
+
+  .sub-title {
+    font-size: 18px !important;
+  }
+
+  /* Tables */
+  .ant-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .ant-table {
+    min-width: 800px;
+  }
+
+  .ant-table-thead > tr > th {
+    padding: 12px 8px !important;
+    font-size: 13px;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 12px 8px !important;
+    font-size: 13px;
+  }
+
+  /* Forms */
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+
+  .ant-input,
+  .ant-select-selector,
+  .ant-picker {
+    font-size: 14px !important;
+  }
+
+  /* Buttons */
+  .ant-btn {
+    height: 40px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+
+  /* Cards */
+  .ant-card {
+    margin-bottom: 16px;
+  }
+
+  .ant-card-body {
+    padding: 16px;
+  }
+
+  /* Dashboard cards */
+  .row.g-3 {
+    margin: 0 -8px;
+  }
+
+  .row.g-3 > [class*='col-'] {
+    padding: 0 8px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card {
+    padding: 16px !important;
+  }
+
+  .stat-value {
+    font-size: 24px !important;
+  }
+
+  .stat-label {
+    font-size: 11px !important;
+  }
+
+  .stat-icon {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 20px !important;
+  }
+
+  /* Dropdown header */
+  .d-flex.gap-3,
+  .d-flex.gap-4 {
+    gap: 8px !important;
+  }
+
+  /* Modal */
+  .ant-modal {
+    max-width: calc(100vw - 32px);
+    margin: 16px auto;
+  }
+
+  .ant-modal-body {
+    padding: 16px;
+  }
+
+  /* Upload images */
+  .dropzone {
+    padding: 16px !important;
+  }
+
+  /* Image preview */
+  .uploaded-images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  /* Quill editor */
+  .quill {
+    font-size: 14px;
+  }
+
+  .ql-editor {
+    min-height: 200px;
+  }
+
+  /* Toast notifications */
+  .Toastify__toast-container {
+    width: calc(100vw - 32px);
+    left: 16px;
+    right: 16px;
+    margin: 0 auto;
+  }
+
+  /* Product list actions */
+  .fs-3 {
+    font-size: 20px !important;
+  }
+
+  /* Collapse submenu text on mobile */
+  .ant-menu-submenu-title {
+    white-space: normal;
+    height: auto !important;
+    line-height: 1.4;
+    padding: 12px 16px !important;
+  }
+
+  /* Hide long text in tables */
+  .ant-table-tbody > tr > td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+  }
+
+  /* Product image in list */
+  .ant-table img {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  /* Pagination */
+  .ant-pagination {
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  .ant-pagination-item,
+  .ant-pagination-prev,
+  .ant-pagination-next {
+    min-width: 32px;
+    height: 32px;
+    line-height: 30px;
+    margin-right: 4px;
+  }
+}
+
+/* ============================================
+   TABLET STYLES (768px - 1024px)
+   ============================================ */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  
+  /* Sidebar */
+  .ant-layout-sider {
+    width: 180px !important;
+    max-width: 180px !important;
+    min-width: 180px !important;
+  }
+
+  .ant-layout-sider-collapsed {
+    width: 60px !important;
+    max-width: 60px !important;
+    min-width: 60px !important;
+  }
+
+  /* Content */
+  .ant-layout-content {
+    margin: 20px 12px !important;
+    padding: 20px !important;
+  }
+
+  /* Tables */
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 14px 10px !important;
+  }
+
+  /* Dashboard cards */
+  .stat-card {
+    padding: 20px !important;
+  }
+
+  .stat-value {
+    font-size: 28px !important;
+  }
+}
+
+/* ============================================
+   LANDSCAPE MODE (MOBILE)
+   ============================================ */
+
+@media (max-width: 768px) and (orientation: landscape) {
+  
+  /* Reduce header height */
+  .ant-layout-header {
+    height: 48px;
+    line-height: 48px;
+  }
+
+  /* Sidebar */
+  .ant-layout-sider {
+    width: 180px !important;
+  }
+
+  /* Menu items smaller */
+  .ant-menu-item,
+  .ant-menu-submenu-title {
+    height: 40px;
+    line-height: 40px;
+  }
+
+  /* Content */
+  .ant-layout-content {
+    margin: 12px 8px !important;
+    padding: 12px !important;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Hide on mobile */
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+/* Show only on mobile */
+.show-mobile {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .show-mobile {
+    display: block !important;
+  }
+}
+
+/* Responsive text */
+@media (max-width: 768px) {
+  .text-responsive {
+    font-size: 14px !important;
+  }
+}
+
+/* Responsive spacing */
+@media (max-width: 768px) {
+  .p-responsive {
+    padding: 12px !important;
+  }
+
+  .m-responsive {
+    margin: 12px !important;
+  }
+}
+
+/* ============================================
+   SCROLLBAR CUSTOM
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Thin scrollbar for mobile */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+/* ============================================
+   TOUCH IMPROVEMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  
+  /* Bigger touch targets */
+  .ant-btn,
+  .ant-menu-item,
+  .ant-menu-submenu-title,
+  a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Remove hover effects on touch devices */
+  .ant-menu-item:hover,
+  .ant-menu-submenu-title:hover {
+    background-color: transparent;
+  }
+
+  /* Active state for touch */
+  .ant-menu-item:active,
+  .ant-menu-submenu-title:active {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .ant-layout-sider,
+  .ant-layout-header,
+  .trigger,
+  .ant-pagination {
+    display: none !important;
+  }
+
+  .ant-layout-content {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .ant-table {
+    font-size: 10pt;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Focus visible for keyboard navigation */
+@media (max-width: 768px) {
+  *:focus-visible {
+    outline: 2px solid #1890ff;
+    outline-offset: 2px;
+  }
+
+  /* Skip to content link */
+  .skip-to-content {
+    position: absolute;
+    left: -9999px;
+    z-index: 999;
+    padding: 12px;
+    background: #1890ff;
+    color: white;
+    text-decoration: none;
+  }
+
+  .skip-to-content:focus {
+    left: 50%;
+    transform: translateX(-50%);
+    top: 16px;
+  }
+}

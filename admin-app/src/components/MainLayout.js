@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BgColorsOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import {
   AiOutlineDashboard,
@@ -35,12 +35,77 @@ const MainLayout = () => {
  }
 
   const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+
+  // Constante pour le breakpoint mobile
+  const MOBILE_BREAKPOINT = 768;
+
+  // Détection de la taille d'écran et gestion du collapse automatique
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      const mobile = width < MOBILE_BREAKPOINT;
+      setIsMobile(mobile);
+      
+      // Auto-collapse sur mobile
+      if (mobile) {
+        setCollapsed(true);
+      }
+    };
+
+    // Appel initial
+    handleResize();
+
+    // Écouter les changements de taille
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Toggle sidebar avec gestion mobile
+  const toggleSidebar = () => {
+    setCollapsed(!collapsed);
+  };
   return (
     <Layout /* onContextMenu={(e) => e.preventDefault()} */>
-      <Sider  trigger={null} collapsible collapsed={collapsed}>
+      {/* Overlay pour fermer le menu sur mobile */}
+      {isMobile && !collapsed && (
+        <div 
+          className="sidebar-overlay active" 
+          onClick={toggleSidebar}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 999
+          }}
+        />
+      )}
+      
+      <Sider 
+        trigger={null} 
+        collapsible 
+        collapsed={collapsed}
+        breakpoint="lg"
+        collapsedWidth={isMobile ? 0 : 80}
+        width={isMobile ? 250 : 200}
+        style={isMobile ? {
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 1000,
+          transform: collapsed ? 'translateX(-100%)' : 'translateX(0)',
+          transition: 'transform 0.3s ease'
+        } : {}}
+      >
           <h2 className="text-white fs-5 text-center py-3 mb-0">
             <span className="lg-logo">Admin</span>
           </h2>
@@ -185,11 +250,11 @@ const MainLayout = () => {
           ]}
         />
       </Sider>
-      <Layout className="site-layout">
+      <Layout className="site-layout" style={isMobile ? { marginLeft: 0 } : {}}>
         <Header
           className="d-flex justify-content-between ps-1 pe-5"
           style={{
-            padding: 0,
+            padding: isMobile ? '0 16px' : 0,
             background: colorBgContainer,
           }}
         >
@@ -197,7 +262,7 @@ const MainLayout = () => {
             collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,
             {
               className: "trigger",
-              onClick: () => setCollapsed(!collapsed),
+              onClick: toggleSidebar,
             }
           )}
           <div className="d-flex gap-4 align-items-center">
@@ -221,8 +286,8 @@ const MainLayout = () => {
         </Header>
         <Content
           style={{
-            margin: "24px 16px",
-            padding: 24,
+            margin: isMobile ? "16px 8px" : "24px 16px",
+            padding: isMobile ? 16 : 24,
             minHeight: 280,
             background: colorBgContainer,
           }}
