@@ -52,14 +52,30 @@ const Signup = () => {
       confirmPassword: "",
     },
     validationSchema: signupSchema,
-    onSubmit: (values) => {
+    validateOnChange: true,
+    validateOnBlur: true,
+    onSubmit: (values, { setSubmitting }) => {
+      console.log('📝 Signup - Soumission du formulaire avec valeurs:', values);
+      
+      // Validation supplémentaire avant soumission
+      if (!values.firstname || !values.lastname || !values.email || !values.mobile || !values.password || !values.confirmPassword) {
+        toast.error('Veuillez remplir tous les champs obligatoires');
+        setSubmitting(false);
+        return;
+      }
+
       const { confirmPassword, ...formData } = values;
+      console.log('✅ Signup - Envoi des données:', formData);
       dispatch(registerUser(formData));
+      setSubmitting(false);
     },
   });
 
   useEffect(() => {
+    console.log('📊 Signup - État:', { isSuccess, isError, errorMessage });
+    
     if (isSuccess) {
+      console.log('✅ Signup - Succès détecté');
       setShowSuccessMessage(true);
       toast.success('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
       setTimeout(() => {
@@ -67,6 +83,7 @@ const Signup = () => {
       }, 2000);
     }
     if (isError) {
+      console.log('❌ Signup - Erreur détectée:', errorMessage);
       toast.error(errorMessage || 'Erreur lors de la création du compte. Veuillez réessayer.');
     }
   }, [isSuccess, isError, errorMessage, navigate]);
@@ -233,7 +250,11 @@ const Signup = () => {
               </div>
             </div>
 
-            <button type="submit" className="modern-signup-btn" disabled={isLoading}>
+            <button 
+              type="submit" 
+              className="modern-signup-btn" 
+              disabled={isLoading || !formik.isValid || !formik.dirty}
+            >
               <i className="fas fa-user-plus"></i>
               {isLoading ? t('creatingAccount') : t('createAccount')}
             </button>

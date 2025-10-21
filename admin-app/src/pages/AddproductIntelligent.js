@@ -26,8 +26,8 @@ import {
   StarOutlined
 } from '@ant-design/icons';
 import Dropzone from "react-dropzone";
-import { delImg, uploadImg } from "../features/upload/uploadSlice";
-import { createProducts, getProduct, updateProduct, resetState } from "../features/product/productSlice";
+import { delImg, uploadImg, resetUploadState } from "../features/upload/uploadSlice";
+import { createProducts, updateProduct, resetState, getProduct } from "../features/product/productSlice";
 import './AddproductIntelligent.css';
 
 const { Panel } = Collapse;
@@ -123,6 +123,7 @@ const AddproductIntelligent = () => {
       toast.success("✅ Produit ajouté avec succès !");
       setTimeout(() => {
         dispatch(resetState());
+        dispatch(resetUploadState());  // Reset images après succès
         navigate('/admin/list-product');
       }, 2000);
     }
@@ -130,6 +131,7 @@ const AddproductIntelligent = () => {
       toast.success("✅ Produit mis à jour avec succès !");
       setTimeout(() => {
         dispatch(resetState());
+        dispatch(resetUploadState());  // Reset images après succès
         navigate('/admin/list-product');
         setIsUpdating(false);
       }, 1500);
@@ -140,6 +142,14 @@ const AddproductIntelligent = () => {
       setIsUpdating(false);
     }
   }, [isSuccess, isError, isLoading, createdProduct, isEdit, navigate, isUpdating, dispatch, newProduct.message]);
+  
+  // Cleanup: Reset upload state quand on quitte la page
+  useEffect(() => {
+    return () => {
+      console.log("🧹 Nettoyage du composant - reset upload state");
+      dispatch(resetUploadState());
+    };
+  }, [dispatch]);
   
   const colorOptions = colorState.map((color) => ({
     label: color.title,

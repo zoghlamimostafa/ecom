@@ -153,41 +153,12 @@ const Cart = () => {
                       const product = item.product || item.productId;
                       if (!product) return null;
                       
-                      // Récupérer les images - priorité: item.images > product.images
-                      let images = item.images || product.images;
+                      // Utiliser le helper d'images pour obtenir l'URL correcte
+                      const images = item.images || product.images;
+                      const imageUrl = getProductImageUrl(images);
                       
-                      // 🔄 Parser JSON si c'est une string
-                      if (typeof images === 'string') {
-                        const trimmed = images.trim();
-                        if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-                          try {
-                            images = JSON.parse(trimmed);
-                          } catch (e) {
-                            console.warn('⚠️ Failed to parse cart item images:', e.message);
-                          }
-                        }
-                      }
-                      
-                      let imageUrl = null;
-                      
-                      // Extraire la première image valide
-                      if (Array.isArray(images) && images.length > 0) {
-                        const firstImage = images[0];
-                        if (typeof firstImage === 'string') {
-                          imageUrl = firstImage;
-                        } else if (firstImage && typeof firstImage === 'object') {
-                          // Priorité: url > path > public_id
-                          imageUrl = firstImage.url || firstImage.path || firstImage.public_id;
-                        }
-                      }
-                      
-                      // Vérifier que l'URL est valide et n'est pas l'image par défaut
-                      const showImage = !!imageUrl && 
-                                       typeof imageUrl === 'string' && 
-                                       imageUrl.trim() !== '' && 
-                                       !imageUrl.includes('default-product') &&
-                                       imageUrl !== 'null' &&
-                                       imageUrl !== 'undefined';
+                      // Vérifier si c'est l'image par défaut
+                      const showImage = imageUrl && !imageUrl.includes('default-product');
                       
                       const productTitle = product.title || 'Produit sans nom';
                       const productPrice = item.price || product.price || 0;

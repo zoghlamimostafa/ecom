@@ -7,6 +7,7 @@ const getUserfromLocalStorage = localStorage.getItem("user")
 const initialState = {
   user: getUserfromLocalStorage,
   orders: [],
+  singleOrder: null,
   isError: false,
   isLoading: false,
   isSuccess: false,
@@ -45,12 +46,27 @@ export const getOrderByUser = createAsyncThunk(
   }
 );
 
+export const getSingleOrder = createAsyncThunk(
+  "order/get-single-order",
+  async (id, thunkAPI) => {
+    try {
+      console.log('📋 Redux - getSingleOrder appelé pour ID:', id);
+      return await authService.getSingleOrder(id);
+    } catch (error) {
+      console.error('❌ Redux - Erreur getSingleOrder:', error);
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const updateOrderStatus = createAsyncThunk(
   "order/update-status",
   async ({ orderId, status }, thunkAPI) => {
     try {
+      console.log('🔄 Redux - updateOrderStatus appelé:', { orderId, status });
       return await authService.updateOrderStatus(orderId, status);
     } catch (error) {
+      console.error('❌ Redux - Erreur updateOrderStatus:', error);
       return thunkAPI.rejectWithValue(error);
     }
   }
@@ -60,8 +76,10 @@ export const deleteOrder = createAsyncThunk(
   "order/delete-order",
   async (orderId, thunkAPI) => {
     try {
+      console.log('🗑️ Redux - deleteOrder appelé:', orderId);
       return await authService.deleteOrder(orderId);
     } catch (error) {
+      console.error('❌ Redux - Erreur deleteOrder:', error);
       return thunkAPI.rejectWithValue(error);
     }
   }
@@ -121,6 +139,24 @@ export const authSlice = createSlice({
         state.isSuccess = false;
         state.message = action.error;
         state.isLoading = false;
+      })
+      .addCase(getSingleOrder.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getSingleOrder.fulfilled, (state, action) => {
+        state.isError = false;
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.singleOrder = action.payload;
+        state.message = "success";
+        console.log('✅ Redux - Commande chargée dans state:', action.payload);
+      })
+      .addCase(getSingleOrder.rejected, (state, action) => {
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+        state.isLoading = false;
+        console.error('❌ Redux - Échec chargement commande');
       })
       .addCase(updateOrderStatus.pending, (state) => {
         state.isLoading = true;

@@ -12,17 +12,23 @@ const getOrders = async () => {
   try {
     const response = await axios.get(`${base_url}user/getallorders`, getConfig());
     
-    // Ensure we always return an array
-    if (response.data && Array.isArray(response.data.data)) {
+    console.log('📦 Admin - Réponse getAllOrders:', response.data);
+    
+    // Le backend retourne { success: true, count: X, orders: [...] }
+    if (response.data && Array.isArray(response.data.orders)) {
+      console.log('✅ Admin - Commandes trouvées:', response.data.count);
+      return response.data.orders;
+    } else if (response.data && Array.isArray(response.data.data)) {
+      // Fallback pour ancien format
       return response.data.data;
     } else if (Array.isArray(response.data)) {
       return response.data;
     } else {
-      console.warn('Orders API returned unexpected data structure:', response.data);
+      console.warn('⚠️ Admin - Structure de données inattendue:', response.data);
       return [];
     }
   } catch (error) {
-    console.error('Error fetching orders:', error);
+    console.error('❌ Admin - Erreur récupération commandes:', error);
     throw error;
   }
 };

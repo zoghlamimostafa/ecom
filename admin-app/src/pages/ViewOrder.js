@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { BiEdit } from "react-icons/bi";
 import { AiFillDelete } from "react-icons/ai";
 import { Link, useLocation } from "react-router-dom";
-import { getOrderByUser, getOrders } from "../features/auth/authSlice";
+import { getSingleOrder } from "../features/auth/authSlice";
 
 const columns = [
   {
@@ -43,14 +43,15 @@ const columns = [
 
 const ViewOrder = () => {
   const location = useLocation();
-  const userId = location.pathname.split("/")[3];
+  const orderId = location.pathname.split("/")[3];  // Maintenant nommé correctement
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getOrderByUser(userId));
-  }, [dispatch, userId]);
+    console.log('📋 ViewOrder - Chargement commande ID:', orderId);
+    dispatch(getSingleOrder(orderId));  // Utilise la nouvelle action
+  }, [dispatch, orderId]);
 
-  const orderState = useSelector((state) => state.auth.orderbyuser);
+  const orderState = useSelector((state) => state.auth.singleOrder);  // Lit le bon état
   // Fix: orderState is now a single order object, use orderItems field
   const orderProducts = orderState && orderState.orderItems;
 
@@ -66,7 +67,7 @@ const ViewOrder = () => {
         brand: orderProducts[i].product?.brand || "N/A", 
         count: orderProducts[i].quantity || 0,
         amount: orderProducts[i].price || 0,
-        color: orderProducts[i].color?.title || "N/A",
+        color: orderProducts[i].color || "N/A",  // color est une string simple
         date: orderProducts[i].product?.createdAt ? new Date(orderProducts[i].product.createdAt).toLocaleDateString() : "N/A",
         action: (
           <>

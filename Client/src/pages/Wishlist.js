@@ -9,10 +9,10 @@ import { AiFillHeart, AiOutlineShoppingCart, AiOutlineStar, AiFillStar } from 'r
 import { FiShoppingBag } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { getProductImageUrl } from '../utils/imageHelper';
 import './Wishlist.css';
 
 const Wishlist = () => {
-    const { t } = useTranslation();
     const dispatch = useDispatch();
     const [removing, setRemoving] = useState({});
     const [adding, setAdding] = useState({});
@@ -113,41 +113,9 @@ const Wishlist = () => {
                                 const product = item.product || item;
                                 if (!product) return null;
 
-                                // Récupérer les images normalisées du backend
-                                let images = product.images;
-                                
-                                // 🔄 Parser JSON si c'est une string
-                                if (typeof images === 'string') {
-                                  const trimmed = images.trim();
-                                  if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-                                    try {
-                                      images = JSON.parse(trimmed);
-                                    } catch (e) {
-                                      console.warn('⚠️ Failed to parse wishlist images:', e.message);
-                                    }
-                                  }
-                                }
-                                
-                                let imageUrl = null;
-
-                                // Extraire la première image valide
-                                if (Array.isArray(images) && images.length > 0) {
-                                    const firstImage = images[0];
-                                    if (typeof firstImage === 'string') {
-                                        imageUrl = firstImage;
-                                    } else if (firstImage && typeof firstImage === 'object') {
-                                        // Priorité: url > path > public_id
-                                        imageUrl = firstImage.url || firstImage.path || firstImage.public_id;
-                                    }
-                                }
-                                
-                                // Vérifier que l'URL est valide
-                                const showImage = !!imageUrl && 
-                                                typeof imageUrl === 'string' && 
-                                                imageUrl.trim() !== '' && 
-                                                !imageUrl.includes('default-product') &&
-                                                imageUrl !== 'null' &&
-                                                imageUrl !== 'undefined';
+                                // Utiliser le helper d'images (comme dans Cart)
+                                const imageUrl = getProductImageUrl(product.images);
+                                const showImage = !!imageUrl;
 
                                 const productTitle = product.title || 'Produit sans nom';
                                 const productPrice = product.price || 0;

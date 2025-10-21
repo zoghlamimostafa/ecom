@@ -6,6 +6,28 @@ import { useDispatch, useSelector } from "react-redux";
 import { getProducts, deleteProduct, resetState } from "../features/product/productSlice";
 import { Link } from "react-router-dom";
 import CustomModal from "../components/CustomModel";
+import { getProductImageUrl } from "../utils/imageHelper";
+
+// Helper pour obtenir l'URL complète de l'image
+const getFullImageUrl = (imageUrl) => {
+  if (!imageUrl) return null;
+  
+  // Si c'est déjà une URL complète (Cloudinary, etc.)
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl;
+  }
+  
+  // Si c'est un chemin relatif, ajouter l'URL du backend
+  if (imageUrl.startsWith('/')) {
+    const hostname = window.location.hostname;
+    const backendUrl = (hostname !== 'localhost' && hostname !== '127.0.0.1') 
+      ? `http://${hostname}:4000`
+      : 'http://localhost:4000';
+    return `${backendUrl}${imageUrl}`;
+  }
+  
+  return imageUrl;
+};
 
 const columns = [
   {
@@ -16,12 +38,20 @@ const columns = [
     title: "Image",
     dataIndex: "image",
     render: (images) => {
+      console.log('🖼️ Render image column:', images);
       if (images && images.length > 0) {
+        const fullImageUrl = getFullImageUrl(images[0]);
+        console.log('🖼️ Full image URL:', fullImageUrl);
         return (
           <img 
-            src={images[0]} 
+            src={fullImageUrl} 
             alt="Product" 
             style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }}
+            onError={(e) => {
+              console.error('❌ Erreur chargement image:', fullImageUrl);
+              e.target.style.display = 'none';
+              e.target.parentElement.innerHTML = '<div style="width: 50px; height: 50px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 12px; color: #666;">Erreur</div>';
+            }}
           />
         );
       }
@@ -174,14 +204,11 @@ const Productlist = () => {
   const data = productState.products.map((product, index) => {
     const productId = product.id;
     
-    // Debug: Vérifier la structure des données produit
     console.log(`🔍 Produit ${index + 1}:`, {
       id: productId,
       title: product.title,
       images: product.images,
       imagesType: typeof product.images,
-      isImagesArray: Array.isArray(product.images),
-      imagesLength: product.images?.length
     });
     
     // Safe color processing avec parsing JSON
@@ -206,46 +233,17 @@ const Productlist = () => {
         }
       } catch (parseError) {
         console.warn(`⚠️ Erreur parsing couleurs pour produit ${product.title}:`, parseError);
-        // Si le parsing échoue, utiliser la valeur telle quelle
         colorDisplay = typeof product.color === 'string' ? product.color : 'N/A';
       }
     }
 
-    // Sécuriser le traitement des images avec parsing JSON
-    let imageUrls = [];
-    if (product.images) {
-      try {
-        let imagesData = product.images;
-        
-        // Si c'est un string JSON, le parser
-        if (typeof imagesData === 'string') {
-          imagesData = JSON.parse(imagesData);
-        }
-        
-        // Maintenant traiter comme un array
-        if (Array.isArray(imagesData)) {
-          imageUrls = imagesData
-            .map(img => {
-              if (typeof img === 'string') return img;
-              if (img && typeof img === 'object' && img.url) return img.url;
-              return null;
-            })
-            .filter(Boolean);
-        } else if (typeof imagesData === 'string') {
-          imageUrls = [imagesData];
-        }
-      } catch (parseError) {
-        console.warn(`⚠️ Erreur parsing images pour produit ${product.title}:`, parseError);
-        // Si le parsing échoue, essayer de traiter comme string simple
-        if (typeof product.images === 'string' && product.images.startsWith('http')) {
-          imageUrls = [product.images];
-        }
-      }
-    }
+    // Utiliser le helper pour extraire l'URL de l'image
+    const imageUrl = getProductImageUrl(product.images);
+    console.log(`🖼️ Image URL extraite pour ${product.title}:`, imageUrl);
 
     return {
       key: index + 1,
-      image: imageUrls,
+      image: imageUrl ? [imageUrl] : [],
       title: product.title || 'N/A',
       brand: formatFieldValue(product.brand, 'brand'),
       category: formatFieldValue(product.category, 'category'),

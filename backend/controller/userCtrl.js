@@ -1103,6 +1103,57 @@ module.exports = {
     }
   }),
 
+  // Récupérer une seule commande par son ID (admin)
+  getOrderById: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      console.log("📋 Admin - Récupération de la commande:", id);
+      
+      const order = await Order.findByPk(id, {
+        include: [
+          {
+            model: OrderItem,
+            as: 'orderItems',
+            include: [
+              {
+                model: Product,
+                as: 'product',
+                attributes: ['id', 'title', 'price', 'images', 'slug', 'brand', 'createdAt']
+              }
+            ]
+          }
+        ]
+      });
+
+      if (!order) {
+        console.log("❌ Commande non trouvée:", id);
+        return res.status(404).json({
+          success: false,
+          message: "Commande non trouvée"
+        });
+      }
+
+      console.log("✅ Commande récupérée:", {
+        orderId: order.id,
+        userId: order.userId,
+        itemsCount: order.orderItems?.length || 0
+      });
+
+      res.json({
+        success: true,
+        order
+      });
+    } catch (error) {
+      console.error("❌ Erreur lors de la récupération de la commande:", error);
+      res.status(500).json({
+        success: false,
+        message: "Erreur lors de la récupération de la commande",
+        error: error.message
+      });
+    }
+  }),
+
   forgotPasswordToken: () => { throw new Error('Function not implemented yet'); },
   getUserProductWishlist,
   getUserCart,

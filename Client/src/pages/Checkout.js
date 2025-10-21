@@ -21,7 +21,13 @@ const shippingSchema = yup.object({
 const Checkout = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card');
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('cod');
+    const [cardInfo, setCardInfo] = useState({
+        cardNumber: '',
+        cardName: '',
+        expiryDate: '',
+        cvv: ''
+    });
     
     const cartState = useSelector(state => state.auth.cartProducts);
     const buyNowItem = useSelector(state => state.auth.buyNowItem);
@@ -61,6 +67,26 @@ const Checkout = () => {
         },
         validationSchema: shippingSchema,
         onSubmit: (values) => {
+            // Validation de la carte bancaire si sélectionnée
+            if (selectedPaymentMethod === 'card') {
+                if (!cardInfo.cardNumber || !cardInfo.cardName || !cardInfo.expiryDate || !cardInfo.cvv) {
+                    alert('Veuillez remplir toutes les informations de la carte bancaire');
+                    return;
+                }
+                
+                // Validation basique du numéro de carte (16 chiffres)
+                if (cardInfo.cardNumber.replace(/\s/g, '').length !== 16) {
+                    alert('Le numéro de carte doit contenir 16 chiffres');
+                    return;
+                }
+                
+                // Validation CVV (3 ou 4 chiffres)
+                if (cardInfo.cvv.length < 3 || cardInfo.cvv.length > 4) {
+                    alert('Le CVV doit contenir 3 ou 4 chiffres');
+                    return;
+                }
+            }
+            
             const orderData = {
                 shippingInfo: values,
                 orderItems: itemsToDisplay,
@@ -69,7 +95,11 @@ const Checkout = () => {
                 totalPrice: totalPrice,
                 paymentInfo: {
                     method: selectedPaymentMethod,
-                    status: "Payé",
+                    status: selectedPaymentMethod === 'card' ? "Payé" : "En attente",
+                    ...(selectedPaymentMethod === 'card' && {
+                        cardLastFour: cardInfo.cardNumber.slice(-4),
+                        cardName: cardInfo.cardName
+                    })
                 }
             };
             dispatch(createOrder(orderData));
@@ -235,6 +265,91 @@ const Checkout = () => {
                                         <span className="payment-badge recommended">Recommandé</span>
                                     </label>
                                 </div>
+                                
+                                {/* Formulaire de carte bancaire (affiché si carte sélectionnée) */}
+                                {selectedPaymentMethod === 'card' && (
+                                    <div className="card-form-section mt-4">
+                                        <h6 className="card-form-title">
+                                            <span className="lock-icon">🔒</span>
+                                            Informations de la carte bancaire
+                                        </h6>
+                                        <div className="row g-3">
+                                            <div className="col-12">
+                                                <label htmlFor="cardNumber" className="form-label">Numéro de carte *</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="cardNumber" 
+                                                    className="form-control card-input"
+                                                    placeholder="1234 5678 9012 3456"
+                                                    maxLength="19"
+                                                    value={cardInfo.cardNumber}
+                                                    onChange={(e) => {
+                                                        // Formater le numéro de carte avec des espaces tous les 4 chiffres
+                                                        let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+                                                        let formatted = value.match(/.{1,4}/g)?.join(' ') || value;
+                                                        setCardInfo({...cardInfo, cardNumber: formatted});
+                                                    }}
+                                                />
+                                                <small className="text-muted">
+                                                    <i className="fas fa-shield-alt"></i> Paiement 100% sécurisé
+                                                </small>
+                                            </div>
+                                            
+                                            <div className="col-12">
+                                                <label htmlFor="cardName" className="form-label">Nom sur la carte *</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="cardName" 
+                                                    className="form-control card-input"
+                                                    placeholder="JEAN DUPONT"
+                                                    value={cardInfo.cardName}
+                                                    onChange={(e) => setCardInfo({...cardInfo, cardName: e.target.value.toUpperCase()})}
+                                                />
+                                            </div>
+                                            
+                                            <div className="col-md-6">
+                                                <label htmlFor="expiryDate" className="form-label">Date d'expiration *</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="expiryDate" 
+                                                    className="form-control card-input"
+                                                    placeholder="MM/AA"
+                                                    maxLength="5"
+                                                    value={cardInfo.expiryDate}
+                                                    onChange={(e) => {
+                                                        let value = e.target.value.replace(/\D/g, '');
+                                                        if (value.length >= 2) {
+                                                            value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                                                        }
+                                                        setCardInfo({...cardInfo, expiryDate: value});
+                                                    }}
+                                                />
+                                            </div>
+                                            
+                                            <div className="col-md-6">
+                                                <label htmlFor="cvv" className="form-label">CVV *</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="cvv" 
+                                                    className="form-control card-input"
+                                                    placeholder="123"
+                                                    maxLength="4"
+                                                    value={cardInfo.cvv}
+                                                    onChange={(e) => {
+                                                        let value = e.target.value.replace(/\D/g, '');
+                                                        setCardInfo({...cardInfo, cvv: value});
+                                                    }}
+                                                />
+                                                <small className="text-muted">3 chiffres au dos</small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="secure-payment-notice mt-3">
+                                            <i className="fas fa-lock"></i>
+                                            <span>Vos informations bancaires sont cryptées et sécurisées</span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

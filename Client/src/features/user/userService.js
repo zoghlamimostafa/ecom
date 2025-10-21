@@ -88,12 +88,53 @@ export const config = {
 // Fonction pour enregistrer un utilisateur
 const register = async (userData) => {
   try {
+    // Validation des données avant envoi
+    console.log('📝 userService.register - Données reçues:', userData);
+    
+    if (!userData || typeof userData !== 'object') {
+      throw new Error('Données utilisateur invalides');
+    }
+    
+    const { firstname, lastname, email, mobile, password } = userData;
+    
+    // Vérification que tous les champs obligatoires sont présents et non vides
+    if (!firstname || firstname.trim() === '') {
+      throw new Error('Le prénom est obligatoire');
+    }
+    if (!lastname || lastname.trim() === '') {
+      throw new Error('Le nom est obligatoire');
+    }
+    if (!email || email.trim() === '') {
+      throw new Error('L\'email est obligatoire');
+    }
+    if (!password || password.trim() === '') {
+      throw new Error('Le mot de passe est obligatoire');
+    }
+    if (!mobile || mobile.trim() === '') {
+      throw new Error('Le numéro de téléphone est obligatoire');
+    }
+    
+    // Validation format email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new Error('Format d\'email invalide');
+    }
+    
+    // Validation longueur mot de passe
+    if (password.length < 6) {
+      throw new Error('Le mot de passe doit contenir au moins 6 caractères');
+    }
+    
+    console.log('✅ userService.register - Validation réussie, envoi des données');
+    
     const response = await axios.post(`${base_url}user/register`, userData);
     if (response.data) {
+      console.log('✅ userService.register - Réponse reçue:', response.data);
       localStorage.setItem("user", JSON.stringify(response.data));
       return response.data;
     }
   } catch (error) {
+    console.error('❌ userService.register - Erreur:', error);
     handleAxiosError(error, "Échec de l'inscription");
   }
 };
@@ -250,7 +291,7 @@ const logout = async () => {
     
     // Try to call backend logout endpoint
     try {
-      const response = await axios.get(`${base_url}user/logout`);
+      await axios.get(`${base_url}user/logout`);
       return { success: true, message: "Déconnexion réussie" };
     } catch (apiError) {
       // Even if API call fails, logout is still successful since we cleared localStorage

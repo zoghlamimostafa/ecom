@@ -39,13 +39,14 @@ const Header = () => {
 
     // Charger les produits si pas déjà chargés
     useEffect(() => {
-        if (!productState || productState.length === 0) {
-            console.log('📦 Chargement des produits depuis Header...');
+        // Vérifier si les produits ne sont pas déjà chargés ou en cours de chargement
+        if (!productState || !Array.isArray(productState) || productState.length === 0) {
+            console.log('📦 Header: Chargement des produits...');
             dispatch(getAllProducts());
         } else {
-            console.log('✅ Produits déjà chargés:', productState.length);
+            console.log('✅ Header: Produits déjà chargés:', productState.length);
         }
-    }, [dispatch, productState]);
+    }, [dispatch]);
 
     // Charger les catégories
     useEffect(() => {

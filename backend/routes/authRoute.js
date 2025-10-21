@@ -26,6 +26,7 @@ const {
     updateOrderStatus,
     deleteOrder,
     getOrderByUserId,
+    getOrderById,
     updatedUser
 } = require("../controller/userCtrl");
 
@@ -321,6 +322,9 @@ router.get("/getmyorders", authMiddleware, getMyOrders);
 
 // Get specific order by user ID (for admin viewing order details)
 router.post("/getorderbyuser/:id", authMiddleware, getOrderByUserId);
+
+// Get specific order by order ID (for admin viewing single order)
+router.get("/getorder/:id", authMiddleware, getOrderById);
 
 // Create order from cart
 router.post("/cart/create-order", authMiddleware, createOrder);

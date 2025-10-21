@@ -26,7 +26,7 @@ import Couponlist from "./pages/Couponlist";
 import AddCoupon from "./pages/AddCoupon";
 import ViewEnq from "./pages/ViewEnq";
 import ViewOrder from "./pages/ViewOrder";
-import  Dashbord from "./pages/Dashbord";
+import Dashboard from "./pages/Dashboard";
 import CreateAdmin from "./pages/CreateAdmin";
 import AddUser from "./pages/AddUser";
 import EditUser from "./pages/EditUser";
@@ -43,15 +43,15 @@ function App() {
           <Route path="/create-admin" element={<OpenRoutes><CreateAdmin /></OpenRoutes>} />
           <Route path="/reset-password" element={<OpenRoutes><Resetpassword /></OpenRoutes>} />
           <Route path="/forgot-password" element={<OpenRoutes><Forgotpassword /></OpenRoutes>} />
-          <Route path="/admin" element={<><MainLayout /></>}>
-            <Route index element={<><Dashbord /></>} />
+          <Route path="/admin" element={<MainLayout />}>
+            <Route index element={<Dashboard />} />
             <Route path="diagnostic" element={<DiagnosticTest />} />
-            <Route path="enquiries" element={<><Enquiries /></>} />
+            <Route path="enquiries" element={<Enquiries />} />
             <Route path="enquiries/:id" element={<PrivateRoutes><ViewEnq /></PrivateRoutes>} />
             <Route path="blog-list" element={<PrivateRoutes><Bloglist /></PrivateRoutes>} />
             <Route path="blog" element={<PrivateRoutes><Addblog /></PrivateRoutes>} />
             <Route path="blog/:id" element={<PrivateRoutes><Addblog /></PrivateRoutes>} />
-            <Route path="coupon-list" element={<><Couponlist /></>} />
+            <Route path="coupon-list" element={<Couponlist />} />
             <Route path="coupon" element={<AddCoupon />} />
             <Route path="coupon/:id" element={<AddCoupon />} />
             <Route path="blog-category-list" element={<Blogcatlist />} />

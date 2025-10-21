@@ -18,6 +18,14 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
   
   // Récupérer tous les produits depuis Redux
   const allProducts = useSelector(state => state?.product?.product) || products;
+  
+  // Debug: vérifier les produits disponibles
+  useEffect(() => {
+    console.log('🔍 SearchBar - Produits disponibles:', allProducts?.length || 0);
+    if (allProducts && allProducts.length > 0) {
+      console.log('✅ Premier produit:', allProducts[0]?.title);
+    }
+  }, [allProducts]);
 
   // Charger les catégories depuis l'API
   useEffect(() => {
@@ -181,10 +189,18 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
   useEffect(() => {
     if (searchTerm.trim().length > 0) {
       const searchLower = searchTerm.toLowerCase();
-      const searchWords = searchLower.split(/\s+/);
+      const searchWords = searchLower.split(/\s+/).filter(w => w.length > 0);
       
-      console.log('🔍 Recherche:', searchLower);
-      console.log('📦 Produits disponibles:', allProducts?.length || 0);
+      console.log('🔍 Recherche active:', searchLower);
+      console.log('📦 Produits disponibles pour recherche:', allProducts?.length || 0);
+      
+      if (!allProducts || allProducts.length === 0) {
+        console.warn('⚠️ Aucun produit disponible pour la recherche');
+        setSuggestions([]);
+        setShowSuggestions(true); // Afficher quand même le message "Aucun résultat"
+        setShowPopularKeywords(false);
+        return;
+      }
       
       // Recherche dans les produits avec mots-clés générés et scoring
       const filtered = allProducts.map(product => {
@@ -197,7 +213,7 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
         const titleLower = product.title?.toLowerCase() || '';
         if (titleLower === searchLower) score += 100;
         else if (titleLower.includes(searchLower)) score += 50;
-        else if (searchWords.every(word => titleLower.includes(word))) score += 30;
+        else if (searchWords.length > 0 && searchWords.every(word => titleLower.includes(word))) score += 30;
         
         // Recherche dans la description
         const descLower = product.description?.toLowerCase() || '';
@@ -241,9 +257,9 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
       .slice(0, 8)
       .map(item => item.product);
       
-      console.log('✅ Résultats trouvés:', filtered.length);
+      console.log('✅ Résultats filtrés:', filtered.length);
       if (filtered.length > 0) {
-        console.log('Premier produit:', filtered[0].title);
+        console.log('🎯 Premier résultat:', filtered[0].title, '(score le plus élevé)');
       }
       
       setSuggestions(filtered);
