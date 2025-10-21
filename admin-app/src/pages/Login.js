@@ -80,13 +80,13 @@ const Login = () => {
     }
   }, [user, isError, isSuccess, isLoading]);
   return (
-    <div className="py-5" style={{  minHeight: "100vh" }}>
+    <div className="py-5 login-page" style={{ minHeight: "100vh" }}>
       <br />
       <br />
       <br />
       <br />
       <br />
-      <div className="my-5 w-25 bg-white rounded-3 mx-auto p-4">
+      <div className="my-5 login-container bg-white rounded-3 mx-auto p-4">
         <h3 className="text-center title">Se connecter</h3>
         <p className="text-center">Connectez-vous à votre compte pour continuer.</p>
         <div className="error text-center">

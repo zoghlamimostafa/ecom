@@ -11,6 +11,90 @@
 }
 
 /* ============================================
+   LOGIN PAGE RESPONSIVE
+   ============================================ */
+
+/* Desktop: 25% width */
+.login-container {
+  width: 25%;
+  max-width: 500px;
+  min-width: 350px;
+}
+
+/* Tablet: 50% width */
+@media (max-width: 1024px) {
+  .login-container {
+    width: 50%;
+    min-width: 300px;
+  }
+}
+
+/* Mobile: 90% width avec padding réduit */
+@media (max-width: 768px) {
+  .login-page {
+    padding: 20px 0 !important;
+  }
+
+  .login-page br {
+    display: none; /* Masquer les <br> inutiles sur mobile */
+  }
+
+  .login-container {
+    width: 90% !important;
+    max-width: 400px;
+    min-width: auto;
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+    padding: 24px 16px !important;
+  }
+
+  .login-container h3.title {
+    font-size: 24px !important;
+  }
+
+  .login-container p {
+    font-size: 14px !important;
+  }
+
+  .login-container .form-control {
+    font-size: 14px !important;
+    padding: 10px 12px !important;
+  }
+
+  .login-container button {
+    font-size: 16px !important;
+    padding: 12px 16px !important;
+  }
+
+  .login-container .alert {
+    font-size: 13px !important;
+    padding: 10px !important;
+  }
+
+  /* Boutons de diagnostic */
+  .login-container .btn {
+    font-size: 14px !important;
+    padding: 10px 12px !important;
+  }
+}
+
+/* Très petit mobile */
+@media (max-width: 375px) {
+  .login-container {
+    width: 95% !important;
+    padding: 20px 12px !important;
+  }
+
+  .login-container h3.title {
+    font-size: 20px !important;
+  }
+
+  .login-container p {
+    font-size: 13px !important;
+  }
+}
+
+/* ============================================
    MOBILE STYLES (< 768px)
    ============================================ */
 
