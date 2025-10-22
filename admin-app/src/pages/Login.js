@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CustomInput from "../components/CustomInput";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import { useFormik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
@@ -38,8 +38,6 @@ const Login = () => {
         password: 'admin123'
       });
       
-      console.log('Réponse API:', response.data);
-      
       if (response.data.token) {
         // Sauvegarder les données utilisateur
         localStorage.setItem('user', JSON.stringify(response.data));
@@ -54,7 +52,6 @@ const Login = () => {
         setTestResult("❌ Pas de token reçu");
       }
     } catch (error) {
-      console.error('Erreur connexion:', error);
       setTestResult(`❌ Connexion échouée: ${error.response?.data?.message || error.message}`);
     }
   };
@@ -78,7 +75,7 @@ const Login = () => {
     } else {
       navigate("");
     }
-  }, [user, isError, isSuccess, isLoading]);
+  }, [user, isError, isSuccess, isLoading, navigate]);
   return (
     <div className="py-5 login-page" style={{ minHeight: "100vh" }}>
       <br />
