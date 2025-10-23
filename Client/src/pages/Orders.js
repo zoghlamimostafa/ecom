@@ -3,14 +3,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrders } from '../features/user/ordersSlice';
 import { useNavigate } from 'react-router-dom';
 import { getProductImageUrl } from '../utils/imageHelper';
-import './Orders.css';
+import './Orders-minimalist.css';
 
 const PageMesCommandes = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [expandedOrders, setExpandedOrders] = useState({});
 
-  const { user } = useSelector((state) => state.auth);
+  const authState = useSelector((state) => state.auth);
+  const user = authState?.user;
+  const token = authState?.auth?.token || authState?.token; // Essayer les deux structures
   const ordersState = useSelector((state) => state.orders);
   
   const orders = ordersState?.orders || [];
@@ -19,15 +21,19 @@ const PageMesCommandes = () => {
   const message = ordersState?.error || '';
 
   useEffect(() => {
-    if (!user || !user.token) {
+    console.log('🔍 Auth state:', authState);
+    console.log('🔍 User:', user);
+    console.log('🔍 Token:', token);
+    
+    if (!user || !token) {
       console.log('❌ Utilisateur non connecté, redirection vers login');
       navigate('/login');
       return;
     }
 
-    console.log('✅ Récupération des commandes pour l\'utilisateur:', user.id);
+    console.log('✅ Récupération des commandes pour l\'utilisateur:', user._id || user.id);
     dispatch(fetchOrders());
-  }, [dispatch, user, navigate]);
+  }, [dispatch, user, token, navigate, authState]);
 
   const toggleOrderDetails = (orderId) => {
     setExpandedOrders(prev => ({
@@ -36,7 +42,7 @@ const PageMesCommandes = () => {
     }));
   };
 
-  if (!user || !user.token) {
+  if (!user || !token) {
     return (
       <div className="orders-container">
         <div className="orders-card">
@@ -155,51 +161,55 @@ const PageMesCommandes = () => {
                         
                         <div className="order-items">
                           {commande.orderItems && commande.orderItems.length > 0 ? (
-                            commande.orderItems.map((item, index) => (
-                              <div key={index} className="order-item">
-                                <div className="item-image">
-                                  {item.product?.images && item.product.images.length > 0 ? (
+                            commande.orderItems.map((item, index) => {
+                              // Récupérer les images du produit avec fallback
+                              const productImages = item.product?.images || item.images || [];
+                              const productTitle = item.product?.title || item.title || 'Produit indisponible';
+                              const imageUrl = getProductImageUrl(productImages);
+                              
+                              return (
+                                <div key={index} className="order-item">
+                                  <div className="item-image">
                                     <img 
-                                      src={getProductImageUrl(item.product.images[0])} 
-                                      alt={item.product.title}
+                                      src={imageUrl} 
+                                      alt={productTitle}
                                       onError={(e) => {
-                                        e.target.src = '/images/placeholder.png';
+                                        e.target.onerror = null;
+                                        e.target.src = '/images/default-product.jpg';
                                       }}
                                     />
-                                  ) : (
-                                    <div className="no-image">📦</div>
-                                  )}
-                                </div>
-                                
-                                <div className="item-details">
-                                  <h5 className="item-title">{item.product?.title || 'Produit indisponible'}</h5>
+                                  </div>
                                   
-                                  <div className="item-info-grid">
-                                    <div className="item-info-row">
-                                      <span className="item-label">Prix unitaire:</span>
-                                      <span className="item-value">{item.price} TND</span>
-                                    </div>
-                                    
-                                    <div className="item-info-row">
-                                      <span className="item-label">Quantité:</span>
-                                      <span className="item-value">×{item.quantity}</span>
-                                    </div>
-                                    
-                                    {item.color && (
+                                  <div className="item-details">
+                                    <h5 className="item-title">{productTitle}</h5>
+                                  
+                                    <div className="item-info-grid">
                                       <div className="item-info-row">
-                                        <span className="item-label">Couleur:</span>
-                                        <span className="item-value color-badge">{item.color}</span>
+                                        <span className="item-label">Prix unitaire:</span>
+                                        <span className="item-value">{item.price} TND</span>
                                       </div>
-                                    )}
-                                    
-                                    <div className="item-info-row">
-                                      <span className="item-label">Sous-total:</span>
-                                      <span className="item-value total">{(item.price * item.quantity).toFixed(2)} TND</span>
+                                      
+                                      <div className="item-info-row">
+                                        <span className="item-label">Quantité:</span>
+                                        <span className="item-value">×{item.quantity}</span>
+                                      </div>
+                                      
+                                      {item.color && (
+                                        <div className="item-info-row">
+                                          <span className="item-label">Couleur:</span>
+                                          <span className="item-value color-badge">{item.color}</span>
+                                        </div>
+                                      )}
+                                      
+                                      <div className="item-info-row">
+                                        <span className="item-label">Sous-total:</span>
+                                        <span className="item-value total">{(item.price * item.quantity).toFixed(2)} TND</span>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                            ))
+                              );
+                            })
                           ) : (
                             <p className="no-items">Aucun produit dans cette commande</p>
                           )}

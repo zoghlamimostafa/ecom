@@ -43,7 +43,7 @@ const Blogcatlist = () => {
   useEffect(() => {
     dispatch(resetState());
     dispatch(getCategories());
-  }, []);
+  }, [dispatch]);
   const bCatState = useSelector((state) => state.bCategory.bCategories);
   console.log(bCatState);
   const data1 = [];
@@ -77,8 +77,10 @@ const Blogcatlist = () => {
     }, 100);
   };
   return (
-    <div>
-      <h3 className="mb-4 title">Catégories du blog</h3>
+    <div className="admin-page-container">
+      <div className="page-header">
+        <h3>Catégories du Blog</h3>
+      </div>
       <div>
         <Table columns={columns} dataSource={data1} />
       </div>

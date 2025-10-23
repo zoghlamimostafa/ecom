@@ -26,6 +26,7 @@ const {
   logout,
   forgotPasswordToken,
   updatedUser,
+  updateProfile, // NEW: Profile update for authenticated user
   blockUser,
   unblockUser,
   deleteaUser,
@@ -43,7 +44,7 @@ router.post("/forgot-password", forgotPasswordToken);
 router.get("/logout", logout);
 
 // Routes utilisateur authentifié
-router.put("/profile", authMiddleware, updatedUser);
+router.put("/profile", authMiddleware, updateProfile); // Use updateProfile instead of updatedUser
 
 // ===== ROUTES ADMIN OPTIMISÉES =====
 

@@ -76,10 +76,20 @@ const Header = () => {
         };
     }, []);
 
-    const handleLogout = () => {
-        dispatch(logoutUser());
-        setIsUserMenuOpen(false);
-        navigate('/login');
+    const handleLogout = async () => {
+        try {
+            // Dispatch logout action
+            await dispatch(logoutUser()).unwrap();
+        } catch (error) {
+            console.log('Logout error handled:', error);
+        } finally {
+            // Force complete cleanup
+            localStorage.clear(); // Clear ALL localStorage data
+            sessionStorage.clear(); // Also clear sessionStorage
+            setIsUserMenuOpen(false);
+            // Force page reload to completely reset React state
+            window.location.href = '/login';
+        }
     };
 
     return (

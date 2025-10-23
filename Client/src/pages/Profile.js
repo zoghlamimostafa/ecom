@@ -1,17 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateProfile } from '../features/user/userSlice';
+import { updateProfile, resetUpdateState } from '../features/user/userSlice';
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../images/logosanny.png';
+import './Profile-Minimal.css';
 
 const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, isLoading, isError, errorMessage, isSuccess } = useSelector((state) => state.auth);
+  
+  // Utiliser state.user qui contient l'objet user extrait
+  const userState = useSelector((state) => state.auth);
+  const user = userState?.user;
+  const isLoading = userState?.isLoading;
+  const isError = userState?.isError;
+  const errorMessage = userState?.errorMessage;
+  const isSuccess = userState?.isSuccess;
+  
   const [isEditing, setIsEditing] = useState(false);
+  const [userData, setUserData] = useState(null);
+
+  // Récupérer les données utilisateur depuis Redux
+  useEffect(() => {
+    console.log('🔍 Redux user:', user);
+    console.log('� Full userState:', userState);
+    
+    if (!user || Object.keys(user).length === 0) {
+      console.warn('⚠️ Pas de données utilisateur, redirection vers login');
+      navigate('/login');
+      return;
+    }
+    
+    console.log('✅ Setting user data:', user);
+    setUserData(user);
+  }, [user, navigate, userState]);
 
   // Schema de validation pour la mise à jour du profil
   const profileSchema = yup.object({
@@ -24,39 +49,70 @@ const Profile = () => {
   // Formik pour la mise à jour du profil
   const profileFormik = useFormik({
     initialValues: {
-      firstname: user?.firstname || '',
-      lastname: user?.lastname || '',
-      email: user?.email || '',
-      mobile: user?.mobile || '',
+      firstname: userData?.firstname || '',
+      lastname: userData?.lastname || '',
+      email: userData?.email || '',
+      mobile: userData?.mobile || '',
     },
     validationSchema: profileSchema,
     enableReinitialize: true,
-    onSubmit: (values) => {
-      dispatch(updateProfile(values));
-      setIsEditing(false);
+    onSubmit: async (values) => {
+      console.log('📤 Soumission du formulaire:', values);
+      try {
+        const result = await dispatch(updateProfile(values)).unwrap();
+        console.log('✅ Mise à jour réussie:', result);
+        
+        // Les données sont automatiquement mises à jour dans Redux et localStorage
+        // Le useEffect avec [user] comme dépendance rechargera userData automatiquement
+        
+        setIsEditing(false);
+        toast.success('Profil mis à jour avec succès !');
+      } catch (error) {
+        console.error('❌ Erreur lors de la mise à jour:', error);
+        toast.error(error?.message || 'Erreur lors de la mise à jour du profil');
+      }
     },
   });
 
   useEffect(() => {
-    // Si l'utilisateur n'est pas connecté, rediriger vers login
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-  }, [user, navigate]);
-
-  useEffect(() => {
     if (isSuccess && !isEditing) {
-      toast.success('Profil mis à jour avec succès !');
+      toast.success('✅ Profil mis à jour avec succès !', {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      
+      // Mettre à jour userData après succès
+      if (user) {
+        console.log('🔄 Updating userData with new user:', user);
+        setUserData(user);
+      }
+      
+      // Réinitialiser l'état de succès après 1 seconde
+      setTimeout(() => {
+        dispatch(resetUpdateState());
+      }, 1000);
     }
     if (isError) {
-      toast.error(errorMessage || 'Une erreur est survenue. Veuillez réessayer.');
+      toast.error(errorMessage || '❌ Une erreur est survenue. Veuillez réessayer.', {
+        position: "top-right",
+        autoClose: 4000,
+      });
+      
+      // Réinitialiser l'état d'erreur après 1 seconde
+      setTimeout(() => {
+        dispatch(resetUpdateState());
+      }, 1000);
     }
-  }, [isSuccess, isError, errorMessage, isEditing]);
+  }, [isSuccess, isError, errorMessage, isEditing, user, dispatch]);
 
-  // Si l'utilisateur n'est pas connecté, ne rien afficher (redirection en cours)
-  if (!user) {
-    return null;
+  // Si pas de données utilisateur, afficher un spinner
+  if (!userData) {
+    return (
+      <div className="profile-loading">
+        <div className="spinner"></div>
+        <p>Chargement de votre profil...</p>
+      </div>
+    );
   }
 
   return (
@@ -86,7 +142,7 @@ const Profile = () => {
                   <i className="fas fa-user"></i>
                   Prénom
                 </label>
-                <div className="profile-info-value">{user.firstname}</div>
+                <div className="profile-info-value">{userData.firstname || 'Non renseigné'}</div>
               </div>
 
               <div className="profile-info-item">
@@ -94,7 +150,7 @@ const Profile = () => {
                   <i className="fas fa-user"></i>
                   Nom
                 </label>
-                <div className="profile-info-value">{user.lastname}</div>
+                <div className="profile-info-value">{userData.lastname || 'Non renseigné'}</div>
               </div>
 
               <div className="profile-info-item">
@@ -102,7 +158,7 @@ const Profile = () => {
                   <i className="fas fa-envelope"></i>
                   Adresse Email
                 </label>
-                <div className="profile-info-value">{user.email}</div>
+                <div className="profile-info-value">{userData.email || 'Non renseigné'}</div>
               </div>
 
               <div className="profile-info-item">
@@ -110,7 +166,7 @@ const Profile = () => {
                   <i className="fas fa-phone"></i>
                   Téléphone
                 </label>
-                <div className="profile-info-value">{user.mobile || 'Non renseigné'}</div>
+                <div className="profile-info-value">{userData.mobile || 'Non renseigné'}</div>
               </div>
 
               <div className="profile-info-item">
@@ -119,9 +175,23 @@ const Profile = () => {
                   Membre depuis
                 </label>
                 <div className="profile-info-value">
-                  {user.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR') : 'Date inconnue'}
+                  {userData.createdAt ? new Date(userData.createdAt).toLocaleDateString('fr-FR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  }) : 'Date inconnue'}
                 </div>
               </div>
+
+              {userData.address && (
+                <div className="profile-info-item">
+                  <label className="modern-label">
+                    <i className="fas fa-map-marker-alt"></i>
+                    Adresse
+                  </label>
+                  <div className="profile-info-value">{userData.address}</div>
+                </div>
+              )}
             </div>
 
             <button 

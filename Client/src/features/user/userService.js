@@ -276,7 +276,7 @@ const updateProductFromCart = async (cartDetail) => {
 // Mettre à jour les informations de l'utilisateur
 const updateUser = async (data) => {
   try {
-    const response = await axios.put(`${base_url}user/edit-user`, data, getAuthConfig());
+    const response = await axios.put(`${base_url}user/profile`, data, getAuthConfig());
     return response.data;
   } catch (error) {
     handleAxiosError(error, "Échec de la mise à jour de l'utilisateur");
@@ -286,21 +286,23 @@ const updateUser = async (data) => {
 // Fonction de déconnexion
 const logout = async () => {
   try {
-    // Always remove localStorage first, even if API call fails
-    localStorage.removeItem("customer");
+    // Clear ALL localStorage data to ensure complete logout
+    localStorage.clear();
+    sessionStorage.clear();
     
     // Try to call backend logout endpoint
     try {
       await axios.get(`${base_url}user/logout`);
       return { success: true, message: "Déconnexion réussie" };
     } catch (apiError) {
-      // Even if API call fails, logout is still successful since we cleared localStorage
+      // Even if API call fails, logout is still successful since we cleared storage
       console.warn("Logout API call failed, but local logout successful:", apiError.message);
       return { success: true, message: "Déconnexion locale réussie" };
     }
   } catch (error) {
-    // Fallback: ensure localStorage is cleared
-    localStorage.removeItem("customer");
+    // Fallback: ensure everything is cleared
+    localStorage.clear();
+    sessionStorage.clear();
     console.error("Logout error:", error);
     return { success: true, message: "Déconnexion forcée" };
   }

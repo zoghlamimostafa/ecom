@@ -36,8 +36,27 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
             }
         } catch (error) {
             console.error("❌ Token verification error:", error.message);
-            console.error("❌ Error details:", error);
-            return res.status(401).json({ message: 'Token expired or invalid. Please log in again.' });
+            
+            // Différencier les types d'erreurs
+            if (error.name === 'TokenExpiredError') {
+                console.error("⏰ Token expired at:", error.expiredAt);
+                return res.status(401).json({ 
+                    message: 'Token expired. Please log in again.',
+                    expired: true,
+                    expiredAt: error.expiredAt
+                });
+            } else if (error.name === 'JsonWebTokenError') {
+                console.error("🔴 Invalid token:", error.message);
+                return res.status(401).json({ 
+                    message: 'Invalid token. Please log in again.',
+                    invalid: true
+                });
+            } else {
+                console.error("❌ Error details:", error);
+                return res.status(401).json({ 
+                    message: 'Authentication failed. Please log in again.'
+                });
+            }
         }
     } else {
         console.warn("❌ No authorization header or invalid format");

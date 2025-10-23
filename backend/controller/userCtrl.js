@@ -272,6 +272,73 @@ const updatedUser = asyncHandler(async (req, res) => {
   }
 });
 
+// UPDATE PROFILE - Mettre à jour le profil de l'utilisateur connecté
+const updateProfile = asyncHandler(async (req, res) => {
+  try {
+    // Get user ID from authenticated user (from authMiddleware)
+    // Pour MySQL/Sequelize, c'est 'id' et non '_id' (MongoDB)
+    const userId = req.user.id;
+    const { firstname, lastname, email, mobile } = req.body;
+    
+    console.log('📝 Update Profile - User ID:', userId);
+    console.log('📝 Update Profile - Data:', { firstname, lastname, email, mobile });
+
+    // Vérifier si l'utilisateur existe
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Utilisateur non trouvé"
+      });
+    }
+
+    // Vérifier si l'email est déjà utilisé par un autre utilisateur
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ 
+        where: { 
+          email: email,
+          id: { [Op.ne]: userId }
+        } 
+      });
+      
+      if (emailExists) {
+        return res.status(400).json({
+          success: false,
+          message: "Cet email est déjà utilisé par un autre utilisateur"
+        });
+      }
+    }
+
+    // Mettre à jour les données
+    const updateData = {};
+    if (firstname !== undefined) updateData.firstname = firstname;
+    if (lastname !== undefined) updateData.lastname = lastname;
+    if (email !== undefined) updateData.email = email;
+    if (mobile !== undefined) updateData.mobile = mobile;
+
+    await User.update(updateData, { where: { id: userId } });
+    
+    // Récupérer l'utilisateur mis à jour
+    const updatedUserData = await User.findByPk(userId, {
+      attributes: { exclude: ['password'] }
+    });
+
+    console.log('✅ Profile updated successfully');
+
+    res.json({
+      success: true,
+      message: "Profil mis à jour avec succès",
+      user: updatedUserData
+    });
+  } catch (error) {
+    console.error('❌ Error updating profile:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Erreur lors de la mise à jour du profil"
+    });
+  }
+});
+
 // DELETE - Supprimer un utilisateur
 const deleteaUser = asyncHandler(async (req, res) => {
   try {
@@ -621,6 +688,7 @@ module.exports = {
   getAllUser,
   getaUser,
   updatedUser,
+  updateProfile, // NEW: Profile update for authenticated user
   deleteaUser,
   loginUser,
   loginAdmin,
@@ -1154,7 +1222,98 @@ module.exports = {
     }
   }),
 
-  forgotPasswordToken: () => { throw new Error('Function not implemented yet'); },
+  forgotPasswordToken: asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    
+    try {
+      const user = await User.findOne({ where: { email } });
+      
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'Aucun utilisateur trouvé avec cet email'
+        });
+      }
+      
+      // Générer un token de réinitialisation sécurisé
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+      
+      // Sauvegarder le token hashé et l'expiration (1 heure)
+      user.passwordResetToken = hashedToken;
+      user.passwordResetExpires = Date.now() + 3600000; // 1 heure
+      await user.save();
+      
+      // URL de réinitialisation
+      const resetURL = `${process.env.BASE_URL || 'http://localhost:3000'}/reset-password/${resetToken}`;
+      
+      // Contenu de l'email
+      const emailContent = {
+        to: email,
+        subject: '🔐 Réinitialisation de votre mot de passe - Sanny Store',
+        text: `Bonjour ${user.firstname},\n\nVous avez demandé une réinitialisation de mot de passe.\n\nCliquez sur ce lien pour réinitialiser votre mot de passe :\n${resetURL}\n\nCe lien expire dans 1 heure.\n\nSi vous n'avez pas demandé cette réinitialisation, ignorez cet email.\n\nCordialement,\nL'équipe Sanny Store`,
+        htm: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <style>
+              body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              .header { background: linear-gradient(135deg, #FF7A00 0%, #FF9F40 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+              .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+              .button { display: inline-block; background: #FF7A00; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }
+              .button:hover { background: #FF9F40; }
+              .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>🔐 Réinitialisation de mot de passe</h1>
+              </div>
+              <div class="content">
+                <p>Bonjour <strong>${user.firstname}</strong>,</p>
+                <p>Vous avez demandé une réinitialisation de votre mot de passe pour votre compte Sanny Store.</p>
+                <p style="text-align: center;">
+                  <a href="${resetURL}" class="button">Réinitialiser mon mot de passe</a>
+                </p>
+                <p><strong>⚠️ Ce lien expire dans 1 heure.</strong></p>
+                <p>Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :</p>
+                <p style="word-break: break-all; color: #FF7A00;">${resetURL}</p>
+                <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+                  Si vous n'avez pas demandé cette réinitialisation, ignorez simplement cet email. Votre mot de passe restera inchangé.
+                </p>
+              </div>
+              <div class="footer">
+                <p>© 2025 Sanny Store - Tous droits réservés</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `
+      };
+      
+      // Envoyer l'email
+      await sendEmail(emailContent);
+      
+      console.log(`✅ Email de réinitialisation envoyé à ${email}`);
+      console.log(`🔑 Token (dev uniquement): ${resetToken}`);
+      
+      res.json({
+        success: true,
+        message: 'Un email de réinitialisation a été envoyé à votre adresse email. Vérifiez votre boîte de réception.'
+      });
+      
+    } catch (error) {
+      console.error('❌ Erreur forgotPasswordToken:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de l\'envoi de l\'email de réinitialisation. Veuillez réessayer.'
+      });
+    }
+  }),
+  
   getUserProductWishlist,
   getUserCart,
 };

@@ -76,6 +76,26 @@ const Customers = () => {
       dataIndex: "mobile",
     },
     {
+      title: "Rôle",
+      dataIndex: "role",
+      render: (text, record) => (
+        <Tag color={record.role === 'admin' ? 'purple' : 'blue'}>
+          {record.role === 'admin' ? 'ADMIN' : 'USER'}
+        </Tag>
+      ),
+      filters: [
+        {
+          text: 'Admin',
+          value: 'admin',
+        },
+        {
+          text: 'User',
+          value: 'user',
+        },
+      ],
+      onFilter: (value, record) => record.role === value,
+    },
+    {
       title: "Status",
       dataIndex: "status",
       render: (text, record) => (
@@ -133,7 +153,7 @@ const Customers = () => {
   
   // Filter and search functionality
   const filteredCustomers = customers ? customers.filter(customer => {
-    if (customer.role === "admin") return false;
+    // Afficher tous les utilisateurs (users ET admins)
     
     const matchesSearch = 
       `${customer.firstname} ${customer.lastname}`.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -154,6 +174,7 @@ const Customers = () => {
     name: `${customer.firstname} ${customer.lastname}`,
     email: customer.email,
     mobile: customer.mobile,
+    role: customer.role || 'user', // Ajouter le rôle
     isBlocked: customer.isBlocked,
   }));
 
@@ -184,43 +205,49 @@ const Customers = () => {
   }
 
   return (
-    <div>
-      <h3 className="mb-4 title">Customer Management</h3>
+    <div className="admin-page-container">
+      <div className="page-header">
+        <h3>Liste des Utilisateurs</h3>
+        <Button 
+          type="primary" 
+          icon={<UserOutlined />}
+          onClick={() => dispatch(getUsers())}
+          size="large"
+        >
+          Actualiser
+        </Button>
+      </div>
       
       {/* Search and Filter Controls */}
-      <Card style={{ marginBottom: 16 }}>
-        <Space size="middle" style={{ marginBottom: 16 }}>
+      <Card style={{ marginBottom: 24 }} bordered={false}>
+        <Space size="middle" style={{ marginBottom: 16, flexWrap: 'wrap' }}>
           <Search
-            placeholder="Search by name, email, or mobile"
+            placeholder="Rechercher par nom, email ou mobile"
             allowClear
             enterButton={<SearchOutlined />}
-            size="middle"
-            style={{ width: 300 }}
+            size="large"
+            style={{ width: 320 }}
             onChange={(e) => setSearchText(e.target.value)}
             onSearch={(value) => setSearchText(value)}
           />
           <Select
-            placeholder="Filter by status"
-            style={{ width: 150 }}
+            placeholder="Filtrer par statut"
+            size="large"
+            style={{ width: 170 }}
             value={statusFilter}
             onChange={setStatusFilter}
           >
-            <Option value="all">All Status</Option>
-            <Option value="active">Active Only</Option>
-            <Option value="blocked">Blocked Only</Option>
+            <Option value="all">Tous</Option>
+            <Option value="active">Actifs uniquement</Option>
+            <Option value="blocked">Bloqués uniquement</Option>
           </Select>
-          <Button 
-            type="primary" 
-            icon={<UserOutlined />}
-            onClick={() => dispatch(getUsers())}
-          >
-            Refresh
-          </Button>
         </Space>
         <div>
-          <Tag color="green">Active: {data1.filter(c => !c.isBlocked).length}</Tag>
-          <Tag color="red">Blocked: {data1.filter(c => c.isBlocked).length}</Tag>
-          <Tag color="blue">Total: {data1.length}</Tag>
+          <Tag color="purple">Admins: {data1.filter(c => c.role === 'admin').length}</Tag>
+          <Tag color="blue">Users: {data1.filter(c => c.role !== 'admin').length}</Tag>
+          <Tag color="green">Actifs: {data1.filter(c => !c.isBlocked).length}</Tag>
+          <Tag color="red">Bloqués: {data1.filter(c => c.isBlocked).length}</Tag>
+          <Tag color="orange">Total: {data1.length}</Tag>
         </div>
       </Card>
 
@@ -228,7 +255,7 @@ const Customers = () => {
         {isLoading ? (
           <div style={{ textAlign: 'center', padding: '50px' }}>
             <Spin size="large" />
-            <p style={{ marginTop: '10px' }}>Loading customers...</p>
+            <p style={{ marginTop: '10px' }}>Chargement des clients...</p>
           </div>
         ) : (
           <Table 
@@ -239,7 +266,7 @@ const Customers = () => {
               pageSize: 10,
               showSizeChanger: true,
               showQuickJumper: true,
-              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+              showTotal: (total, range) => `${range[0]}-${range[1]} sur ${total} éléments`,
             }}
             scroll={{ x: 800 }}
           />

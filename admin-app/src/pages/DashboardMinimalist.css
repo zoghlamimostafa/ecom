@@ -1,0 +1,210 @@
+/* Dashboard Minimaliste - Design Épuré */
+
+.dashboard-minimal {
+  padding: 24px;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.dashboard-header h2 {
+  color: #1a1a1a;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+/* Stats Cards - Design Minimaliste */
+.stat-card-minimal {
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #f0f0f0 !important;
+  overflow: hidden;
+  background: #ffffff !important;
+}
+
+.stat-card-minimal:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.stat-card-minimal .ant-card-body {
+  padding: 20px !important;
+}
+
+.stat-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  color: #8e8e93 !important;
+}
+
+.stat-value {
+  color: #1a1a1a !important;
+  font-weight: 700 !important;
+  font-size: 28px !important;
+  line-height: 1.2 !important;
+}
+
+.stat-trend {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #f5f5f5;
+}
+
+/* Recent Orders Card */
+.recent-orders-card {
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #f0f0f0 !important;
+}
+
+.recent-orders-card .ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 20px 24px;
+}
+
+.recent-orders-card .ant-card-body {
+  padding: 0 !important;
+}
+
+/* Table Minimaliste */
+.minimal-table {
+  border-radius: 0 !important;
+}
+
+.minimal-table .ant-table {
+  background: transparent;
+}
+
+.minimal-table .ant-table-thead > tr > th {
+  background: #fafafa !important;
+  border-bottom: 2px solid #f0f0f0 !important;
+  color: #8e8e93;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 16px 24px;
+}
+
+.minimal-table .ant-table-tbody > tr > td {
+  padding: 16px 24px;
+  border-bottom: 1px solid #f5f5f5;
+  color: #1a1a1a;
+  font-size: 14px;
+}
+
+.minimal-table .ant-table-tbody > tr:hover > td {
+  background: #fafafa !important;
+}
+
+.minimal-table .ant-table-tbody > tr:last-child > td {
+  border-bottom: none;
+}
+
+/* Tags */
+.minimal-table .ant-tag {
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+}
+
+/* Button */
+.dashboard-header .ant-btn {
+  border-radius: 8px;
+  height: 40px;
+  padding: 0 20px;
+  font-weight: 500;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
+}
+
+.dashboard-header .ant-btn:hover {
+  border-color: #ff6b35;
+  color: #ff6b35;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-minimal {
+    padding: 16px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .stat-value {
+    font-size: 24px !important;
+  }
+
+  .stat-card-minimal .ant-card-body {
+    padding: 16px !important;
+  }
+
+  .minimal-table .ant-table-thead > tr > th,
+  .minimal-table .ant-table-tbody > tr > td {
+    padding: 12px 16px;
+  }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stat-card-minimal {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.recent-orders-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Mini Charts Container */
+.stat-card-minimal .recharts-wrapper {
+  margin-left: -10px;
+  margin-right: -10px;
+}

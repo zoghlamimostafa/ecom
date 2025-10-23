@@ -3,7 +3,7 @@
    ============================================ */
 
 :root {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --primary-gradient: linear-gradient(135deg, #FF7A00 0%, #FF9F40 100%);
   --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   --orange-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
@@ -125,13 +125,13 @@
 }
 
 .thumbnail-image:hover {
-  border-color: #667eea;
+  border-color: #FF7A00;
   transform: scale(1.08) rotate(2deg);
   box-shadow: 0 8px 20px rgba(102,126,234,0.3);
 }
 
 .thumbnail-image.active {
-  border-color: #667eea;
+  border-color: #FF7A00;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   box-shadow: 0 0 0 4px rgba(102,126,234,0.2);
   transform: scale(1.05);
@@ -186,7 +186,7 @@
 
 .product-category-tag {
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  color: #667eea;
+  color: #FF7A00;
   padding: 8px 20px;
   border-radius: 30px;
   font-size: 13px;
@@ -240,12 +240,12 @@
 }
 
 .write-review-link {
-  color: #667eea;
+  color: #FF7A00;
   text-decoration: none;
   font-weight: 600;
   font-size: 14px;
   padding: 10px 24px;
-  border: 2px solid #667eea;
+  border: 2px solid #FF7A00;
   border-radius: 30px;
   transition: var(--transition-smooth);
   display: inline-flex;
@@ -400,13 +400,13 @@
 
 .spec-label::before {
   content: '▸';
-  color: #667eea;
+  color: #FF7A00;
   font-size: 18px;
 }
 
 .spec-value {
   font-weight: 600;
-  color: #667eea;
+  color: #FF7A00;
   font-size: 15px;
   background: white;
   padding: 6px 16px;
@@ -502,7 +502,7 @@
   cursor: pointer;
   font-size: 22px;
   font-weight: 700;
-  color: #667eea;
+  color: #FF7A00;
   transition: var(--transition-smooth);
 }
 
@@ -598,12 +598,12 @@
 
 .action-button.outline {
   background: transparent;
-  color: #667eea;
-  border: 2px solid #667eea;
+  color: #FF7A00;
+  border: 2px solid #FF7A00;
 }
 
 .action-button.outline:hover {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FF7A00 0%, #FF9F40 100%);
   color: white;
   border-color: transparent;
   transform: translateY(-4px);
@@ -751,7 +751,7 @@
 .quantity-btn:focus,
 .thumbnail-image:focus,
 .write-review-link:focus {
-  outline: 3px solid #667eea;
+  outline: 3px solid #FF7A00;
   outline-offset: 3px;
 }
 

@@ -284,22 +284,29 @@
 }
 
 .wishlist-product-brand {
-    font-size: 13px;
-    color: #95a5a6;
-    margin-bottom: 12px;
-    font-weight: 500;
+    font-size: 11px;
+    background: #FF7A00;
+    color: white;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    display: inline-block;
 }
 
 /* Product Brand */
 .product-brand {
     font-size: 12px;
-    color: #95a5a6;
+    background: #FF7A00;
+    color: white;
     margin-bottom: 8px;
-    font-weight: 500;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    display: inline-block;
 }
 
 /* Product Rating */

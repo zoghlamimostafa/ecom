@@ -52,7 +52,7 @@ const AddproductIntelligent = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
-  const [productTags, setProductTags] = useState([]);
+  // const [productTags, setProductTags] = useState([]);
   const [sizes, setSizes] = useState([]);
   const [gender, setGender] = useState("");
   const [isNewProduct, setIsNewProduct] = useState(false);
@@ -409,9 +409,13 @@ const AddproductIntelligent = () => {
                   size="large"
                   value={selectedCategory}
                   onChange={handleCategoryChange}
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
+                  filterOption={(input, option) => {
+                    const children = option.children;
+                    if (typeof children === 'string') {
+                      return children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                    }
+                    return false;
+                  }}
                 >
                   {mainCategories.map((cat) => (
                     <Option key={cat.id} value={cat.id}>
@@ -434,9 +438,13 @@ const AddproductIntelligent = () => {
                   value={selectedSubcategory}
                   onChange={handleSubcategoryChange}
                   disabled={!selectedCategory || subcategories.length === 0}
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
+                  filterOption={(input, option) => {
+                    const children = option.children;
+                    if (typeof children === 'string') {
+                      return children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                    }
+                    return false;
+                  }}
                 >
                   {subcategories.map((subcat) => (
                     <Option key={subcat.id} value={subcat.id}>
@@ -460,9 +468,13 @@ const AddproductIntelligent = () => {
                   size="large"
                   value={formik.values.brand ? [formik.values.brand] : []}
                   onChange={(value) => formik.setFieldValue("brand", value[0] || "")}
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
+                  filterOption={(input, option) => {
+                    const children = option.children;
+                    if (typeof children === 'string') {
+                      return children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                    }
+                    return false;
+                  }}
                 >
                   <Option key="none" value="">
                     Aucune

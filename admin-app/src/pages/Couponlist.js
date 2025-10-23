@@ -48,7 +48,7 @@ const Couponlist = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getAllCoupon());
-  }, []);
+  }, [dispatch]);
   const couponState = useSelector((state) => state.coupon.coupons);
   const data1 = [];
   for (let i = 0; i < couponState.length; i++) {
@@ -84,8 +84,10 @@ const Couponlist = () => {
     }, 100);
   };
   return (
-    <div>
-      <h3 className="mb-4 title">Coupons</h3>
+    <div className="admin-page-container">
+      <div className="page-header">
+        <h3>Liste des Coupons</h3>
+      </div>
       <div>
         <Table columns={columns} dataSource={data1} />
       </div>

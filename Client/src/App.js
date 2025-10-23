@@ -1,5 +1,6 @@
 import React from 'react'
 import "./App.css";
+import "./styles/search-mobile-fix.css";
 import {BrowserRouter,Routes, Route} from "react-router-dom";
 import Layout from './components/Layout';
 import Home from './pages/Home';

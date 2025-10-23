@@ -1,0 +1,443 @@
+/* ============================================
+   SEARCH BAR MOBILE FIX
+   Fix pour suggestions et recherche responsive
+   ============================================ */
+
+/* Base search suggestions container */
+.search-suggestions-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 4px;
+}
+
+.search-suggestion-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.search-suggestion-item:hover,
+.search-suggestion-item.selected {
+  background: linear-gradient(135deg, rgba(255, 122, 0, 0.1) 0%, rgba(255, 122, 0, 0.05) 100%);
+  color: #FF7A00;
+}
+
+.search-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.search-suggestion-image {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 12px;
+  border: 1px solid #e0e0e0;
+}
+
+.search-suggestion-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-suggestion-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-suggestion-category {
+  font-size: 12px;
+  color: #666;
+}
+
+.search-suggestion-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #FF7A00;
+  margin-left: 12px;
+}
+
+.search-highlight {
+  background-color: rgba(255, 122, 0, 0.2);
+  color: #FF7A00;
+  font-weight: 600;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.no-results {
+  padding: 24px 16px;
+  text-align: center;
+  color: #666;
+}
+
+.no-results-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.popular-searches {
+  padding: 16px;
+}
+
+.popular-searches-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.popular-keyword {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  margin: 4px;
+  background: #f5f5f5;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.popular-keyword:hover {
+  background: rgba(255, 122, 0, 0.1);
+  border-color: #FF7A00;
+  color: #FF7A00;
+}
+
+.popular-keyword .keyword-icon {
+  margin-right: 6px;
+  font-size: 16px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  
+  /* Search bar container */
+  .search-bar-wrapper {
+    position: relative;
+    width: 100%;
+    z-index: 100;
+  }
+  
+  /* Search bar */
+  .search-bar {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 8px 0 !important;
+    border-radius: 8px !important;
+    height: 44px !important;
+  }
+  
+  .search-bar .rbt .form-control {
+    height: 44px !important;
+    padding: 0 16px !important;
+    font-size: 15px !important;
+  }
+  
+  .search-button {
+    height: 44px !important;
+    padding: 0 16px !important;
+    min-width: 50px !important;
+  }
+  
+  .search-button svg {
+    font-size: 18px !important;
+  }
+  
+  /* Suggestions container full width on mobile */
+  .search-suggestions-container {
+    position: fixed !important;
+    top: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    max-height: 70vh !important;
+    border-radius: 16px 16px 0 0 !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2) !important;
+    z-index: 9999 !important;
+    animation: slideUp 0.3s ease;
+  }
+  
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  
+  /* Overlay pour fermer les suggestions */
+  .search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  /* Suggestion items larger on mobile */
+  .search-suggestion-item {
+    padding: 14px 16px !important;
+    min-height: 70px;
+  }
+  
+  .search-suggestion-image {
+    width: 60px !important;
+    height: 60px !important;
+    margin-right: 14px !important;
+  }
+  
+  .search-suggestion-title {
+    font-size: 15px !important;
+    line-height: 1.4;
+    white-space: normal !important;
+    max-height: 2.8em;
+    overflow: hidden;
+  }
+  
+  .search-suggestion-category {
+    font-size: 13px !important;
+    margin-top: 4px;
+  }
+  
+  .search-suggestion-price {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+  }
+  
+  /* No results mobile */
+  .no-results {
+    padding: 32px 20px !important;
+  }
+  
+  .no-results-icon {
+    font-size: 64px !important;
+    margin-bottom: 16px !important;
+  }
+  
+  .no-results h4 {
+    font-size: 18px !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .no-results p {
+    font-size: 14px !important;
+  }
+  
+  /* Popular searches mobile */
+  .popular-searches {
+    padding: 20px 16px !important;
+  }
+  
+  .popular-searches-title {
+    font-size: 14px !important;
+    margin-bottom: 16px !important;
+  }
+  
+  .popular-keyword {
+    padding: 10px 16px !important;
+    margin: 6px 4px !important;
+    font-size: 14px !important;
+    min-height: 40px;
+  }
+  
+  .popular-keyword .keyword-icon {
+    font-size: 18px !important;
+    margin-right: 8px !important;
+  }
+  
+  /* Clear button visible */
+  .search-clear-btn {
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #999;
+    font-size: 18px;
+    padding: 8px;
+    cursor: pointer;
+    z-index: 10;
+  }
+  
+  .search-clear-btn:active {
+    color: #FF7A00;
+  }
+  
+  /* Handle for dragging suggestions panel */
+  .suggestions-handle {
+    width: 40px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 12px auto 8px;
+  }
+  
+  /* Scroll indicator */
+  .suggestions-scroll-indicator {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to top, white 0%, transparent 100%);
+    pointer-events: none;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .search-bar {
+    max-width: 450px !important;
+  }
+  
+  .search-suggestions-container {
+    max-width: 450px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .search-suggestion-item {
+    padding: 12px 14px;
+  }
+  
+  .search-suggestion-image {
+    width: 55px;
+    height: 55px;
+  }
+}
+
+/* Desktop - default behavior */
+@media (min-width: 1025px) {
+  .search-suggestions-container {
+    max-width: 600px;
+  }
+  
+  .search-overlay {
+    display: none; /* No overlay on desktop */
+  }
+  
+  .suggestions-handle {
+    display: none; /* No handle on desktop */
+  }
+}
+
+/* Loading state */
+.search-loading {
+  padding: 24px;
+  text-align: center;
+  color: #999;
+}
+
+.search-loading-spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #f0f0f0;
+  border-top-color: #FF7A00;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Touch improvements */
+@media (max-width: 768px) {
+  /* Larger touch targets */
+  .search-suggestion-item,
+  .popular-keyword,
+  .search-button,
+  .search-clear-btn {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* Active state feedback */
+  .search-suggestion-item:active {
+    background: rgba(255, 122, 0, 0.15) !important;
+    transform: scale(0.98);
+  }
+  
+  .popular-keyword:active {
+    background: rgba(255, 122, 0, 0.2) !important;
+    transform: scale(0.95);
+  }
+  
+  /* Smooth scrolling */
+  .search-suggestions-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Accessibility */
+.search-suggestion-item:focus,
+.popular-keyword:focus,
+.search-button:focus {
+  outline: 2px solid #FF7A00;
+  outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .search-suggestion-item {
+    border: 1px solid #333;
+  }
+  
+  .search-highlight {
+    background-color: yellow;
+    color: black;
+  }
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .search-suggestions-container,
+  .search-overlay,
+  .search-suggestion-item,
+  .popular-keyword {
+    animation: none !important;
+    transition: none !important;
+  }
+}

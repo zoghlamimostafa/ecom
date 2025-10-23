@@ -31,12 +31,16 @@ const getFullImageUrl = (imageUrl) => {
 
 const columns = [
   {
-    title: "Numéro",
+    title: "N°",
     dataIndex: "key",
+    width: 70,
+    align: "center",
+    responsive: ["md"],
   },
   {
     title: "Image",
     dataIndex: "image",
+    width: 100,
     render: (images) => {
       console.log('🖼️ Render image column:', images);
       if (images && images.length > 0) {
@@ -75,30 +79,72 @@ const columns = [
   {
     title: "Titre",
     dataIndex: "title",
+    width: 200,
+    ellipsis: true,
     sorter: (a, b) => a.title.length - b.title.length,
   },
   {
     title: "Marque",
     dataIndex: "brand",
+    width: 120,
+    responsive: ["lg"],
     sorter: (a, b) => a.brand.length - b.brand.length,
+    render: (brand) => (
+      <span style={{
+        display: 'inline-block',
+        padding: '6px 14px',
+        background: 'linear-gradient(135deg, #2196F3 0%, #42A5F5 100%)',
+        color: '#FFFFFF',
+        borderRadius: '20px',
+        fontSize: '12px',
+        fontWeight: '600',
+        border: 'none',
+        boxShadow: '0 2px 8px rgba(33, 150, 243, 0.25)'
+      }}>
+        {brand}
+      </span>
+    ),
   },
   {
     title: "Catégorie",
     dataIndex: "category",
+    width: 150,
+    responsive: ["md"],
     sorter: (a, b) => a.category.length - b.category.length,
+    render: (category) => (
+      <span style={{
+        display: 'inline-block',
+        padding: '6px 14px',
+        background: 'linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%)',
+        color: '#FFFFFF',
+        borderRadius: '20px',
+        fontSize: '12px',
+        fontWeight: '600',
+        border: 'none',
+        boxShadow: '0 2px 8px rgba(255, 107, 53, 0.25)'
+      }}>
+        {category}
+      </span>
+    ),
   },
   {
     title: "Couleur",
     dataIndex: "color",
+    width: 120,
+    responsive: ["xl"],
   },
   {
     title: "Prix",
     dataIndex: "price",
+    width: 100,
     sorter: (a, b) => a.price - b.price,
   },
   {
     title: "Action",
     dataIndex: "action",
+    width: 120,
+    align: "center",
+    fixed: "right",
   },
 ];
 
@@ -268,21 +314,50 @@ const Productlist = () => {
 
 
   const handleDelete = (productId) => {
-    dispatch(deleteProduct(productId)).then(() => {
-      // Clear any error message after successful delete
-      dispatch(resetState());
-      setTimeout(() => {
+    console.log('🗑️ Suppression du produit ID:', productId);
+    dispatch(deleteProduct(productId))
+      .unwrap()
+      .then(() => {
+        console.log('✅ Produit supprimé avec succès');
+        setOpen(false);
+        dispatch(resetState());
         dispatch(getProducts());
-      }, 100);
-    });
-    setOpen(false);
+      })
+      .catch((error) => {
+        console.error('❌ Erreur lors de la suppression:', error);
+        setOpen(false);
+        alert('Erreur lors de la suppression du produit. Veuillez réessayer.');
+      });
   };
 
   return (
-    <div>
-      <h3 className="mb-4 title">Des produits</h3>
-      <div>
-        <Table columns={columns} dataSource={data} />
+    <div className="admin-page-container">
+      <div className="page-header">
+        <h3>Liste des Produits</h3>
+        <Link to="/admin/product">
+          <button className="ant-btn ant-btn-primary">
+            Ajouter un produit
+          </button>
+        </Link>
+      </div>
+      <div className="table-container">
+        <Table 
+          columns={columns} 
+          dataSource={data}
+          scroll={{ x: 1000 }}
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showTotal: (total, range) => `${range[0]}-${range[1]} sur ${total} produits`,
+          }}
+          bordered
+          responsive
+          style={{
+            background: "white",
+            borderRadius: "12px",
+            overflow: "hidden",
+          }}
+        />
       </div>
       <CustomModal
         hideModal={hideModal}

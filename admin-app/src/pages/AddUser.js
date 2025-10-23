@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Card, Form, Input, Button, Select, Row, Col, message, Space } from "antd";
-import { UserOutlined, MailOutlined, PhoneOutlined, LockOutlined, UserAddOutlined, GlobalOutlined } from "@ant-design/icons";
+import { UserOutlined, MailOutlined, PhoneOutlined, LockOutlined, UserAddOutlined } from "@ant-design/icons";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import axios from "axios";
@@ -53,7 +53,7 @@ const AddUser = () => {
         const fullMobile = countryCode + phoneNumber;
         const dataToSend = { ...values, mobile: fullMobile };
 
-        const response = await axios.post(base_url + endpoint, dataToSend);
+        await axios.post(base_url + endpoint, dataToSend);
         message.success(successMessage);
         resetForm();
         setPhoneNumber('');
@@ -144,7 +144,7 @@ const AddUser = () => {
               <Form.Item
                 label="Téléphone"
                 validateStatus={formik.touched.mobile && formik.errors.mobile ? 'error' : ''}
-                help={formik.touched.mobile && formik.errors.mobile || "Format: Sélectionnez le pays puis entrez le numéro"}
+                help={(formik.touched.mobile && formik.errors.mobile) || "Format: Sélectionnez le pays puis entrez le numéro"}
               >
                 <Input.Group compact>
                   <Select
@@ -158,9 +158,18 @@ const AddUser = () => {
                     }}
                     size="large"
                     optionFilterProp="children"
-                    filterOption={(input, option) =>
-                      option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    }
+                    filterOption={(input, option) => {
+                      const children = option.children;
+                      if (typeof children === 'string') {
+                        return children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                      }
+                      if (Array.isArray(children)) {
+                        return children.some(child => 
+                          typeof child === 'string' && child.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        );
+                      }
+                      return false;
+                    }}
                   >
                     {countries.map((country) => (
                       <Option key={country.code} value={country.code}>

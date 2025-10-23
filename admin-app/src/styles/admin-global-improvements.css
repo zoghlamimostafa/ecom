@@ -1,0 +1,367 @@
+/* =================================
+   STYLES GLOBAUX ADMIN - AMÉLIORATIONS
+   ================================= */
+
+/* Tables améliorées */
+.ant-table-wrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.ant-table {
+  font-size: 14px;
+}
+
+.ant-table-thead > tr > th {
+  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #ff8800;
+  padding: 16px;
+}
+
+.ant-table-tbody > tr {
+  transition: all 0.3s ease;
+}
+
+.ant-table-tbody > tr:hover {
+  background: #fff7e6 !important;
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px rgba(255, 136, 0, 0.1);
+}
+
+.ant-table-tbody > tr > td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Pagination */
+.ant-pagination {
+  margin: 20px 0 !important;
+}
+
+.ant-pagination-item-active {
+  border-color: #ff8800;
+  background: #ff8800;
+}
+
+.ant-pagination-item-active a {
+  color: white;
+}
+
+.ant-pagination-item:hover {
+  border-color: #ff8800;
+}
+
+.ant-pagination-item:hover a {
+  color: #ff8800;
+}
+
+/* Buttons */
+.ant-btn-primary {
+  background: linear-gradient(135deg, #ff8800 0%, #ff6600 100%);
+  border: none;
+  box-shadow: 0 2px 8px rgba(255, 136, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background: linear-gradient(135deg, #ff9900 0%, #ff7700 100%);
+  box-shadow: 0 4px 12px rgba(255, 136, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.ant-btn-primary:active {
+  transform: translateY(0);
+}
+
+.ant-btn-danger {
+  background: #ff4d4f;
+  border-color: #ff4d4f;
+  box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
+}
+
+.ant-btn-danger:hover,
+.ant-btn-danger:focus {
+  background: #ff7875;
+  border-color: #ff7875;
+  box-shadow: 0 4px 12px rgba(255, 77, 79, 0.4);
+}
+
+/* Cards */
+.ant-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.ant-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.ant-card-head {
+  border-bottom: 2px solid #f0f0f0;
+  font-weight: 600;
+  color: #2c3e50;
+  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+}
+
+/* Forms */
+.ant-form-item-label > label {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.ant-input,
+.ant-input-number,
+.ant-select-selector,
+.ant-picker {
+  border-radius: 8px;
+  border: 2px solid #e8e8e8;
+  transition: all 0.3s ease;
+}
+
+.ant-input:hover,
+.ant-input-number:hover,
+.ant-select-selector:hover,
+.ant-picker:hover {
+  border-color: #ff8800;
+}
+
+.ant-input:focus,
+.ant-input-number:focus,
+.ant-select-focused .ant-select-selector,
+.ant-picker-focused {
+  border-color: #ff8800;
+  box-shadow: 0 0 0 2px rgba(255, 136, 0, 0.1);
+}
+
+/* Tags */
+.ant-tag {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border: none;
+}
+
+/* Modal */
+.ant-modal-content {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ant-modal-header {
+  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  border-bottom: 2px solid #ff8800;
+}
+
+.ant-modal-title {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Badges */
+.ant-badge-count {
+  background: #ff8800;
+  box-shadow: 0 2px 8px rgba(255, 136, 0, 0.3);
+}
+
+/* Drawer */
+.ant-drawer-header {
+  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  border-bottom: 2px solid #ff8800;
+}
+
+.ant-drawer-title {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Switch */
+.ant-switch-checked {
+  background: #ff8800;
+}
+
+/* Tabs */
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #ff8800;
+  font-weight: 600;
+}
+
+.ant-tabs-ink-bar {
+  background: #ff8800;
+}
+
+/* Steps */
+.ant-steps-item-finish .ant-steps-item-icon {
+  background-color: #ff8800;
+  border-color: #ff8800;
+}
+
+.ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
+  color: white;
+}
+
+.ant-steps-item-process .ant-steps-item-icon {
+  background-color: #ff8800;
+  border-color: #ff8800;
+}
+
+/* Progress */
+.ant-progress-bg {
+  background: linear-gradient(90deg, #ff8800 0%, #ff6600 100%);
+}
+
+/* Upload */
+.ant-upload.ant-upload-drag {
+  border: 2px dashed #d9d9d9;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.ant-upload.ant-upload-drag:hover {
+  border-color: #ff8800;
+  background: #fff7e6;
+}
+
+/* Tooltips */
+.ant-tooltip-inner {
+  background: #2c3e50;
+  border-radius: 6px;
+}
+
+.ant-tooltip-arrow-content {
+  background: #2c3e50;
+}
+
+/* Popconfirm */
+.ant-popover-inner {
+  border-radius: 8px;
+}
+
+/* Message */
+.ant-message-notice-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Notification */
+.ant-notification-notice {
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Scrollbar général */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #ff8800 0%, #ff6600 100%);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #ff9900 0%, #ff7700 100%);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply animations */
+.ant-modal {
+  animation: fadeIn 0.3s ease;
+}
+
+.ant-drawer {
+  animation: slideInDown 0.3s ease;
+}
+
+.ant-message {
+  animation: slideInDown 0.3s ease;
+}
+
+.ant-notification {
+  animation: slideInDown 0.3s ease;
+}
+
+/* Page transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ant-table {
+    font-size: 12px;
+  }
+  
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 10px 8px;
+  }
+  
+  .ant-card {
+    margin-bottom: 16px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .ant-btn,
+  .ant-pagination,
+  .ant-table-filter-column,
+  .ant-table-column-sorter {
+    display: none !important;
+  }
+  
+  .ant-table-tbody > tr:hover {
+    background: white !important;
+  }
+}

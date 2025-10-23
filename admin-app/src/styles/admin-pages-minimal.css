@@ -1,0 +1,415 @@
+/* Design Minimaliste Global pour toutes les pages Admin */
+
+/* ========================================
+   PAGES WRAPPER
+   ======================================== */
+.admin-page-container {
+  padding: 24px;
+  background: #f5f5f5;
+  min-height: calc(100vh - 64px);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.page-header h3 {
+  color: #1a1a1a !important;
+  font-weight: 600 !important;
+  font-size: 24px !important;
+  margin: 0 !important;
+  letter-spacing: -0.5px;
+}
+
+/* ========================================
+   TABLES - Design Minimaliste
+   ======================================== */
+.ant-table-wrapper {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+}
+
+.ant-table {
+  background: transparent !important;
+}
+
+.ant-table-thead > tr > th {
+  background: #fafafa !important;
+  border-bottom: 2px solid #e0e0e0 !important;
+  color: #8e8e93 !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 16px 24px !important;
+  border-top: none !important;
+}
+
+.ant-table-tbody > tr > td {
+  padding: 16px 24px !important;
+  border-bottom: 1px solid #f5f5f5 !important;
+  color: #1a1a1a;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: #fafafa !important;
+}
+
+.ant-table-tbody > tr:last-child > td {
+  border-bottom: none !important;
+}
+
+/* Table Images */
+.ant-table-tbody img {
+  border-radius: 8px !important;
+  border: 1px solid #f0f0f0;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.ant-table-tbody img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ========================================
+   BUTTONS - Design Minimaliste
+   ======================================== */
+.ant-btn {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  height: 40px !important;
+  padding: 0 20px !important;
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.3s !important;
+}
+
+.ant-btn-primary {
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.25) !important;
+}
+
+.ant-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.35) !important;
+}
+
+.ant-btn-default:hover {
+  border-color: #ff6b35 !important;
+  color: #ff6b35 !important;
+}
+
+.ant-btn-danger {
+  background: #fff !important;
+  border-color: #ff4d4f !important;
+  color: #ff4d4f !important;
+}
+
+.ant-btn-danger:hover {
+  background: #ff4d4f !important;
+  color: #fff !important;
+  border-color: #ff4d4f !important;
+}
+
+/* Action Buttons in Table */
+.ant-table-tbody .fs-3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ant-table-tbody .fs-3 a,
+.ant-table-tbody .fs-3 button {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+}
+
+.ant-table-tbody .fs-3 a:hover {
+  background: #ff6b35;
+  color: #fff !important;
+  border-color: #ff6b35;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 107, 53, 0.25);
+}
+
+.ant-table-tbody .fs-3 button:hover {
+  background: #ff4d4f;
+  color: #fff !important;
+  border-color: #ff4d4f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 77, 79, 0.25);
+}
+
+/* ========================================
+   CARDS - Design Minimaliste
+   ======================================== */
+.ant-card {
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #f0f0f0 !important;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.ant-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+}
+
+.ant-card-head {
+  background: #fafafa !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+  padding: 16px 24px !important;
+}
+
+.ant-card-head-title {
+  color: #1a1a1a !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+}
+
+.ant-card-body {
+  padding: 24px !important;
+}
+
+/* ========================================
+   FORMS - Design Minimaliste
+   ======================================== */
+.ant-form-item-label > label {
+  color: #1a1a1a !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.ant-input,
+.ant-input-number,
+.ant-picker,
+.ant-select-selector {
+  border-radius: 8px !important;
+  border: 1px solid #e0e0e0 !important;
+  padding: 10px 16px !important;
+  font-size: 14px !important;
+  transition: all 0.3s !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.ant-input:hover,
+.ant-input-number:hover,
+.ant-picker:hover,
+.ant-select-selector:hover {
+  border-color: #ff6b35 !important;
+}
+
+.ant-input:focus,
+.ant-input-number-focused,
+.ant-picker-focused,
+.ant-select-focused .ant-select-selector {
+  border-color: #ff6b35 !important;
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1) !important;
+}
+
+/* ========================================
+   TAGS - Design Minimaliste
+   ======================================== */
+.ant-tag {
+  border-radius: 6px !important;
+  padding: 4px 12px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  border: none !important;
+}
+
+.ant-tag-success {
+  background: #f0fdf4 !important;
+  color: #22c55e !important;
+}
+
+.ant-tag-warning {
+  background: #fef3c7 !important;
+  color: #f59e0b !important;
+}
+
+.ant-tag-error {
+  background: #fef2f2 !important;
+  color: #ef4444 !important;
+}
+
+.ant-tag-default {
+  background: #f5f5f5 !important;
+  color: #8e8e93 !important;
+}
+
+/* ========================================
+   MODALS - Design Minimaliste
+   ======================================== */
+.ant-modal-content {
+  border-radius: 16px !important;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+.ant-modal-header {
+  background: #fafafa !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+  padding: 20px 24px !important;
+}
+
+.ant-modal-title {
+  color: #1a1a1a !important;
+  font-weight: 600 !important;
+  font-size: 18px !important;
+}
+
+.ant-modal-body {
+  padding: 24px !important;
+}
+
+.ant-modal-footer {
+  border-top: 1px solid #e0e0e0 !important;
+  padding: 16px 24px !important;
+}
+
+/* ========================================
+   PAGINATION - Design Minimaliste
+   ======================================== */
+.ant-pagination {
+  margin-top: 24px !important;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ant-pagination-item {
+  border-radius: 8px !important;
+  border: 1px solid #e0e0e0 !important;
+  transition: all 0.3s !important;
+}
+
+.ant-pagination-item:hover {
+  border-color: #ff6b35 !important;
+}
+
+.ant-pagination-item-active {
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%) !important;
+  border-color: #ff6b35 !important;
+}
+
+.ant-pagination-item-active a {
+  color: #fff !important;
+}
+
+/* ========================================
+   BREADCRUMB - Design Minimaliste
+   ======================================== */
+.ant-breadcrumb {
+  margin-bottom: 24px;
+}
+
+.ant-breadcrumb-link {
+  color: #8e8e93 !important;
+  font-weight: 500;
+}
+
+.ant-breadcrumb-link:hover {
+  color: #ff6b35 !important;
+}
+
+.ant-breadcrumb-separator {
+  color: #e0e0e0 !important;
+}
+
+/* ========================================
+   SCROLLBAR - Design Minimaliste
+   ======================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #ff5722 0%, #ff6b35 100%);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .admin-page-container {
+    padding: 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 12px 16px !important;
+  }
+
+  .ant-card-body {
+    padding: 16px !important;
+  }
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ant-table-wrapper,
+.ant-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+.ant-spin-dot-item {
+  background-color: #ff6b35 !important;
+}
+
+.ant-spin-text {
+  color: #8e8e93 !important;
+}

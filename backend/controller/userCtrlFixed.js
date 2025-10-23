@@ -205,8 +205,12 @@ const getaUser = asyncHandler(async (req, res) => {
 // UPDATE - Mettre à jour un utilisateur
 const updatedUser = asyncHandler(async (req, res) => {
   try {
-    const { id } = req.params;
+    // Si pas d'ID dans params, utiliser l'ID de l'utilisateur connecté (req.user)
+    const id = req.params.id || req.user.id;
     const { firstname, lastname, email, mobile, role } = req.body;
+    
+    console.log('🔄 Update user - ID:', id, 'User from auth:', req.user?.id);
+    console.log('📝 Update data:', { firstname, lastname, email, mobile });
     
     if (!id) {
       return res.status(400).json({
@@ -247,21 +251,26 @@ const updatedUser = asyncHandler(async (req, res) => {
     if (lastname) updateData.lastname = lastname;
     if (email) updateData.email = email;
     if (mobile) updateData.mobile = mobile;
-    if (role) updateData.role = role;
+    if (role && req.user.role === 'admin') updateData.role = role; // Seulement admin peut changer role
 
+    console.log('💾 Update data to save:', updateData);
+    
     await User.update(updateData, { where: { id: id } });
     
     // Récupérer l'utilisateur mis à jour
-    const updatedUser = await User.findByPk(id, {
+    const updatedUserData = await User.findByPk(id, {
       attributes: { exclude: ['password'] }
     });
+
+    console.log('✅ User updated successfully:', updatedUserData.email);
 
     res.json({
       success: true,
       message: "Utilisateur mis à jour avec succès",
-      user: updatedUser
+      ...updatedUserData.toJSON() // Retourner directement les données user
     });
   } catch (error) {
+    console.error('❌ Error updating user:', error);
     res.status(500).json({
       success: false,
       message: "Erreur lors de la mise à jour de l'utilisateur",

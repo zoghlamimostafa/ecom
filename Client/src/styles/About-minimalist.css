@@ -1,0 +1,413 @@
+/* ===================================
+   ABOUT PAGE - SIMPLE & MINIMALIST
+   Design simple avec icônes
+   =================================== */
+
+/* Wrapper */
+.about-wrapper-pro {
+  background: #ffffff;
+  min-height: 100vh;
+}
+
+.about-wrapper-pro::before {
+  display: none;
+}
+
+/* Hero avec Image */
+.about-hero-image {
+  padding: 60px 0;
+  background: linear-gradient(135deg, #fff5e6 0%, #ffffff 100%);
+}
+
+.about-logo {
+  max-width: 120px;
+  height: auto;
+}
+
+.about-hero-image h1 {
+  font-size: 42px;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 16px;
+  margin-top: 20px;
+}
+
+.about-hero-image .lead {
+  font-size: 20px;
+  color: #6c757d;
+  font-weight: 400;
+  margin-bottom: 30px;
+}
+
+.about-text-hero {
+  margin-top: 20px;
+}
+
+.about-text-hero p {
+  font-size: 17px;
+  line-height: 1.8;
+  color: #495057;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.about-text-hero p:last-child {
+  margin-bottom: 0;
+}
+
+.about-text-hero strong {
+  color: #FF7A00;
+  font-weight: 700;
+}
+
+/* Image principale */
+.about-image-wrapper {
+  position: relative;
+  padding: 20px;
+}
+
+.about-main-image {
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+  box-shadow: 
+    0 20px 60px rgba(255, 122, 0, 0.2),
+    0 0 0 1px rgba(255, 122, 0, 0.1);
+  transition: all 0.4s ease;
+}
+
+.about-main-image:hover {
+  transform: scale(1.02);
+  box-shadow: 
+    0 25px 70px rgba(255, 122, 0, 0.25),
+    0 0 0 1px rgba(255, 122, 0, 0.15);
+}
+
+/* Statistiques */
+.about-stats {
+  padding: 40px 0;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.stat-box {
+  text-align: center;
+  padding: 30px 15px;
+  background: linear-gradient(135deg, #FF7A00 0%, #FF9F40 100%);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.stat-box:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 8px 24px rgba(255, 122, 0, 0.3);
+}
+
+.stat-number {
+  font-size: 36px;
+  font-weight: 900;
+  color: #ffffff;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Comment Acheter */
+.about-how-to-buy {
+  padding: 60px 0;
+  background: linear-gradient(135deg, #fff5e6 0%, #ffffff 100%);
+}
+
+.about-how-to-buy h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #212529;
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.step-box {
+  text-align: center;
+  padding: 40px 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  height: 100%;
+  border: 2px solid #e9ecef;
+  position: relative;
+}
+
+.step-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(255, 122, 0, 0.15);
+  border-color: #FF7A00;
+}
+
+.step-number {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #FF7A00 0%, #FF9F40 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 900;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);
+}
+
+.step-icon {
+  font-size: 40px;
+  color: #FF7A00;
+  margin: 20px 0;
+  transition: all 0.3s ease;
+}
+
+.step-box:hover .step-icon {
+  transform: scale(1.1);
+  color: #FF9F40;
+}
+
+.step-box h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 12px;
+}
+
+.step-box p {
+  font-size: 15px;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Services Section */
+.about-services {
+  padding: 60px 0;
+  background: #fafafa;
+}
+
+.about-services h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #212529;
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.service-box {
+  text-align: center;
+  padding: 40px 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  height: 100%;
+  border: 1px solid #e9ecef;
+}
+
+.service-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(255, 122, 0, 0.15);
+  border-color: #FF7A00;
+}
+
+.service-icon {
+  font-size: 40px;
+  color: #FF7A00;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.service-box:hover .service-icon {
+  transform: scale(1.1);
+  color: #FF9F40;
+}
+
+.service-box h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 12px;
+}
+
+.service-box p {
+  font-size: 15px;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Values Section */
+.about-values {
+  padding: 60px 0;
+  background: #ffffff;
+}
+
+.about-values h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #212529;
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.value-box {
+  text-align: center;
+  padding: 40px 20px;
+  background: #fafafa;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  height: 100%;
+  border: 1px solid #e9ecef;
+}
+
+.value-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(255, 122, 0, 0.15);
+  border-color: #FF7A00;
+  background: #ffffff;
+}
+
+.value-icon {
+  font-size: 40px;
+  color: #ffffff;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.value-box:hover .value-icon {
+  transform: scale(1.1);
+  color: #f0f0f0;
+}
+
+.value-box h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 12px;
+}
+
+.value-box p {
+  font-size: 15px;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Contact Section */
+.about-contact {
+  padding: 60px 0 80px;
+  background: #fafafa;
+}
+
+.about-contact h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #212529;
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.contact-box {
+  text-align: center;
+  padding: 40px 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  height: 100%;
+  border: 1px solid #e9ecef;
+}
+
+.contact-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(255, 122, 0, 0.15);
+  border-color: #FF7A00;
+}
+
+.contact-icon {
+  font-size: 40px;
+  color: #ffffff;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.contact-box:hover .contact-icon {
+  transform: scale(1.1);
+  color: #f0f0f0;
+}
+
+.contact-box h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 12px;
+}
+
+.contact-box p {
+  font-size: 16px;
+  color: #495057;
+  margin: 0;
+  font-weight: 600;
+}
+
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .about-intro h1 {
+    font-size: 28px;
+  }
+
+  .about-intro .lead {
+    font-size: 18px;
+  }
+
+  .about-text p {
+    font-size: 16px;
+  }
+
+  .about-services h2,
+  .about-values h2,
+  .about-contact h2 {
+    font-size: 28px;
+  }
+
+  .service-box,
+  .value-box,
+  .contact-box {
+    padding: 30px 20px;
+  }
+
+  .service-icon,
+  .value-icon,
+  .contact-icon {
+    font-size: 42px;
+  }
+}
+
+@media (max-width: 576px) {
+  .about-logo {
+    max-width: 120px;
+  }
+
+  .about-intro h1 {
+    font-size: 24px;
+  }
+
+  .about-services,
+  .about-values,
+  .about-contact {
+    padding: 40px 0;
+  }
+}

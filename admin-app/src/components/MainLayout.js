@@ -1,29 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { BgColorsOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import {
-  AiOutlineDashboard,
   AiOutlineShoppingCart,
-  AiOutlineUser,
   AiOutlineBgColors,
 } from "react-icons/ai";
 
 import { MdDashboard } from "react-icons/md";
-import { FaUsers } from "react-icons/fa";
+import { FaUsers, FaUserPlus } from "react-icons/fa";
 
 import { RiCouponLine } from "react-icons/ri";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
 import { Outlet } from "react-router-dom";
+import "../styles/header-modern.css";
+import "../styles/mobile-responsive-fix.css";
+import logoSanny from "../images/logosanny.png";
 import { ImBlog } from "react-icons/im";
-import { IoIosNotifications } from "react-icons/io";
 import { FaClipboardList, FaBloggerB } from "react-icons/fa";
 import { SiBrandfolder } from "react-icons/si";
 import { BiCategoryAlt } from "react-icons/bi";
 import { Layout, Menu, theme } from "antd";
 import { useNavigate } from "react-router-dom";
-import { IoMdLogOut } from "react-icons/io";
-import axios from 'axios'; // Importez Axios
 
 const { Header, Sider, Content } = Layout;
 const MainLayout = () => {
@@ -106,16 +104,23 @@ const MainLayout = () => {
           transition: 'transform 0.3s ease'
         } : {}}
       >
-          <h2 className="text-white fs-5 text-center py-3 mb-0">
-            <span className="lg-logo">Admin</span>
-          </h2>
+          <div className="logo">
+            {!collapsed ? (
+              <>
+                <img src={logoSanny} alt="Sanny Store" />
+                <span>Admin Panel</span>
+              </>
+            ) : (
+              <img src={logoSanny} alt="Sanny Store" style={{ maxHeight: '40px', maxWidth: '40px' }} />
+            )}
+          </div>
         <Menu
           theme="dark"
           mode="vertical"
           inlineIndent={16}
           defaultSelectedKeys={[""]}
           onClick={({ key }) => {
-            if (key == "signout") {
+            if (key === "signout") {
             } else {
               navigate(key);
             }
@@ -138,8 +143,13 @@ const MainLayout = () => {
               label: "Gestion Utilisateurs",
               children: [
                 {
-                  key: "add-user",
+                  key: "customers",
                   icon: <FaUsers className="fs-4" />,
+                  label: "Liste des utilisateurs",
+                },
+                {
+                  key: "add-user",
+                  icon: <FaUserPlus className="fs-4" />,
                   label: "Ajouter Utilisateur",
                 },
               ],
@@ -266,21 +276,28 @@ const MainLayout = () => {
             }
           )}
           <div className="d-flex gap-4 align-items-center">
-           
+            {/* Badge Admin */}
+            {!isMobile && (
+              <div className="admin-badge">
+                <i className="fas fa-user-shield"></i>
+                <span>Administrateur</span>
+              </div>
+            )}
 
-          <div className="d-flex gap-3 align-items-center dropdown">
-          <div className="dropdown">
-  <div className="dropdown-toggle" id="dropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <i className="fas fa-sign-out-alt"></i>
-  </div>
-  <ul className="dropdown-menu" aria-labelledby="dropdownMenuLink">
-    <li>
-      <Link to="/" className="dropdown-item" onClick={handleLogout}>Déconnexion</Link>
-    </li>
-  </ul>
-</div>
-
-               
+            {/* Menu Dropdown */}
+            <div className="d-flex gap-3 align-items-center dropdown">
+              <div className="dropdown">
+                <div className="dropdown-toggle" id="dropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i className="fas fa-sign-out-alt"></i>
+                </div>
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                  <li>
+                    <Link to="/" className="dropdown-item" onClick={handleLogout}>
+                      <i className="fas fa-sign-out-alt"></i> Déconnexion
+                    </Link>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </Header>

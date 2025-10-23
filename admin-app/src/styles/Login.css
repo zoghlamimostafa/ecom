@@ -1,0 +1,277 @@
+/* =================================
+   LOGIN PAGE - DESIGN MODERNE
+   ================================= */
+
+.login-page-modern {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+}
+
+/* Background animé */
+.login-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.login-shape {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  animation: float 20s infinite ease-in-out;
+}
+
+.login-shape.shape-1 {
+  width: 400px;
+  height: 400px;
+  top: -100px;
+  left: -100px;
+  animation-delay: 0s;
+}
+
+.login-shape.shape-2 {
+  width: 300px;
+  height: 300px;
+  bottom: -50px;
+  right: -50px;
+  animation-delay: 2s;
+}
+
+.login-shape.shape-3 {
+  width: 200px;
+  height: 200px;
+  top: 50%;
+  right: 20%;
+  animation-delay: 4s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-50px) scale(1.1);
+  }
+}
+
+/* Container principal */
+.login-container-modern {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Card de login */
+.login-card-modern {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95) !important;
+  animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.logo-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff8800 0%, #ff6600 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(255, 136, 0, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 8px 20px rgba(255, 136, 0, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 12px 30px rgba(255, 136, 0, 0.4);
+  }
+}
+
+.login-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 10px 0;
+  background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-subtitle {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin: 0;
+}
+
+/* Inputs */
+.login-card-modern .ant-input,
+.login-card-modern .ant-input-password {
+  border: 2px solid #e8e8e8;
+  transition: all 0.3s ease;
+}
+
+.login-card-modern .ant-input:hover,
+.login-card-modern .ant-input-password:hover {
+  border-color: #ff8800;
+}
+
+.login-card-modern .ant-input:focus,
+.login-card-modern .ant-input-password:focus,
+.login-card-modern .ant-input-focused,
+.login-card-modern .ant-input-password .ant-input:focus {
+  border-color: #ff8800;
+  box-shadow: 0 0 0 2px rgba(255, 136, 0, 0.1);
+}
+
+.login-card-modern .ant-form-item-label > label {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Button hover effect */
+.login-card-modern .ant-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 136, 0, 0.4) !important;
+}
+
+.login-card-modern .ant-btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Footer */
+.login-footer {
+  margin-top: 30px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+}
+
+.login-footer p {
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .login-page-modern {
+    padding: 15px;
+  }
+  
+  .login-card-modern {
+    border-radius: 15px !important;
+  }
+  
+  .login-title {
+    font-size: 24px;
+  }
+  
+  .logo-circle {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .logo-circle .anticon {
+    font-size: 24px !important;
+  }
+  
+  .login-shape.shape-1 {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .login-shape.shape-2 {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .login-shape.shape-3 {
+    display: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .login-card-modern {
+    background: rgba(30, 30, 30, 0.95) !important;
+  }
+  
+  .login-title {
+    color: #ecf0f1;
+  }
+  
+  .login-subtitle {
+    color: #95a5a6;
+  }
+  
+  .login-card-modern .ant-form-item-label > label {
+    color: #ecf0f1;
+  }
+  
+  .login-card-modern .ant-input,
+  .login-card-modern .ant-input-password {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #ecf0f1;
+  }
+}
+
+/* Animations supplémentaires */
+.login-card-modern .ant-btn {
+  transition: all 0.3s ease;
+}
+
+.login-card-modern .ant-alert {
+  animation: fadeInDown 0.4s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

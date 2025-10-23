@@ -1,59 +1,93 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { forgotPassword } from '../features/user/userSlice';
-import BrandCrumb from '../components/BrandCrumb';
 import Meta from '../components/Meta';
 import { Link } from 'react-router-dom';
-import Container from '../components/Container';
+import '../styles/auth-minimalist.css';
+import logoSanny from '../images/logosanny.png';
 
 const ForgotPassword = () => {
   const dispatch = useDispatch();
-  
-  // États locaux pour gérer les données du formulaire
   const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
 
-  // Gestionnaire de soumission de formulaire
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setMessage({ type: '', text: '' });
     
-    // Envoyer une action forgotPassword avec les données du formulaire
-    dispatch(forgotPassword(email));
+    try {
+      const response = await dispatch(forgotPassword(email)).unwrap();
+      setMessage({ 
+        type: 'success', 
+        text: '✅ Email envoyé ! Vérifiez votre boîte de réception (et les spams). Un lien de réinitialisation vous a été envoyé.' 
+      });
+      setEmail('');
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: error.message || 'Une erreur est survenue. Veuillez vérifier que votre email est correct.' 
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <>
-      <Meta title={"Forgot_Password"} />
-      <BrandCrumb title="Forgot_Password" /> 
-      <Container class1='login-wrapper py-5 home-wrapper-2'>
-      <div className='row justify-content-center'>
-        <div className='col-md-6'>
-          <div className='auth-card p-4'>
-            <h3 className='text-center mb-3'>Réinitialiser votre mot de passe</h3>
-            <p className='text-center mt-2 mb-3'>Nous vous enverrons un e-mail pour réinitialiser votre mot de passe</p>
-            <form onSubmit={handleSubmit} className='d-flex flex-column gap-3'>
-              <div>
-                <input 
-                  type='email' 
-                  name="email" 
-                  placeholder='E-mail' 
-                  className='form-control' 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)} 
-                  required 
-                />
-              </div>
+      <Meta title="Réinitialiser le mot de passe" />
+      <div className="auth-minimalist-wrapper">
+        <div className="auth-minimalist-container">
+          <div className="auth-logo-section">
+            <img src={logoSanny} alt="Sanny Store" />
+            <h2>Mot de passe oublié ?</h2>
+            <p>Entrez votre email pour réinitialiser</p>
+          </div>
+
+          {message.text && (
+            <div className={`auth-message ${message.type}`}>
+              {message.type === 'success' ? '✅' : '❌'} {message.text}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="auth-minimalist-form">
+            <div className="auth-form-group">
+              <label htmlFor="email">Adresse email</label>
+              <input 
+                id="email"
+                type="email" 
+                name="email" 
+                placeholder="votre@email.com" 
+                className="auth-form-input" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+                disabled={isLoading}
+              />
+            </div>
                     
-              <div className='mt-3 d-flex justify-content-center'>
-                <button className='button border-0' type="submit">Soumettre</button>
-              </div>
-              <div className='text-center'>
-                <p className='mb-0 mt-3'><Link to="/login">Annuler</Link></p>
-              </div>
-            </form>
+            <button 
+              className="auth-submit-btn" 
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <span className="auth-loading"></span>
+                  Envoi en cours...
+                </>
+              ) : (
+                'Réinitialiser le mot de passe'
+              )}
+            </button>
+          </form>
+
+          <div className="auth-links">
+            <Link to="/login">← Retour à la connexion</Link>
           </div>
         </div>
       </div>
-    </Container>
     </>
   );
 };

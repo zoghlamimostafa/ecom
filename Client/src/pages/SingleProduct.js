@@ -278,10 +278,9 @@ const SingleProduct = () => {
             {/* Description responsive */}
             <div className="product-description-section">
               <h3>Description</h3>
-              <div 
-                className="product-description-text" 
-                dangerouslySetInnerHTML={{ __html: productState?.description }}
-              />
+              <div className="product-description-text">
+                {productState?.description?.replace(/<\/?p>/gi, '').replace(/<br\s*\/?>/gi, '\n')}
+              </div>
             </div>
 
             {/* Informations produit - Disponibilité uniquement */}

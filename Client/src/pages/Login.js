@@ -1,19 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from "formik";
 import * as yup from "yup";
-import CustomInput from '../components/CustomInput';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../features/user/userSlice';
 import { useTranslation } from '../contexts/TranslationContext';
 import Meta from '../components/Meta';
 import SEOEnhancer from '../components/SEOEnhancer';
+import '../styles/auth-minimalist.css';
+import logoSanny from '../images/logosanny.png';
 
 const Login = () => {
   const { t } = useTranslation();
   const authState = useSelector(state => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const personSchema = yup.object({
     email: yup.string().nullable().email(t('invalidEmail')).required(t('emailRequired')),
@@ -50,106 +52,122 @@ const Login = () => {
         pageType="login"
       />
       <Meta title={t('login')} />
-      <div className="login-bg">
-      <div className="login-decorations">
-        <div className="decoration-circle circle-1"></div>
-        <div className="decoration-circle circle-2"></div>
-        <div className="decoration-circle circle-3"></div>
-      </div>
-      <div className="login-center">
-        <div className="login-card">
-          <div className="login-header">
-            <div className="login-logo-container">
-              <img src="/logo192.png" alt="Logo Sanny" className="login-logo" />
-              <div className="logo-glow"></div>
-            </div>
-            <div className="login-welcome">
-              <h2 className="login-title">{t('welcomeBack')}</h2>
-              <p className="login-sub">{t('loginToYourAccount')}</p>
-            </div>
+      <div className="auth-minimalist-wrapper">
+        <div className="auth-minimalist-container">
+          <div className="auth-logo-section">
+            <img src={logoSanny} alt="Sanny Store" />
+            <h2>{t('welcomeBack') || 'Bienvenue !'}</h2>
+            <p>{t('loginToYourAccount') || 'Connectez-vous à votre compte'}</p>
           </div>
+
+          {authState.isError && (
+            <div className="auth-message error">
+              ❌ {authState.message || 'Erreur de connexion'}
+            </div>
+          )}
           
-          <form onSubmit={formik.handleSubmit} className="login-form">
-            <div className="input-group">
-              <span className="input-icon">
-                <i className="fa fa-envelope"></i>
-              </span>
-              <CustomInput
-                type='email'
+          <form onSubmit={formik.handleSubmit} className="auth-minimalist-form">
+            <div className="auth-form-group">
+              <label htmlFor="email">{t('email') || 'Email'}</label>
+              <input
+                id="email"
+                type="email"
                 name="email"
-                placeholder={t('enterYourEmail')}
-                className='login-input'
+                placeholder={t('enterYourEmail') || 'votre@email.com'}
+                className="auth-form-input"
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
               />
-              <div className="input-underline"></div>
+              {formik.touched.email && formik.errors.email && (
+                <small style={{ color: '#dc3545', fontSize: '13px', marginTop: '4px', display: 'block' }}>
+                  {formik.errors.email}
+                </small>
+              )}
             </div>
-            {formik.touched.email && formik.errors.email ? (
-              <div className='login-error'>
-                <i className="fa fa-exclamation-triangle"></i>
-                {formik.errors.email}
-              </div>
-            ) : null}
 
-            <div className="input-group">
-              <span className="input-icon">
-                <i className="fa fa-lock"></i>
-              </span>
-              <CustomInput
-                type='password'
-                name="password"
-                placeholder={t('enterYourPassword')}
-                className='login-input'
-                value={formik.values.password}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-              <div className="input-underline"></div>
+            <div className="auth-form-group">
+              <label htmlFor="password">{t('password') || 'Mot de passe'}</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  placeholder={t('enterYourPassword') || '••••••••'}
+                  className="auth-form-input"
+                  style={{ paddingRight: '50px' }}
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="password-toggle-btn"
+                  title={showPassword ? 'Masquer' : 'Afficher'}
+                >
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
+              </div>
+              {formik.touched.password && formik.errors.password && (
+                <small style={{ color: '#dc3545', fontSize: '13px', marginTop: '4px', display: 'block' }}>
+                  {formik.errors.password}
+                </small>
+              )}
             </div>
-            {formik.touched.password && formik.errors.password ? (
-              <div className='login-error'>
-                <i className="fa fa-exclamation-triangle"></i>
-                {formik.errors.password}
-              </div>
-            ) : null}
 
-            <div className="forgot-password-section">
-              <Link to='/forgot-password' className="login-link forgot-link">
-                <i className="fa fa-key"></i>
-                {t('forgotPassword')}
+            <div style={{ textAlign: 'right', marginTop: '-4px', marginBottom: '8px' }}>
+              <Link 
+                to="/forgot-password" 
+                style={{ 
+                  color: '#FF7A00', 
+                  fontSize: '14px', 
+                  textDecoration: 'none', 
+                  fontWeight: '700',
+                  transition: 'all 0.2s ease',
+                  display: 'inline-block'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = '#FF9F40';
+                  e.target.style.transform = 'translateX(2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = '#FF7A00';
+                  e.target.style.transform = 'translateX(0)';
+                }}
+              >
+                🔑 {t('forgotPassword') || 'Mot de passe oublié ?'}
               </Link>
             </div>
 
-            <button type="submit" className='login-btn' disabled={formik.isSubmitting}>
+            <button 
+              type="submit" 
+              className="auth-submit-btn" 
+              disabled={formik.isSubmitting}
+            >
               {formik.isSubmitting ? (
                 <>
-                  <i className="fa fa-spinner fa-spin"></i>
-                  {t('loggingIn')}
+                  <span className="auth-loading"></span>
+                  {t('loggingIn') || 'Connexion...'}
                 </>
               ) : (
-                <>
-                  <i className="fa fa-sign-in-alt"></i>
-                  {t('login')}
-                </>
+                t('login') || 'Se connecter'
               )}
             </button>
-            
-            <div className="divider">
-              <span>{t('or')}</span>
-            </div>
-            
-            <div className='login-bottom'>
-              <span>{t('noAccountYet')} </span>
-              <Link className='signup-link' to="/sign-up">
-                <i className="fa fa-user-plus"></i>
-                {t('createAccount')}
-              </Link>
-            </div>
           </form>
+
+          <div className="auth-divider">
+            <span>{t('or') || 'ou'}</span>
+          </div>
+
+          <div className="auth-extra-info">
+            <p>
+              {t('noAccountYet') || 'Pas encore de compte ?'}{' '}
+              <Link to="/sign-up">{t('createAccount') || 'Créer un compte'}</Link>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 }

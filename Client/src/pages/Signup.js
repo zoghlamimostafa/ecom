@@ -253,7 +253,7 @@ const Signup = () => {
             <button 
               type="submit" 
               className="modern-signup-btn" 
-              disabled={isLoading || !formik.isValid || !formik.dirty}
+              disabled={isLoading}
             >
               <i className="fas fa-user-plus"></i>
               {isLoading ? t('creatingAccount') : t('createAccount')}

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Recherche Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #FF7A00;
+            border-radius: 8px;
+        }
+        button {
+            background: #FF7A00;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #FF9F40;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 400px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test Debug Recherche</h1>
+
+    <div class="test-section">
+        <h2>1. Test API Products</h2>
+        <button onclick="testProductsAPI()">Tester l'API /api/product</button>
+        <div id="api-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test Recherche "iphone"</h2>
+        <button onclick="testSearchIphone()">Chercher "iphone"</button>
+        <div id="search-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Redux State (Open DevTools)</h2>
+        <p>Ouvrez la console du navigateur pour voir les logs Redux</p>
+        <button onclick="window.open('http://localhost:3000', '_blank')">Ouvrir le site</button>
+    </div>
+
+    <script>
+        async function testProductsAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<p>⏳ Chargement...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:4000/api/product');
+                const data = await response.json();
+                
+                console.log('API Response:', data);
+                
+                let html = '<div class="success"><h3>✅ Succès!</h3></div>';
+                html += `<p><strong>Type:</strong> ${typeof data}</p>`;
+                html += `<p><strong>Keys:</strong> ${Object.keys(data).join(', ')}</p>`;
+                
+                if (data.products && Array.isArray(data.products)) {
+                    html += `<p class="success"><strong>✅ Products Array:</strong> ${data.products.length} produits</p>`;
+                    html += '<pre>' + JSON.stringify(data.products, null, 2) + '</pre>';
+                } else {
+                    html += '<p class="error">❌ data.products n\'est pas un tableau!</p>';
+                    html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                }
+                
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error"><h3>❌ Erreur</h3><p>${error.message}</p></div>`;
+                console.error('Erreur API:', error);
+            }
+        }
+
+        async function testSearchIphone() {
+            const resultDiv = document.getElementById('search-result');
+            resultDiv.innerHTML = '<p>⏳ Recherche en cours...</p>';
+            
+            try {
+                // 1. Récupérer tous les produits
+                const response = await fetch('http://localhost:4000/api/product');
+                const data = await response.json();
+                
+                if (!data.products || !Array.isArray(data.products)) {
+                    throw new Error('Products is not an array!');
+                }
+                
+                const allProducts = data.products;
+                const searchTerm = 'iphone';
+                
+                console.log('All products:', allProducts.length);
+                console.log('First product:', allProducts[0]);
+                
+                // 2. Rechercher "iphone"
+                const results = allProducts.filter(product => {
+                    const titleMatch = product.title?.toLowerCase().includes(searchTerm);
+                    const descMatch = product.description?.toLowerCase().includes(searchTerm);
+                    const categoryMatch = product.category?.toLowerCase().includes(searchTerm);
+                    const brandMatch = product.brand?.toLowerCase().includes(searchTerm);
+                    
+                    return titleMatch || descMatch || categoryMatch || brandMatch;
+                });
+                
+                let html = `<div class="success"><h3>✅ Recherche pour "iphone"</h3></div>`;
+                html += `<p><strong>Total produits:</strong> ${allProducts.length}</p>`;
+                html += `<p><strong>Résultats trouvés:</strong> ${results.length}</p>`;
+                
+                if (results.length > 0) {
+                    html += '<h4>Produits trouvés:</h4><ul>';
+                    results.forEach(p => {
+                        html += `<li><strong>${p.title}</strong> - ${p.brand || 'N/A'} - ${p.category || 'N/A'}</li>`;
+                    });
+                    html += '</ul>';
+                    html += '<pre>' + JSON.stringify(results, null, 2) + '</pre>';
+                } else {
+                    html += '<p class="error">❌ Aucun résultat trouvé!</p>';
+                    html += '<p>Titres de tous les produits:</p><ul>';
+                    allProducts.forEach(p => {
+                        html += `<li>${p.title}</li>`;
+                    });
+                    html += '</ul>';
+                }
+                
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error"><h3>❌ Erreur</h3><p>${error.message}</p></div>`;
+                console.error('Erreur recherche:', error);
+            }
+        }
+    </script>
+</body>
+</html>

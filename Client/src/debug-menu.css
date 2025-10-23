@@ -16,8 +16,8 @@
 
 /* Vérifier que le wrapper est visible */
 .subcategories-wrapper {
-  border: 3px solid blue !important;
-  background: lightblue !important;
+  border: 3px solid #FF7A00 !important;
+  background: light#FF7A00 !important;
 }
 
 /* Vérifier que la grille est visible */

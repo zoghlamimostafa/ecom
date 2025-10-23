@@ -227,13 +227,15 @@ export const logoutUser = createAsyncThunk(
     try {
       const result = await userService.logout(); 
       
-      // Always clear localStorage regardless of API response
-      localStorage.removeItem("customer"); 
+      // Clear all storage - service already does this but ensure it's done
+      localStorage.clear();
+      sessionStorage.clear();
       
       return result; 
     } catch (error) {
-      // Even if there's an error, clear localStorage to ensure logout
-      localStorage.removeItem("customer");
+      // Even if there's an error, clear all storage to ensure complete logout
+      localStorage.clear();
+      sessionStorage.clear();
       console.warn("Logout completed with warnings:", error.message);
       return { success: true, message: "Déconnexion forcée" };
     }
@@ -245,9 +247,18 @@ const getCustomerfromLocalStorage = localStorage.getItem("customer")
   ? JSON.parse(localStorage.getItem("customer"))
   : null;
 
+// Extract user object from customer data if it exists
+const getUserFromCustomer = (customerData) => {
+  if (!customerData) return null;
+  // If customer has a nested user object, use it
+  if (customerData.user) return customerData.user;
+  // Otherwise, return the whole customer object (backward compatibility)
+  return customerData;
+};
+
 const initialState = {
   auth: getCustomerfromLocalStorage,
-  user: getCustomerfromLocalStorage, // Add user field for compatibility
+  user: getUserFromCustomer(getCustomerfromLocalStorage), // Extract user from customer
   isError: false,
   isSuccess: false,
   isLoading: false,
@@ -271,6 +282,11 @@ export const authSlice = createSlice({
     },
     clearBuyNowItem: (state) => {
       state.buyNowItem = null;
+    },
+    resetUpdateState: (state) => {
+      state.isSuccess = false;
+      state.isError = false;
+      state.errorMessage = "";
     }
   },
   extraReducers: (builder) => {
@@ -330,7 +346,8 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.auth = action.payload;
-        state.user = action.payload; // Also update user field
+        // Extract user object from payload: { success, message, user, token }
+        state.user = action.payload?.user || action.payload;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -499,31 +516,66 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.errorMessage = action.payload;
+        // Clear user data even on error to ensure complete logout
+        state.user = null;
+        state.auth = null;
+      })
+      .addCase(updateProfile.pending, (state) => {
+        state.isLoading = true;
+        state.isError = false;
+        state.isSuccess = false;
+        state.errorMessage = "";
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.user = action.payload; // Ensure this matches the backend response
+        state.isError = false;
         
-        // Update user data in localStorage
-        const currentUserData = JSON.parse(localStorage.getItem("customer"));
-        if (currentUserData) {
-          const updatedUserData = {
-            ...currentUserData, // spread existing user data
-            firstname: action.payload?.firstname,
-            lastname: action.payload?.lastname,
-            email: action.payload?.email,
-            mobile: action.payload?.mobile,
+        // Extract user from backend response: { success: true, message: "...", user: {...} }
+        const updatedUser = action.payload?.user || action.payload;
+        
+        console.log('✅ Profile update success - Updated user:', updatedUser);
+        
+        // Update Redux state with the new user data
+        state.user = updatedUser;
+        state.auth = { ...state.auth, user: updatedUser };
+        
+        // Update localStorage "customer" with complete structure
+        const currentCustomerData = JSON.parse(localStorage.getItem("customer"));
+        if (currentCustomerData) {
+          const updatedCustomerData = {
+            ...currentCustomerData,
+            user: updatedUser // Replace the nested user object
           };
-          localStorage.setItem("customer", JSON.stringify(updatedUserData));
-          state.user = updatedUserData;
+          localStorage.setItem("customer", JSON.stringify(updatedCustomerData));
+          console.log('💾 localStorage updated with new user data');
         }
-      
-        toast.success("Profil mis à jour avec succès !");
+        
+        toast.success(action.payload?.message || 'Profil mis à jour avec succès');
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.errorMessage = action.payload || action.error.message;
+        
+        // Check if error is related to authentication (expired token)
+        if (action.error.message?.includes('401') || action.error.message?.includes('Token') || action.error.message?.includes('expired')) {
+          toast.error('🔒 Session expirée. Veuillez vous reconnecter.');
+          // Clear user data and redirect to login
+          state.user = null;
+          state.auth = null;
+          localStorage.clear();
+          sessionStorage.clear();
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 2000);
+        } else {
+          toast.error(action.payload || 'Erreur lors de la mise à jour du profil');
+        }
       });
       
   }    
 });
 
-export const { setBuyNowItem, clearBuyNowItem } = authSlice.actions;
+export const { setBuyNowItem, clearBuyNowItem, resetUpdateState } = authSlice.actions;
 export default authSlice.reducer;

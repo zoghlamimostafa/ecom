@@ -1,48 +1,59 @@
 const { Coupon } = require('../models');
-;
-const asynHandler = require("express-async-handler");
+const asyncHandler = require("express-async-handler");
 
-const createCoupon = asynHandler(async (req, res) => {
+const createCoupon = asyncHandler(async (req, res) => {
   try {
     const newCoupon = await Coupon.create(req.body);
     res.json(newCoupon);
   } catch (error) {
-    throw new Error(error);
+    console.error('Error creating coupon:', error);
+    res.status(500).json({ message: error.message });
   }
 });
-const getAllCoupons = asynHandler(async (req, res) => {
+
+const getAllCoupons = asyncHandler(async (req, res) => {
   try {
     const coupons = await Coupon.findAll();
     res.json(coupons);
   } catch (error) {
-    throw new Error(error);
+    console.error('Error getting coupons:', error);
+    res.status(500).json({ message: error.message });
   }
 });
-const updateCoupon = asynHandler(async (req, res) => {
-  const { id } = req.params;try {
-    await Coupon.update(req.body, { where: { id: id }, 
-      new: true,
-     });
+
+const updateCoupon = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
+    await Coupon.update(req.body, { 
+      where: { id: id }
+    });
     const updatecoupon = await Coupon.findByPk(id);
     res.json(updatecoupon);
   } catch (error) {
-    throw new Error(error);
+    console.error('Error updating coupon:', error);
+    res.status(500).json({ message: error.message });
   }
 });
-const deleteCoupon = asynHandler(async (req, res) => {
-  const { id } = req.params;try {
+
+const deleteCoupon = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
     const deletecoupon = await Coupon.destroy({ where: { id: id } });
     res.json(deletecoupon);
   } catch (error) {
-    throw new Error(error);
+    console.error('Error deleting coupon:', error);
+    res.status(500).json({ message: error.message });
   }
 });
-const getCoupon = asynHandler(async (req, res) => {
-  const { id } = req.params;try {
+
+const getCoupon = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
     const getAcoupon = await Coupon.findByPk(id);
     res.json(getAcoupon);
   } catch (error) {
-    throw new Error(error);
+    console.error('Error getting coupon:', error);
+    res.status(500).json({ message: error.message });
   }
 });
 module.exports = {

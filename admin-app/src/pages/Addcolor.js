@@ -34,7 +34,7 @@ const Addcolor = () => {
     } else {
       dispatch(resetState());
     }
-  }, [getColorId]);
+  }, [getColorId, dispatch]);
   useEffect(() => {
     if (isSuccess && createdColor) {
       toast.success("Color Added Successfullly!");
@@ -46,7 +46,7 @@ const Addcolor = () => {
     if (isError) {
       toast.error("Something Went Wrong!");
     }
-  }, [isSuccess, isError, isLoading, createdColor]);
+  }, [isSuccess, isError, isLoading, createdColor, updatedColor, navigate]);
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {

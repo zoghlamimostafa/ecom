@@ -35,7 +35,7 @@ const Addbrand = () => {
     } else {
       dispatch(resetState());
     }
-  }, [getBrandId]);
+  }, [getBrandId, dispatch]);
 
   useEffect(() => {
     if (isSuccess && createdBrand) {

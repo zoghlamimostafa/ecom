@@ -607,52 +607,57 @@ const rating = asyncHandler(async (req, res) => {
     );
 
     if (alreadyRated) {
-      // Mettre à jour la note existante
-      const updateRating = await Product.updateOne(
-        {
-          ratings: { $elemMatch: alreadyRated },
-        },
-        {
-          $set: { "ratings.$.star": star, "ratings.$.comment": comment },
-        },
-        {
-          new: true,
-        }
+      // Mettre à jour la note existante avec Sequelize
+      const product = await Product.findByPk(prodId);
+      const ratings = product.ratings ? JSON.parse(JSON.stringify(product.ratings)) : [];
+      
+      const ratingIndex = ratings.findIndex(
+        (rating) => rating.postedby.toString() === userId.toString()
       );
+      
+      if (ratingIndex !== -1) {
+        ratings[ratingIndex].star = star;
+        ratings[ratingIndex].comment = comment;
+      }
+      
+      await Product.update({
+        ratings: ratings
+      }, {
+        where: { id: prodId }
+      });
     } else {
-      // Ajouter une nouvelle note
-      const rateProduct = await Product.findByIdAndUpdate(
-        prodId,
-        {
-          $push: {
-            ratings: {
-              star: star,
-              comment: comment,
-              postedby: userId,
-            },
-          },
-        },
-        {
-          new: true,
-        }
-      );
+      // Ajouter une nouvelle note avec Sequelize
+      const product = await Product.findByPk(prodId);
+      const ratings = product.ratings ? JSON.parse(JSON.stringify(product.ratings)) : [];
+      
+      ratings.push({
+        star: star,
+        comment: comment,
+        postedby: userId,
+      });
+      
+      await Product.update({
+        ratings: ratings
+      }, {
+        where: { id: prodId }
+      });
     }
 
     // Calculer la note moyenne
     const getallratings = await Product.findByPk(prodId);
-    let totalRating = getallratings.ratings.length;
+    let totalRating = getallratings.ratings ? getallratings.ratings.length : 0;
     let ratingsum = getallratings.ratings
-      .map((item) => item.star)
-      .reduce((prev, curr) => prev + curr, 0);
-    let actualRating = Math.round(ratingsum / totalRating);
+      ? getallratings.ratings.map((item) => item.star).reduce((prev, curr) => prev + curr, 0)
+      : 0;
+    let actualRating = totalRating > 0 ? Math.round(ratingsum / totalRating) : 0;
     
-    let finalproduct = await Product.findByIdAndUpdate(
-      prodId,
-      {
-        totalrating: actualRating,
-      },
-      { new: true }
-    );
+    await Product.update({
+      totalrating: actualRating,
+    }, {
+      where: { id: prodId }
+    });
+    
+    const finalproduct = await Product.findByPk(prodId);
 
     res.json({
       success: true,

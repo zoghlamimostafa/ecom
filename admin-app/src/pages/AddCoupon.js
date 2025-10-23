@@ -1,4 +1,4 @@
-import { React, useEffect, useState } from "react";
+import { React, useEffect } from "react";
 import CustomInput from "../components/CustomInput";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -46,7 +46,7 @@ const AddCoupon = () => {
     } else {
       dispatch(resetState());
     }
-  }, [getCouponId]);
+  }, [getCouponId, dispatch]);
 
   useEffect(() => {
     if (isSuccess && createdCoupon) {
@@ -59,7 +59,7 @@ const AddCoupon = () => {
     if (isError && couponName && couponDiscount && couponExpiry) {
       toast.error("Something Went Wrong!");
     }
-  }, [isSuccess, isError, isLoading]);
+  }, [isSuccess, isError, isLoading, createdCoupon, updatedCoupon, couponName, couponDiscount, couponExpiry, navigate]);
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {

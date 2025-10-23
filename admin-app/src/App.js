@@ -1,5 +1,6 @@
 import "./App.css";
-import "./styles/admin-improvements.css";
+import "./styles/admin-modern.css";
+import "./styles/mobile-responsive-fix.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Resetpassword from "./pages/Resetpassword";
@@ -26,13 +27,14 @@ import Couponlist from "./pages/Couponlist";
 import AddCoupon from "./pages/AddCoupon";
 import ViewEnq from "./pages/ViewEnq";
 import ViewOrder from "./pages/ViewOrder";
-import Dashboard from "./pages/Dashboard";
+import EditOrder from "./pages/EditOrder";
+import DashboardMinimalist from "./pages/DashboardMinimalist";
 import CreateAdmin from "./pages/CreateAdmin";
 import AddUser from "./pages/AddUser";
 import EditUser from "./pages/EditUser";
 import DiagnosticTest from "./components/DiagnosticTest";
-import { OpenRoutes } from "./routing/OpenRoutes";
-import { PrivateRoutes } from "./routing/PrivateRoutes";
+import OpenRoutes from "./routing/OpenRoutes";
+import PrivateRoutes from "./routing/PrivateRoutes";
 function App() {
   return (
     <Router>
@@ -44,7 +46,7 @@ function App() {
           <Route path="/reset-password" element={<OpenRoutes><Resetpassword /></OpenRoutes>} />
           <Route path="/forgot-password" element={<OpenRoutes><Forgotpassword /></OpenRoutes>} />
           <Route path="/admin" element={<MainLayout />}>
-            <Route index element={<Dashboard />} />
+            <Route index element={<DashboardMinimalist />} />
             <Route path="diagnostic" element={<DiagnosticTest />} />
             <Route path="enquiries" element={<Enquiries />} />
             <Route path="enquiries/:id" element={<PrivateRoutes><ViewEnq /></PrivateRoutes>} />
@@ -59,6 +61,7 @@ function App() {
           <Route path="blog-category/:id" element={<Addblogcat />} />
           <Route path="orders" element={<Orders />} />
           <Route path="order/:id" element={<ViewOrder />} />
+          <Route path="order/:id/edit" element={<EditOrder />} />
           <Route path="customers" element={<Customers />} />
           <Route path="customers-debug" element={<CustomersDebug />} />
           <Route path="add-user" element={<AddUser />} />

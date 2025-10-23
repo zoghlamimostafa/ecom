@@ -1,0 +1,678 @@
+/* =============================================
+   DESIGN ADMIN MODERNE & ÉPURÉ
+   Palette: Orange (#FF6B35), Vert (#4CAF50), Bleu (#2196F3)
+   SANS VIOLET
+   ============================================= */
+
+:root {
+  --primary: #FF6B35;
+  --primary-light: #FF8C5A;
+  --primary-dark: #E5522E;
+  --success: #4CAF50;
+  --info: #2196F3;
+  --warning: #FFA726;
+  --danger: #F44336;
+  
+  --text-primary: #2C3E50;
+  --text-secondary: #7F8C8D;
+  --text-light: #BDC3C7;
+  
+  --bg-primary: #F8F9FA;
+  --bg-secondary: #FFFFFF;
+  --bg-hover: #F0F2F5;
+  
+  --border: #E1E8ED;
+  --border-light: #F0F3F6;
+  
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-primary);
+}
+
+/* =============================================
+   PAGE CONTAINER
+   ============================================= */
+.admin-page-container {
+  padding: var(--spacing-xl);
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+}
+
+.page-header h3 {
+  color: var(--text-primary) !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  letter-spacing: -0.5px;
+}
+
+/* =============================================
+   STATISTICS CARDS
+   ============================================= */
+.stats-card {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, #FAFBFC 100%);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.stats-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary);
+}
+
+.stats-card:hover::before {
+  opacity: 1;
+}
+
+.stat-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: var(--spacing-md);
+  transition: transform 0.3s;
+}
+
+.stats-card:hover .stat-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.stat-icon-primary {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(255, 140, 90, 0.1) 100%);
+  color: var(--primary);
+}
+
+.stat-icon-success {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(102, 187, 106, 0.1) 100%);
+  color: var(--success);
+}
+
+.stat-icon-info {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(66, 165, 245, 0.1) 100%);
+  color: var(--info);
+}
+
+.stat-icon-warning {
+  background: linear-gradient(135deg, rgba(255, 167, 38, 0.1) 0%, rgba(255, 183, 77, 0.1) 100%);
+  color: var(--warning);
+}
+
+.stat-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--spacing-xs);
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+  margin-bottom: var(--spacing-sm);
+}
+
+.stat-trend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.trend-up {
+  color: var(--success);
+}
+
+.trend-down {
+  color: var(--danger);
+}
+
+/* =============================================
+   TABLES
+   ============================================= */
+.ant-table-wrapper {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+}
+
+.ant-table {
+  background: transparent !important;
+}
+
+.ant-table-thead > tr > th {
+  background: linear-gradient(180deg, #FAFBFC 0%, var(--bg-secondary) 100%) !important;
+  border-bottom: 2px solid var(--border) !important;
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 18px 20px !important;
+}
+
+.ant-table-tbody > tr {
+  transition: all 0.2s;
+}
+
+.ant-table-tbody > tr:hover {
+  background: var(--bg-hover) !important;
+}
+
+.ant-table-tbody > tr > td {
+  padding: 16px 20px !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.ant-table-tbody img {
+  border-radius: var(--radius);
+  border: 2px solid var(--border-light);
+  transition: all 0.3s;
+}
+
+.ant-table-tbody img:hover {
+  transform: scale(1.2);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+  z-index: 10;
+}
+
+/* =============================================
+   BUTTONS
+   ============================================= */
+.ant-btn {
+  border-radius: var(--radius) !important;
+  font-weight: 600 !important;
+  height: 40px !important;
+  padding: 0 20px !important;
+  border: 2px solid transparent !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-size: 14px !important;
+}
+
+.ant-btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3) !important;
+}
+
+.ant-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4) !important;
+}
+
+.ant-btn-default {
+  background: var(--bg-secondary) !important;
+  border: 2px solid var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+.ant-btn-default:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  background: rgba(255, 107, 53, 0.05) !important;
+}
+
+.ant-btn-danger {
+  background: var(--bg-secondary) !important;
+  border: 2px solid var(--danger) !important;
+  color: var(--danger) !important;
+}
+
+.ant-btn-danger:hover {
+  background: var(--danger) !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3) !important;
+}
+
+/* Action buttons in tables */
+.ant-table-tbody .fs-3 {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.ant-table-tbody .fs-3 a,
+.ant-table-tbody .fs-3 button {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  border: 2px solid var(--border);
+  background: var(--bg-secondary);
+  cursor: pointer;
+}
+
+.ant-table-tbody .fs-3 a:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white !important;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.ant-table-tbody .fs-3 button:hover {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: white !important;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+/* =============================================
+   CARDS
+   ============================================= */
+.ant-card {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-sm) !important;
+  border: 1px solid var(--border-light) !important;
+  transition: all 0.3s;
+}
+
+.ant-card:hover {
+  box-shadow: var(--shadow-md) !important;
+  border-color: var(--primary) !important;
+}
+
+.ant-card-head {
+  background: linear-gradient(180deg, #FAFBFC 0%, var(--bg-secondary) 100%) !important;
+  border-bottom: 2px solid var(--border) !important;
+  padding: 16px 20px !important;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+}
+
+.ant-card-head-title {
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+  font-size: 18px !important;
+}
+
+.ant-card-body {
+  padding: 20px !important;
+}
+
+/* =============================================
+   FORMS
+   ============================================= */
+.ant-form-item-label > label {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ant-input,
+.ant-input-number,
+.ant-picker,
+.ant-select-selector {
+  border-radius: var(--radius) !important;
+  border: 2px solid var(--border) !important;
+  padding: 10px 14px !important;
+  font-size: 14px !important;
+  transition: all 0.3s !important;
+}
+
+.ant-input:hover,
+.ant-input-number:hover,
+.ant-picker:hover,
+.ant-select-selector:hover {
+  border-color: var(--primary) !important;
+}
+
+.ant-input:focus,
+.ant-input-number-focused,
+.ant-picker-focused,
+.ant-select-focused .ant-select-selector {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1) !important;
+}
+
+/* =============================================
+   TAGS & BADGES
+   ============================================= */
+.ant-tag {
+  border-radius: var(--radius) !important;
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border: none !important;
+}
+
+.ant-tag-success {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(102, 187, 106, 0.15) 100%) !important;
+  color: var(--success) !important;
+  border: 1px solid rgba(76, 175, 80, 0.3) !important;
+}
+
+.ant-tag-warning {
+  background: linear-gradient(135deg, rgba(255, 167, 38, 0.15) 0%, rgba(255, 183, 77, 0.15) 100%) !important;
+  color: var(--warning) !important;
+  border: 1px solid rgba(255, 167, 38, 0.3) !important;
+}
+
+.ant-tag-error {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.15) 0%, rgba(239, 83, 80, 0.15) 100%) !important;
+  color: var(--danger) !important;
+  border: 1px solid rgba(244, 67, 54, 0.3) !important;
+}
+
+.ant-tag-default {
+  background: linear-gradient(135deg, rgba(127, 140, 141, 0.1) 0%, rgba(149, 165, 166, 0.1) 100%) !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid rgba(127, 140, 141, 0.2) !important;
+}
+
+/* Custom badges pour catégories/marques */
+.badge-primary {
+  display: inline-block;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(255, 140, 90, 0.15) 100%);
+  color: var(--primary);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 107, 53, 0.3);
+}
+
+.badge-info {
+  display: inline-block;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(66, 165, 245, 0.15) 100%);
+  color: var(--info);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+/* =============================================
+   MODALS
+   ============================================= */
+.ant-modal-content {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+  overflow: hidden;
+}
+
+.ant-modal-header {
+  background: linear-gradient(180deg, #FAFBFC 0%, var(--bg-secondary) 100%) !important;
+  border-bottom: 2px solid var(--border) !important;
+  padding: 20px 24px !important;
+}
+
+.ant-modal-title {
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+  font-size: 20px !important;
+}
+
+.ant-modal-body {
+  padding: 24px !important;
+}
+
+.ant-modal-footer {
+  border-top: 2px solid var(--border) !important;
+  padding: 16px 24px !important;
+  background: var(--bg-hover) !important;
+}
+
+/* =============================================
+   PAGINATION
+   ============================================= */
+.ant-pagination {
+  margin-top: var(--spacing-lg) !important;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ant-pagination-item {
+  border-radius: var(--radius) !important;
+  border: 2px solid var(--border) !important;
+  transition: all 0.3s !important;
+  font-weight: 600;
+}
+
+.ant-pagination-item:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  transform: translateY(-2px);
+}
+
+.ant-pagination-item-active {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3) !important;
+}
+
+.ant-pagination-item-active a {
+  color: white !important;
+}
+
+/* =============================================
+   SCROLLBAR
+   ============================================= */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-hover);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+}
+
+/* =============================================
+   LOADING
+   ============================================= */
+.ant-spin-dot-item {
+  background-color: var(--primary) !important;
+}
+
+.ant-spin-text {
+  color: var(--text-secondary) !important;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 1024px) {
+  .admin-page-container {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-page-container {
+    padding: var(--spacing-md);
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+
+  .page-header h3 {
+    font-size: 22px !important;
+  }
+
+  .stat-value {
+    font-size: 28px;
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 12px 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header h3 {
+    font-size: 20px !important;
+  }
+
+  .stat-value {
+    font-size: 24px;
+  }
+
+  .ant-btn {
+    height: 36px !important;
+    padding: 0 16px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* =============================================
+   ANIMATIONS
+   ============================================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.admin-page-container,
+.ant-table-wrapper,
+.ant-card,
+.stats-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* =============================================
+   UTILITIES
+   ============================================= */
+.text-primary {
+  color: var(--primary) !important;
+}
+
+.text-success {
+  color: var(--success) !important;
+}
+
+.text-info {
+  color: var(--info) !important;
+}
+
+.text-warning {
+  color: var(--warning) !important;
+}
+
+.text-danger {
+  color: var(--danger) !important;
+}
+
+.bg-primary {
+  background: var(--primary) !important;
+}
+
+.bg-success {
+  background: var(--success) !important;
+}
+
+.bg-info {
+  background: var(--info) !important;
+}

@@ -226,7 +226,6 @@ const ProductCard = ({ data, gridView = true }) => {
                     <div className="product-content-section">
                         <div className="product-meta">
                             <span className="product-brand">{productData.brand}</span>
-                            {productData.category && <span className="product-category">{productData.category}</span>}
                         </div>
                         
                         <h3 className="product-title" onClick={handleViewProduct}>
@@ -322,7 +321,6 @@ const ProductCard = ({ data, gridView = true }) => {
                 <div className="product-content-section">
                     <div className="product-meta">
                         <span className="product-brand">{productData.brand}</span>
-                        {productData.category && <span className="product-category">{productData.category}</span>}
                     </div>
                     
                     <h3 className="product-title" onClick={handleViewProduct}>

@@ -43,7 +43,7 @@ const Categorylist = () => {
   useEffect(() => {
     dispatch(resetState());
     dispatch(getCategories());
-  }, []);
+  }, [dispatch]);
   const pCatStat = useSelector((state) => state.pCategory.pCategories);
   const data1 = [];
   for (let i = 0; i < pCatStat.length; i++) {
@@ -76,8 +76,10 @@ const Categorylist = () => {
     }, 100);
   };
   return (
-    <div>
-      <h3 className="mb-4 title">catégories de produits</h3>
+    <div className="admin-page-container">
+      <div className="page-header">
+        <h3>Catégories de Produits</h3>
+      </div>
       <div>
         <Table columns={columns} dataSource={data1} />
       </div>

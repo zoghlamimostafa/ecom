@@ -46,7 +46,7 @@ const Addcat = () => {
     if (isError) {
       toast.error("Something Went Wrong!");
     }
-  }, [isSuccess, isError, isLoading]);
+  }, [isSuccess, isError, isLoading, createdCategory, updatedCategory, navigate]);
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {

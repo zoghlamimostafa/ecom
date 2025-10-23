@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import CustomInput from "../components/CustomInput";
+import { Card, Form, Input, Button, Alert, Space, Divider } from "antd";
+import { UserOutlined, LockOutlined, LoginOutlined, ApiOutlined, ThunderboltOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import { useFormik } from "formik";
@@ -7,31 +8,40 @@ import { useDispatch, useSelector } from "react-redux";
 import { login } from "../features/auth/authSlice";
 import axios from "axios";
 import { base_url } from "../utils/baseUrl";
+import "../styles/Login.css";
 
 let schema = yup.object().shape({
   email: yup
     .string()
-    .email("Email should be valid")
-    .required("Email is Required"),
-  password: yup.string().required("Password is Required"),
+    .email("Email doit être valide")
+    .required("Email requis"),
+  password: yup.string().required("Mot de passe requis"),
 });
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [testResult, setTestResult] = useState(null);
+  const [loading, setLoading] = useState(false);
   
   const testBackendConnection = async () => {
-    setTestResult("🔄 Test en cours...");
+    setTestResult({ type: "info", message: "🔄 Test en cours..." });
     try {
       const response = await axios.get(base_url + 'product/');
-      setTestResult(`✅ Backend OK - ${response.data.length} produits trouvés`);
+      setTestResult({ 
+        type: "success", 
+        message: `✅ Backend OK - ${response.data.length || 0} produits trouvés` 
+      });
     } catch (error) {
-      setTestResult(`❌ Erreur: ${error.message}`);
+      setTestResult({ 
+        type: "error", 
+        message: `❌ Erreur: ${error.message}` 
+      });
     }
   };
   
   const quickLogin = async () => {
-    setTestResult("🔄 Connexion en cours...");
+    setLoading(true);
+    setTestResult({ type: "info", message: "🔄 Connexion en cours..." });
     try {
       const response = await axios.post(base_url + 'user/admin-login', {
         email: 'admin@test.com',
@@ -39,20 +49,26 @@ const Login = () => {
       });
       
       if (response.data.token) {
-        // Sauvegarder les données utilisateur
         localStorage.setItem('user', JSON.stringify(response.data));
-        setTestResult("✅ Connexion réussie ! Redirection...");
+        setTestResult({ 
+          type: "success", 
+          message: "✅ Connexion réussie ! Redirection..." 
+        });
         
-        // Redirection vers l'admin
         setTimeout(() => {
           navigate('/admin');
           window.location.reload();
         }, 1000);
       } else {
-        setTestResult("❌ Pas de token reçu");
+        setTestResult({ type: "error", message: "❌ Pas de token reçu" });
       }
     } catch (error) {
-      setTestResult(`❌ Connexion échouée: ${error.response?.data?.message || error.message}`);
+      setTestResult({ 
+        type: "error", 
+        message: `❌ Échec: ${error.response?.data?.message || error.message}` 
+      });
+    } finally {
+      setLoading(false);
     }
   };
   const formik = useFormik({
@@ -76,92 +92,156 @@ const Login = () => {
       navigate("");
     }
   }, [user, isError, isSuccess, isLoading, navigate]);
+  
   return (
-    <div className="py-5 login-page" style={{ minHeight: "100vh" }}>
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <div className="my-5 login-container bg-white rounded-3 mx-auto p-4">
-        <h3 className="text-center title">Se connecter</h3>
-        <p className="text-center">Connectez-vous à votre compte pour continuer.</p>
-        <div className="error text-center">
-          {message && isError ? (
-            <div className="alert alert-danger">
-              {(() => {
-                // Sécuriser l'affichage du message d'erreur
-                if (typeof message === 'string') {
-                  return message === "Rejected" ? "Erreur de connexion - Vérifiez vos identifiants" : message;
-                } else if (typeof message === 'object' && message.message) {
-                  return message.message === "Rejected" ? "Erreur de connexion - Vérifiez vos identifiants" : message.message;
-                } else {
-                  return "Erreur de connexion - Vérifiez vos identifiants";
-                }
-              })()}
+    <div className="login-page-modern">
+      <div className="login-background">
+        <div className="login-shape shape-1"></div>
+        <div className="login-shape shape-2"></div>
+        <div className="login-shape shape-3"></div>
+      </div>
+      
+      <div className="login-container-modern">
+        <Card 
+          className="login-card-modern"
+          bordered={false}
+          style={{
+            maxWidth: 450,
+            width: '100%',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+            borderRadius: '20px'
+          }}
+        >
+          <div className="login-header">
+            <div className="login-logo">
+              <div className="logo-circle">
+                <LoginOutlined style={{ fontSize: '32px', color: '#ff8800' }} />
+              </div>
             </div>
-          ) : null}
-        </div>
-        <form action="" onSubmit={formik.handleSubmit}>
-          <CustomInput
-            type="text"
-            label="Email"
-            id="email"
-            name="email"
-            onChng={formik.handleChange("email")}
-            onBlr={formik.handleBlur("email")}
-            val={formik.values.email}
-          />
-          <div className="error mt-2">
-            {formik.touched.email && formik.errors.email}
+            <h2 className="login-title">Tableau de Bord Admin</h2>
+            <p className="login-subtitle">Connectez-vous pour gérer votre boutique</p>
           </div>
-          <CustomInput
-            type="password"
-            label="Password"
-            id="pass"
-            name="password"
-            onChng={formik.handleChange("password")}
-            onBlr={formik.handleBlur("password")}
-            val={formik.values.password}
-          />
-          <div className="error mt-2">
-            {formik.touched.password && formik.errors.password}
-          </div>
-          
-          <button
-            className="border-0 px-3 py-2 text-white fw-bold w-100 text-center text-decoration-none fs-5"
-            style={{ background: "black" }}
-            type="submit"
-          >
-            Se connecter
-          </button>
 
-          {/* Boutons de diagnostic */}
-          <div className="mt-3">
-            <button
-              type="button"
+          {message && isError && (
+            <Alert
+              message="Erreur de connexion"
+              description={
+                typeof message === 'string' 
+                  ? (message === "Rejected" ? "Vérifiez vos identifiants" : message)
+                  : "Vérifiez vos identifiants"
+              }
+              type="error"
+              showIcon
+              closable
+              style={{ marginBottom: '20px' }}
+            />
+          )}
+
+          <Form onFinish={formik.handleSubmit} layout="vertical">
+            <Form.Item
+              label="Email"
+              validateStatus={formik.touched.email && formik.errors.email ? 'error' : ''}
+              help={formik.touched.email && formik.errors.email}
+            >
+              <Input
+                prefix={<UserOutlined style={{ color: '#ff8800' }} />}
+                type="email"
+                name="email"
+                placeholder="admin@exemple.com"
+                size="large"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                style={{ borderRadius: '10px' }}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Mot de passe"
+              validateStatus={formik.touched.password && formik.errors.password ? 'error' : ''}
+              help={formik.touched.password && formik.errors.password}
+            >
+              <Input.Password
+                prefix={<LockOutlined style={{ color: '#ff8800' }} />}
+                name="password"
+                placeholder="••••••••"
+                size="large"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                style={{ borderRadius: '10px' }}
+              />
+            </Form.Item>
+
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                size="large"
+                block
+                loading={isLoading}
+                icon={<LoginOutlined />}
+                style={{
+                  background: 'linear-gradient(135deg, #ff8800 0%, #ff6600 100%)',
+                  border: 'none',
+                  borderRadius: '10px',
+                  height: '50px',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  boxShadow: '0 4px 15px rgba(255, 136, 0, 0.3)'
+                }}
+              >
+                Se connecter
+              </Button>
+            </Form.Item>
+          </Form>
+
+          <Divider style={{ margin: '20px 0', color: '#999' }}>
+            Outils de développement
+          </Divider>
+
+          <Space direction="vertical" style={{ width: '100%' }} size="middle">
+            <Button
+              type="default"
               onClick={testBackendConnection}
-              className="btn btn-info w-100 mb-2"
+              block
+              icon={<ApiOutlined />}
+              style={{ borderRadius: '10px', height: '40px' }}
             >
-              🔍 Tester la connectivité Backend
-            </button>
+              Tester la connectivité
+            </Button>
             
-            <button
-              type="button"
+            <Button
+              type="dashed"
               onClick={quickLogin}
-              className="btn btn-success w-100 mb-2"
+              block
+              loading={loading}
+              icon={<ThunderboltOutlined />}
+              style={{ 
+                borderRadius: '10px', 
+                height: '40px',
+                borderColor: '#52c41a',
+                color: '#52c41a'
+              }}
             >
-              🚀 Connexion rapide Admin
-            </button>
+              Connexion rapide (admin@test.com)
+            </Button>
             
             {testResult && (
-              <div className="alert alert-info text-center">
-                {testResult}
-              </div>
+              <Alert
+                message={testResult.message}
+                type={testResult.type}
+                showIcon
+                closable
+                onClose={() => setTestResult(null)}
+              />
             )}
-          </div>
-
-        </form>
+          </Space>
+        </Card>
+        
+        <div className="login-footer">
+          <p>© 2025 Sanny Store - Panel d'administration</p>
+        </div>
       </div>
     </div>
   );

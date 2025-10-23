@@ -17,15 +17,23 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
   const navigate = useNavigate();
   
   // Récupérer tous les produits depuis Redux
-  const allProducts = useSelector(state => state?.product?.product) || products;
+  const reduxProducts = useSelector(state => state?.product?.product);
+  const allProducts = reduxProducts || products;
   
   // Debug: vérifier les produits disponibles
   useEffect(() => {
-    console.log('🔍 SearchBar - Produits disponibles:', allProducts?.length || 0);
+    console.log('🔍 SearchBar - Redux State Debug:');
+    console.log('  - reduxProducts type:', typeof reduxProducts);
+    console.log('  - reduxProducts isArray:', Array.isArray(reduxProducts));
+    console.log('  - reduxProducts:', reduxProducts);
+    console.log('  - allProducts length:', allProducts?.length || 0);
+    
     if (allProducts && allProducts.length > 0) {
       console.log('✅ Premier produit:', allProducts[0]?.title);
+    } else {
+      console.warn('⚠️ AUCUN PRODUIT DISPONIBLE POUR LA RECHERCHE!');
     }
-  }, [allProducts]);
+  }, [allProducts, reduxProducts]);
 
   // Charger les catégories depuis l'API
   useEffect(() => {
@@ -193,14 +201,18 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
       
       console.log('🔍 Recherche active:', searchLower);
       console.log('📦 Produits disponibles pour recherche:', allProducts?.length || 0);
+      console.log('📦 Type de allProducts:', typeof allProducts, 'isArray:', Array.isArray(allProducts));
       
-      if (!allProducts || allProducts.length === 0) {
+      if (!allProducts || !Array.isArray(allProducts) || allProducts.length === 0) {
         console.warn('⚠️ Aucun produit disponible pour la recherche');
+        console.warn('   allProducts:', allProducts);
         setSuggestions([]);
         setShowSuggestions(true); // Afficher quand même le message "Aucun résultat"
         setShowPopularKeywords(false);
         return;
       }
+      
+      console.log('📦 Premiers produits:', allProducts.slice(0, 3).map(p => p?.title));
       
       // Recherche dans les produits avec mots-clés générés et scoring
       const filtered = allProducts.map(product => {
@@ -214,6 +226,11 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
         if (titleLower === searchLower) score += 100;
         else if (titleLower.includes(searchLower)) score += 50;
         else if (searchWords.length > 0 && searchWords.every(word => titleLower.includes(word))) score += 30;
+        
+        // Debug pour "iphone"
+        if (searchLower === 'iphone' && titleLower.includes('iphone')) {
+          console.log('✅ Match iPhone trouvé!', product.title, 'Score:', score);
+        }
         
         // Recherche dans la description
         const descLower = product.description?.toLowerCase() || '';

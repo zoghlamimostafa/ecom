@@ -8,12 +8,13 @@ const AuthChecker = ({ children }) => {
     useEffect(() => {
         const checkAuthentication = () => {
             try {
-                const userToken = JSON.parse(localStorage.getItem("user"));
+                const userString = localStorage.getItem("user");
+                const userToken = userString ? JSON.parse(userString) : null;
                 const isLoggedIn = userToken?.token !== undefined;
-                const isOnPublicPage = ["/", "/login", "/forgot-password", "/reset-password", "/create-admin"].includes(location.pathname);
+                const isOnPublicPage = ["/", "/login", "/forgot-password", "/reset-password", "/create-admin", "/diagnostic"].includes(location.pathname);
 
                 // If user has valid token and is on a public page, redirect to admin
-                if (isLoggedIn && isOnPublicPage) {
+                if (isLoggedIn && isOnPublicPage && location.pathname !== "/diagnostic") {
                     navigate("/admin", { replace: true });
                 }
                 // If user doesn't have token and is not on a public page, redirect to login
@@ -24,6 +25,7 @@ const AuthChecker = ({ children }) => {
                 console.error("Error checking authentication:", error);
                 // If there's an error parsing localStorage, clear it and redirect to login
                 localStorage.removeItem("user");
+                localStorage.removeItem("token");
                 navigate("/", { replace: true });
             }
         };

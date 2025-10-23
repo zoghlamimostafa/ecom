@@ -146,8 +146,10 @@ const Orders = () => {
   console.log('🔍 Orders.js - data1.length:', data1.length);
 
   return (
-    <div>
-      <h3 className="mb-4 title">Tous les ordres</h3>
+    <div className="admin-page-container">
+      <div className="page-header">
+        <h3>Toutes les Commandes</h3>
+      </div>
       <div>
         <Table columns={columns} dataSource={data1} rowKey="key" />
       </div>

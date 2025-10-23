@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import './ProductFilters.css';
 import { FaFilter, FaTimes, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
-const ProductFilters = ({ onFilterChange, activeFilters = {} }) => {
+const ProductFilters = ({ onFilterChange, activeFilters = {}, horizontal = false }) => {
     const [isOpen, setIsOpen] = useState({
         price: true,
         brands: true,
@@ -123,7 +123,7 @@ const ProductFilters = ({ onFilterChange, activeFilters = {} }) => {
         (localFilters.onSale ? 1 : 0);
 
     return (
-        <div className="product-filters-sidebar">
+        <div className={`product-filters-sidebar ${horizontal ? 'horizontal-filters' : ''}`}>
             <div className="filters-header">
                 <h3 className="filters-title">
                     <FaFilter /> Filtres
@@ -147,21 +147,26 @@ const ProductFilters = ({ onFilterChange, activeFilters = {} }) => {
                 {isOpen.price && (
                     <div className="filter-content">
                         <div className="price-inputs">
-                            <input
-                                type="number"
-                                placeholder="Min"
-                                value={localFilters.minPrice}
-                                onChange={(e) => handlePriceChange('minPrice', e.target.value)}
-                                className="price-input"
-                            />
-                            <span className="price-separator">-</span>
-                            <input
-                                type="number"
-                                placeholder="Max"
-                                value={localFilters.maxPrice}
-                                onChange={(e) => handlePriceChange('maxPrice', e.target.value)}
-                                className="price-input"
-                            />
+                            <div className="price-input-wrapper">
+                                <label className="price-label">Prix Min</label>
+                                <input
+                                    type="number"
+                                    placeholder="0"
+                                    value={localFilters.minPrice}
+                                    onChange={(e) => handlePriceChange('minPrice', e.target.value)}
+                                    className="price-input"
+                                />
+                            </div>
+                            <div className="price-input-wrapper">
+                                <label className="price-label">Prix Max</label>
+                                <input
+                                    type="number"
+                                    placeholder="1000"
+                                    value={localFilters.maxPrice}
+                                    onChange={(e) => handlePriceChange('maxPrice', e.target.value)}
+                                    className="price-input"
+                                />
+                            </div>
                         </div>
                     </div>
                 )}

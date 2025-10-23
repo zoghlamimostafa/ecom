@@ -27,7 +27,8 @@ const {
     deleteOrder,
     getOrderByUserId,
     getOrderById,
-    updatedUser
+    updatedUser,
+    updateProfile // NEW: Profile update for authenticated user
 } = require("../controller/userCtrl");
 
 const router = express.Router();
@@ -338,7 +339,8 @@ router.put("/block-user/:id", authMiddleware, blockUser);
 router.put("/unblock-user/:id", authMiddleware, unblockUser);
 router.delete("/delete-user/:id", authMiddleware, deleteaUser);
 
-// User profile update route
-router.put("/edit-user/:id", authMiddleware, updatedUser);
+// User profile update routes
+router.put("/profile", authMiddleware, updateProfile); // For authenticated user (no ID needed)
+router.put("/edit-user/:id", authMiddleware, updatedUser); // For admin editing any user
 
 module.exports = router;
