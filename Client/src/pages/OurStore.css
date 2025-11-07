@@ -10,17 +10,9 @@
     padding: 2rem 0;
 }
 
-/* Products Grid Spacing */
+/* Products Grid Spacing - Layout Bootstrap standard */
 .store-wrapper .products-grid {
     padding: 2rem 1rem;
-    display: flex;
-    justify-content: center;
-}
-
-.store-wrapper .row {
-    margin-left: 0;
-    margin-right: 0;
-    justify-content: center;
 }
 
 .store-wrapper .col-xl-3,
@@ -29,40 +21,10 @@
 .store-wrapper .col-sm-6 {
     display: flex;
     justify-content: center;
-    padding: 0 15px;
+    align-items: flex-start;
 }
 
-/* DESKTOP (≥1200px) - 4 colonnes, espacement généreux */
-@media (min-width: 1200px) {
-    .store-wrapper .row.g-4 {
-        row-gap: 40px !important;
-        column-gap: 40px !important;
-    }
-}
-
-/* TABLETTE (768px - 1199px) - 3 colonnes, espacement moyen */
-@media (min-width: 768px) and (max-width: 1199px) {
-    .store-wrapper .row.g-4 {
-        row-gap: 35px !important;
-        column-gap: 35px !important;
-    }
-    
-    .store-wrapper .products-grid {
-        padding: 1.5rem 1rem;
-    }
-}
-
-/* MOBILE (<768px) - 2 colonnes, espacement compact */
-@media (max-width: 767px) {
-    .store-wrapper .row.g-4 {
-        row-gap: 30px !important;
-        column-gap: 30px !important;
-    }
-    
-    .store-wrapper .products-grid {
-        padding: 1rem 0.5rem;
-    }
-}
+/* Suppression des anciennes règles de gap qui entrent en conflit avec le système Bootstrap */
 
 /* Store Header */
 .store-header {
@@ -111,8 +73,8 @@
     transform: translateY(-2px);
 }
 
-/* Autocomplete Suggestions */
-.autocomplete-suggestions {
+/* Search Suggestions Dropdown */
+.search-suggestions {
     position: absolute;
     top: 100%;
     left: 0;
@@ -121,43 +83,70 @@
     border: 2px solid #FF914D;
     border-top: none;
     border-radius: 0 0 12px 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    max-height: 300px;
+    box-shadow: 0 8px 24px rgba(255, 145, 77, 0.15);
+    max-height: 320px;
     overflow-y: auto;
     z-index: 1000;
-    margin-top: -2px;
+    margin-top: -10px;
 }
 
 .suggestion-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.875rem 1rem 0.875rem 3rem;
+    padding: 0.875rem 1rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f3f4f6;
 }
 
 .suggestion-item:last-child {
     border-bottom: none;
+    border-radius: 0 0 10px 10px;
 }
 
 .suggestion-item:hover {
-    background: #fff5e6;
-    color: #FF914D;
+    background: linear-gradient(90deg, #fff5ec 0%, #fff 100%);
+    padding-left: 1.5rem;
 }
 
 .suggestion-icon {
     color: #FF914D;
     font-size: 0.9rem;
-    opacity: 0.7;
-    position: absolute;
-    left: 1rem;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
 }
 
-.suggestion-item span {
+.suggestion-title {
+    color: #1f2937;
     font-size: 0.95rem;
     font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.suggestion-item:hover .suggestion-title {
+    color: #FF914D;
+    font-weight: 600;
+}
+
+/* Scrollbar pour les suggestions */
+.search-suggestions::-webkit-scrollbar {
+    width: 6px;
+}
+
+.search-suggestions::-webkit-scrollbar-track {
+    background: #f9fafb;
+    border-radius: 0 0 10px 0;
+}
+
+.search-suggestions::-webkit-scrollbar-thumb {
+    background: #FF914D;
+    border-radius: 3px;
+}
+
+.search-suggestions::-webkit-scrollbar-thumb:hover {
+    background: #e67e2e;
 }
 
 /* Store Controls */
@@ -453,53 +442,75 @@
 
 /* Grid view uses Bootstrap col system */
 .products-grid .row {
-    margin: 0 -0.75rem;
+    margin: 0 -12px;
 }
 
 .products-grid .row > div {
-    padding: 0 0.75rem;
+    padding: 0 12px;
+    margin-bottom: 24px;
 }
 
-/* Fix pour afficher les cartes en grille correctement */
+/* Fix pour afficher les cartes en grille correctement - GRILLE BOOTSTRAP STANDARD */
 .products-grid .row.g-4 {
     display: flex;
     flex-wrap: wrap;
-    gap: 24px;
+    margin-left: -12px;
+    margin-right: -12px;
 }
 
 .products-grid .row.g-4 > div {
-    flex: 0 0 auto;
+    padding-left: 12px;
+    padding-right: 12px;
+    margin-bottom: 24px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
 }
 
-/* Assurer que les cartes gardent leur format normal - CORRECTION ÉTIREMENT */
+/* Force les cartes à ne pas s'étirer */
+.products-grid .row.g-4 > div > * {
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    width: 100%;
+}
+
+/* S'assurer que les cartes gardent leurs dimensions définies */
+.products-grid .modern-product-card-grid,
 .products-grid .product-card-container {
-    width: 240px !important;
-    height: 300px !important;
-    min-height: 300px !important;
-    max-height: 300px !important;
-    flex-shrink: 0;
+    flex-shrink: 0 !important;
 }
 
-.products-grid .modern-product-card-grid {
-    height: 300px !important;
+/* Largeurs responsive pour Bootstrap grid - 3 COLONNES STANDARD */
+@media (min-width: 992px) {
+    .products-grid .row.g-4 > .col-lg-4 {
+        width: 33.333333%;
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
 }
 
-.products-grid .modern-product-card-grid .product-card-container {
-    height: 300px !important;
+@media (min-width: 768px) and (max-width: 991px) {
+    .products-grid .row.g-4 > .col-md-6 {
+        width: 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
 }
 
-/* Force les dimensions pour éviter l'étirement dans la recherche */
-.products-grid .row.g-4 .product-card-container {
-    width: 240px !important;
-    height: 300px !important;
+@media (min-width: 576px) and (max-width: 767px) {
+    .products-grid .row.g-4 > .col-sm-6 {
+        width: 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
 }
 
-.products-grid .product-image-section {
-    height: 160px !important;
-    flex-shrink: 0;
+@media (max-width: 575px) {
+    .products-grid .row.g-4 > div {
+        width: 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
 }
 
 /* Product Card Animations */

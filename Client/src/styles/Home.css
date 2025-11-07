@@ -1360,6 +1360,62 @@
   animation: fadeInUp 0.6s ease-out;
 }
 
+/* Fix pour les cartes produits dans Home - Grille de 3 colonnes */
+.promotions-wrapper .row,
+.popular-products-wrapper .row,
+.new-products-wrapper .row,
+.featured-products-wrapper .row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -12px;
+  margin-right: -12px;
+}
+
+.promotions-wrapper .row > div,
+.popular-products-wrapper .row > div,
+.new-products-wrapper .row > div,
+.featured-products-wrapper .row > div {
+  padding-left: 12px;
+  padding-right: 12px;
+  margin-bottom: 24px;
+}
+
+/* Assurer 3 colonnes sur desktop */
+@media (min-width: 992px) {
+  .promotions-wrapper .col-lg-4,
+  .popular-products-wrapper .col-lg-4,
+  .new-products-wrapper .col-lg-4,
+  .featured-products-wrapper .col-lg-4 {
+    width: 33.333333%;
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+}
+
+/* 2 colonnes sur tablette */
+@media (min-width: 768px) and (max-width: 991px) {
+  .promotions-wrapper .col-md-6,
+  .popular-products-wrapper .col-md-6,
+  .new-products-wrapper .col-md-6,
+  .featured-products-wrapper .col-md-6 {
+    width: 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+/* 2 colonnes sur mobile */
+@media (max-width: 767px) {
+  .promotions-wrapper .col-sm-6,
+  .popular-products-wrapper .col-sm-6,
+  .new-products-wrapper .col-sm-6,
+  .featured-products-wrapper .col-sm-6 {
+    width: 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
 /* Pulse animation pour les badges */
 @keyframes pulse {
   0%, 100% {

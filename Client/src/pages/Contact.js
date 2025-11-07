@@ -8,6 +8,7 @@ import Meta from '../components/Meta';
 import SEOEnhancer from '../components/SEOEnhancer';
 import BrandCrumb from '../components/BrandCrumb';
 import Container from '../components/Container';
+import CONTACT_INFO from '../config/contactInfo';
 import { 
   FaHome, 
   FaPhone, 
@@ -275,8 +276,7 @@ const Contact = () => {
                   </div>
                   <div className="info-content">
                     <h4>Téléphone</h4>
-                    <p><a href="tel:+21699249987">+216 99 249 987</a></p>
-                    <p><a href="tel:+21612345678">+216 12 345 678</a></p>
+                    <p><a href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`}>{CONTACT_INFO.phoneFormatted}</a></p>
                   </div>
                 </div>
                 
@@ -286,8 +286,7 @@ const Contact = () => {
                   </div>
                   <div className="info-content">
                     <h4>Email</h4>
-                    <p><a href="mailto:Sannyshop02@gmail.com">Sannyshop02@gmail.com</a></p>
-                    <p><a href="mailto:support@sanny.com">support@sanny.com</a></p>
+                    <p><a href={`mailto:${CONTACT_INFO.email}`}>{CONTACT_INFO.email}</a></p>
                   </div>
                 </div>
                 
@@ -307,7 +306,7 @@ const Contact = () => {
               <div className="contact-cta">
                 <h4>Besoin d'aide immédiate ?</h4>
                 <p>Notre équipe de support est disponible pour vous aider</p>
-                <a href="tel:+21612345678" className="cta-btn">
+                <a href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`} className="cta-btn">
                   <FaPhone /> Appelez maintenant
                 </a>
               </div>

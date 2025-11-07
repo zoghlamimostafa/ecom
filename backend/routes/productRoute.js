@@ -8,6 +8,7 @@ const {
   addToWishlist,
   rating,
   getProductCount,
+  getAllRatings,
 } = require("../controller/productCtrl");
 
 // Import optimized controllers
@@ -38,6 +39,7 @@ router.put("/admin/bulk-update", authMiddleware, isAdmin, bulkUpdateProducts);
 // Routes publiques (utilisées par le frontend client) avec cache plus long
 router.get("/", cacheMiddleware(300), getAllProduct);
 router.get("/count", cacheMiddleware(300), getProductCount);
+router.get("/ratings/all", cacheMiddleware(60), getAllRatings);
 router.get("/:id", cacheMiddleware(600), getaProduct);
 router.put("/wishlist", authMiddleware, addToWishlist);
 router.put("/rating", authMiddleware, rating);

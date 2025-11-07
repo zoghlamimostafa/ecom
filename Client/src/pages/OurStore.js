@@ -53,6 +53,54 @@ const OurStore = () => {
         setActiveFilters(newFilters);
     };
 
+    // Fonction pour gérer les changements dans la barre de recherche
+    const handleSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        
+        if (value.length >= 2 && productState && Array.isArray(productState) && productState.length > 0) {
+            console.log('🔍 OurStore: Recherche pour:', value);
+            console.log('📦 Produits disponibles:', productState.length);
+            
+            // Filtrer UNIQUEMENT par titre de produit
+            const matchingProducts = productState
+                .filter(product => 
+                    product.title?.toLowerCase().includes(value.toLowerCase())
+                )
+                .map(product => ({
+                    title: product.title,
+                    slug: product.slug || product.id
+                }))
+                .slice(0, 8); // Maximum 8 suggestions
+            
+            console.log('✅ Produits trouvés:', matchingProducts.length);
+            
+            // Éliminer les doublons avec Map
+            const uniqueSuggestions = Array.from(
+                new Map(matchingProducts.map(item => [item.title, item])).values()
+            );
+            
+            setSuggestions(uniqueSuggestions);
+            setShowSuggestions(uniqueSuggestions.length > 0);
+        } else {
+            if (value.length >= 2) {
+                console.log('⚠️ OurStore: Produits non disponibles', {
+                    productState: productState,
+                    isArray: Array.isArray(productState),
+                    length: productState?.length
+                });
+            }
+            setSuggestions([]);
+            setShowSuggestions(false);
+        }
+    };
+
+    // Fonction pour gérer le clic sur une suggestion
+    const handleSuggestionClick = (suggestion) => {
+        setSearchTerm(suggestion.title);
+        setShowSuggestions(false);
+    };
+
     const applyFilters = (products, filters) => {
         let filtered = [...products];
 
@@ -105,6 +153,57 @@ const OurStore = () => {
             });
         }
 
+        // Filtrer par statut (tags)
+        if (filters.tags && filters.tags.length > 0) {
+            filtered = filtered.filter(p => {
+                let productTags = p.tags;
+                
+                // Si tags est vide, null ou undefined
+                if (!productTags || productTags === 'null' || productTags === '' || productTags === '[]' || productTags === '""') {
+                    return false;
+                }
+                
+                // Si c'est déjà un tableau
+                if (Array.isArray(productTags)) {
+                    return filters.tags.some(tag => productTags.includes(tag));
+                }
+                
+                // Si c'est une chaîne
+                if (typeof productTags === 'string') {
+                    // Essayer de parser comme JSON
+                    if (productTags.startsWith('[') || productTags.startsWith('{')) {
+                        try {
+                            const parsed = JSON.parse(productTags);
+                            if (Array.isArray(parsed)) {
+                                return filters.tags.some(tag => parsed.includes(tag));
+                            }
+                        } catch (e) {
+                            // Continue avec la logique de chaîne simple
+                        }
+                    }
+                    
+                    // Si c'est une chaîne simple, vérifier les correspondances
+                    const tagMap = {
+                        'promo': 'promotion',
+                        'promotion': 'promotion',
+                        'new': 'new',
+                        'nouveau': 'new',
+                        'bestseller': 'bestseller',
+                        'best-seller': 'bestseller',
+                        'featured': 'featured',
+                        'vedette': 'featured'
+                    };
+                    
+                    const normalizedTag = productTags.toLowerCase().replace(/['"]/g, '').trim();
+                    const mappedTag = tagMap[normalizedTag];
+                    
+                    return filters.tags.includes(mappedTag);
+                }
+                
+                return false;
+            });
+        }
+
         // Suppression du filtre par taille
 
         if (filters.rating) {
@@ -127,37 +226,6 @@ const OurStore = () => {
     };
 
     const filteredProducts = applyFilters(productState || [], activeFilters);
-
-    // Générer les suggestions d'autocomplete
-    const handleSearchChange = (e) => {
-        const value = e.target.value;
-        setSearchTerm(value);
-        
-        if (value.length >= 2 && productState) {
-            // Créer un Set pour éviter les doublons
-            const suggestionSet = new Set();
-            
-            productState.forEach(product => {
-                if (product.title?.toLowerCase().includes(value.toLowerCase())) {
-                    suggestionSet.add(product.title);
-                }
-                if (product.brand?.toLowerCase().includes(value.toLowerCase())) {
-                    suggestionSet.add(product.brand);
-                }
-            });
-            
-            setSuggestions(Array.from(suggestionSet).slice(0, 5));
-            setShowSuggestions(true);
-        } else {
-            setSuggestions([]);
-            setShowSuggestions(false);
-        }
-    };
-
-    const handleSuggestionClick = (suggestion) => {
-        setSearchTerm(suggestion);
-        setShowSuggestions(false);
-    };
 
     return (
         <>
@@ -183,11 +251,11 @@ const OurStore = () => {
                                             className="search-input"
                                             value={searchTerm}
                                             onChange={handleSearchChange}
-                                            onFocus={() => searchTerm.length >= 2 && setShowSuggestions(true)}
+                                            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
                                             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                                         />
                                         {showSuggestions && suggestions.length > 0 && (
-                                            <div className="autocomplete-suggestions">
+                                            <div className="search-suggestions">
                                                 {suggestions.map((suggestion, index) => (
                                                     <div
                                                         key={index}
@@ -195,7 +263,7 @@ const OurStore = () => {
                                                         onClick={() => handleSuggestionClick(suggestion)}
                                                     >
                                                         <FaSearch className="suggestion-icon" />
-                                                        <span>{suggestion}</span>
+                                                        <span className="suggestion-title">{suggestion.title}</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -245,7 +313,7 @@ const OurStore = () => {
                                 {gridView ? (
                                     <div className="row g-4">
                                         {filteredProducts && filteredProducts.map((item, index) => (
-                                            <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6" key={index}>
+                                            <div className="col-lg-4 col-md-6 col-sm-6" key={index}>
                                                 <ProductCard data={item} gridView={true} />
                                             </div>
                                         ))}

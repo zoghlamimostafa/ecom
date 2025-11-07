@@ -657,6 +657,146 @@
   }
 }
 
+/* Payment Info */
+.payment-info {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #28a745;
+}
+
+.payment-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.payment-method,
+.payment-status,
+.payment-date {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.payment-label {
+  font-size: 0.95rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.payment-value {
+  font-size: 0.95rem;
+  color: #232f3e;
+  font-weight: 600;
+}
+
+.payment-value.paid {
+  color: #28a745;
+}
+
+.payment-value.unpaid {
+  color: #ffc107;
+}
+
+/* Enhanced Order Summary Styles */
+.summary-row.subtotal {
+  font-weight: 600;
+  color: #232f3e;
+  border-top: 1px dashed #dee2e6;
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+}
+
+.summary-divider {
+  height: 1px;
+  background: #dee2e6;
+  margin: 0.75rem 0;
+}
+
+.summary-divider.bold {
+  height: 2px;
+  background: #FF914D;
+  margin: 1rem 0;
+}
+
+.summary-row.highlight {
+  background: linear-gradient(135deg, rgba(255, 145, 77, 0.1), rgba(255, 145, 77, 0.05));
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+
+.summary-row.coupon-discount-row {
+  padding-left: 0.75rem;
+  color: #28a745;
+}
+
+.coupon-code {
+  background: #28a745;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.summary-row.discount {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.discount-amount {
+  color: #28a745;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.summary-row.total-after-discount {
+  background: #e7f3ff;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.price-after-discount {
+  color: #0d6efd;
+  font-size: 1.1rem;
+}
+
+.summary-row.final-total {
+  background: linear-gradient(135deg, #FF914D, #ff7a1f);
+  color: white !important;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+.summary-row.final-total span {
+  color: white !important;
+}
+
+.final-price {
+  font-size: 1.3rem !important;
+}
+
+.summary-row.savings {
+  background: #d4edda;
+  color: #155724;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.savings-amount {
+  color: #155724;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
 /* Print Styles */
 @media print {
   .orders-header,

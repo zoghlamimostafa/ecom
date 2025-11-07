@@ -1,113 +1,112 @@
-
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSearch, FaTimes } from 'react-icons/fa';
-import { getProductImageUrl } from '../utils/imageHelper';
+import { useSelector, useDispatch } from 'react-redux';
+import { FaSearch } from 'react-icons/fa';
+import { getAllProducts } from '../features/products/productSlice';
 import './SearchBar.css';
-
-import { getBackendUrl } from '../utils/imageHelper';
-const API_URL = getBackendUrl() + '/api/search/suggestions';
-
-function debounce(fn, delay) {
-  let timer = null;
-  return (...args) => {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
-}
 
 const SearchBar = ({ placeholder = 'Rechercher des produits...' }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [autoCompleteValue, setAutoCompleteValue] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const searchRef = useRef(null);
-  const inputRef = useRef(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const productState = useSelector((state) => state?.product?.product);
+  const isLoading = useSelector((state) => state?.product?.isLoading);
 
-  // Debounced fetch
-  const fetchSuggestions = useCallback(
-    debounce(async (query) => {
-      if (!query.trim()) {
+  // Charger les produits au montage du composant
+  useEffect(() => {
+    if (!productState || productState.length === 0) {
+      console.log('📦 SearchBar: Chargement des produits...');
+      dispatch(getAllProducts());
+    }
+  }, [dispatch, productState]);
+
+  // Debug: Log productState changes
+  useEffect(() => {
+    console.log('📦 SearchBar productState updated:', {
+      isArray: Array.isArray(productState),
+      length: productState?.length,
+      isLoading,
+      firstProduct: productState?.[0]?.title
+    });
+  }, [productState, isLoading]);
+
+  // Fonction pour gérer les changements dans la barre de recherche
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    
+    console.log('🔍 Saisie:', value, 'Longueur:', value.length);
+    
+    // Minimum 1 caractère pour afficher les suggestions
+    if (value.length >= 1) {
+      if (!productState || !Array.isArray(productState)) {
+        console.log('⚠️ ProductState invalide:', productState);
         setSuggestions([]);
         setShowSuggestions(false);
-        setLoading(false);
-        setError(null);
         return;
       }
-      setLoading(true);
-      setError(null);
-      let suggestions = [];
-      // Ajoute la suggestion personnalisée en haut, toujours
-      if (query && query.trim().length > 0) {
-        suggestions.push({
-          id: '__search__',
-          type: 'custom',
-          title: `Rechercher "${query}"`,
-          query: query
-        });
+      
+      if (productState.length === 0) {
+        console.log('⚠️ ProductState vide');
+        setSuggestions([]);
+        setShowSuggestions(false);
+        return;
       }
-      try {
-        const res = await fetch(`${API_URL}?q=${encodeURIComponent(query)}`);
-        if (!res.ok) throw new Error('Erreur API');
-        const data = await res.json();
-        // Supporte toutes les suggestions (produits, catégories, marques)
-        if (data.suggestions && Array.isArray(data.suggestions)) {
-          suggestions = suggestions.concat(data.suggestions);
-        } else {
-          // Rétrocompatibilité : produits et catégories séparés
-          if (data.products && Array.isArray(data.products)) {
-            suggestions = suggestions.concat(data.products.map(p => ({ ...p, type: 'product', images: p.image ? [p.image] : [] })));
+      
+      console.log('📦 Recherche dans', productState.length, 'produits');
+      
+      // Filtrer par titre de produit
+      const matchingProducts = productState
+        .filter(product => {
+          const hasTitle = product && product.title;
+          if (!hasTitle) return false;
+          const matches = product.title.toLowerCase().includes(value.toLowerCase());
+          if (matches) {
+            console.log('  ✓ Trouvé:', product.title);
           }
-          if (data.categories && Array.isArray(data.categories)) {
-            suggestions = suggestions.concat(data.categories.map(c => ({ ...c, type: 'category' })));
-          }
-          if (data.brands && Array.isArray(data.brands)) {
-            suggestions = suggestions.concat(data.brands.map(b => ({ ...b, type: 'brand' })));
-          }
-        }
-        setSuggestions(suggestions);
-        setShowSuggestions(true);
-      } catch (err) {
-        setError('Erreur lors de la recherche');
-        setSuggestions(suggestions);
-        setShowSuggestions(true);
-      } finally {
-        setLoading(false);
-      }
-  }, 120),
-    []
-  );
-
-  useEffect(() => {
-    if (searchTerm.trim()) {
-      fetchSuggestions(searchTerm);
+          return matches;
+        })
+        .map(product => ({
+          title: product.title,
+          slug: product.slug || product.id,
+          id: product.id
+        }))
+        .slice(0, 8); // Maximum 8 suggestions
+      
+      console.log('✅ Total trouvés:', matchingProducts.length);
+      
+      setSuggestions(matchingProducts);
+      setShowSuggestions(matchingProducts.length > 0);
+      
+      console.log('👁️ showSuggestions:', matchingProducts.length > 0);
     } else {
+      console.log('⊘ Recherche vide, masquage des suggestions');
       setSuggestions([]);
       setShowSuggestions(false);
-      setLoading(false);
-      setError(null);
-      setAutoCompleteValue('');
     }
-  }, [searchTerm, fetchSuggestions]);
+  };
 
-  // Met à jour l’autocomplétion inline dès que suggestions changent
-  useEffect(() => {
-    if (!searchTerm.trim() || !suggestions.length) {
-      setAutoCompleteValue('');
-      return;
+  // Fonction pour gérer le clic sur une suggestion
+  const handleSuggestionClick = (suggestion) => {
+    console.log('🖱️ Clic sur suggestion:', suggestion.title);
+    setSearchTerm(suggestion.title);
+    setShowSuggestions(false);
+    // Rediriger vers la page de recherche avec le terme
+    navigate(`/product?search=${encodeURIComponent(suggestion.title)}`);
+  };
+
+  // Fonction pour gérer la soumission du formulaire
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      console.log('🔍 Recherche soumise:', searchTerm);
+      navigate(`/product?search=${encodeURIComponent(searchTerm)}`);
+      setShowSuggestions(false);
     }
-  // Cherche la première suggestion produit/catégorie/marque qui CONTIENT le searchTerm
-  const first = suggestions.find(s => (s.type === 'product' || s.type === 'category' || s.type === 'brand') && s.title && s.title.toLowerCase().includes(searchTerm.toLowerCase()));
-    if (first && first.title && first.title.length > searchTerm.length) {
-      setAutoCompleteValue(first.title);
-    } else {
-      setAutoCompleteValue('');
-    }
-  }, [suggestions, searchTerm]);
+  };
 
   // Close suggestions on outside click
   useEffect(() => {
@@ -120,196 +119,47 @@ const SearchBar = ({ placeholder = 'Rechercher des produits...' }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Keyboard navigation
-  const handleKeyDown = (e) => {
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (selectedIndex >= 0 && suggestions[selectedIndex]) {
-        handleSelect(suggestions[selectedIndex]);
-      } else if (searchTerm.trim()) {
-        handleSearch();
-      }
-    } else if (e.key === 'Escape') {
-      setShowSuggestions(false);
-      setSelectedIndex(-1);
-    }
-  };
-
-  const handleSelect = (item) => {
-    // Toujours rediriger vers la page de recherche filtrée avec le mot tapé ou le titre de la suggestion
-    let searchValue = '';
-    if (item.type === 'custom') {
-      searchValue = item.query;
-    } else if (item.title) {
-      searchValue = item.title;
-    } else {
-      searchValue = searchTerm;
-    }
-    navigate(`/product?search=${encodeURIComponent(searchValue)}`);
-    setSearchTerm('');
-    setShowSuggestions(false);
-    setSelectedIndex(-1);
-  };
-
-  const handleSearch = () => {
-    if (searchTerm.trim()) {
-      navigate(`/product?search=${encodeURIComponent(searchTerm)}`);
-      setShowSuggestions(false);
-      setSelectedIndex(-1);
-      setSearchTerm('');
-      setAutoCompleteValue('');
-      // Focus automatique sur l'input après recherche
-      setTimeout(() => {
-        if (inputRef.current) inputRef.current.focus();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 200);
-    }
-  };
-
-  const handleClear = () => {
-    setSearchTerm('');
-    setSuggestions([]);
-    setShowSuggestions(false);
-    setSelectedIndex(-1);
-    setError(null);
-  };
-
-  const highlightMatch = (text, query) => {
-    if (!query.trim()) return text;
-    const parts = text.split(new RegExp(`(${query})`, 'gi'));
-    return parts.map((part, i) =>
-      part.toLowerCase() === query.toLowerCase() ? (
-        <mark key={i} className="searchbar-highlight">{part}</mark>
-      ) : (
-        part
-      )
-    );
-  };
-
   return (
-    <div className="searchbar-autosuggest" ref={searchRef}>
-      <div className="searchbar-input-wrapper">
-        <div style={{position: 'relative', width: '100%'}}>
-          {/* Input visible */}
+    <div className="searchbar-container" ref={searchRef}>
+      <form onSubmit={handleSearch} className="searchbar-form">
+        <div className="searchbar-input-wrapper">
+          <FaSearch className="searchbar-icon" />
           <input
-            ref={inputRef}
             type="text"
             className="searchbar-input"
             placeholder={placeholder}
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setSelectedIndex(-1);
-            }}
-            onKeyDown={handleKeyDown}
-            onFocus={e => {
-              if (suggestions.length > 0) setShowSuggestions(true);
-              // Sélectionne la partie complétée si autocomplétion
-              if (autoCompleteValue && autoCompleteValue.toLowerCase() !== searchTerm.toLowerCase()) {
-                setTimeout(() => {
-                  const input = e.target;
-                  input.setSelectionRange(searchTerm.length, autoCompleteValue.length);
-                }, 0);
+            onChange={handleSearchChange}
+            onFocus={() => {
+              console.log('🎯 Focus sur input, suggestions:', suggestions.length);
+              if (suggestions.length > 0) {
+                setShowSuggestions(true);
               }
             }}
             autoComplete="off"
-            spellCheck={false}
-            style={{position: 'relative', background: 'transparent'}}
           />
-          {/* Input d’autocomplétion (derrière, grisé) */}
-          {autoCompleteValue && autoCompleteValue.toLowerCase() !== searchTerm.toLowerCase() && (
-            <input
-              type="text"
-              tabIndex={-1}
-              className="searchbar-input"
-              value={autoCompleteValue}
-              readOnly
-              aria-hidden="true"
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                color: '#bbb',
-                background: 'transparent',
-                pointerEvents: 'none',
-                zIndex: 1,
-                fontWeight: 400
-              }}
-            />
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="searchbar-suggestions">
+              {suggestions.map((suggestion, index) => (
+                <div
+                  key={index}
+                  className="searchbar-suggestion-item"
+                  onMouseDown={(e) => {
+                    e.preventDefault(); // Empêche le blur de l'input
+                    handleSuggestionClick(suggestion);
+                  }}
+                >
+                  <FaSearch className="searchbar-suggestion-icon" />
+                  <span className="searchbar-suggestion-title">{suggestion.title}</span>
+                </div>
+              ))}
+            </div>
           )}
         </div>
-        {searchTerm && (
-          <button className="searchbar-clear-btn" onClick={handleClear}>
-            <FaTimes />
-          </button>
-        )}
-        <button className="searchbar-submit-btn" onClick={handleSearch}>
-          <FaSearch className="searchbar-submit-icon" />
+        <button type="submit" className="searchbar-submit-btn">
+          <FaSearch />
         </button>
-      </div>
-
-      {showSuggestions && (
-        <div className="searchbar-suggestions">
-          {loading && <div className="searchbar-loading">Recherche...</div>}
-          {error && <div className="searchbar-noresult">{error}</div>}
-          {!loading && !error && suggestions.length === 0 && searchTerm.trim() && (
-            <div className="searchbar-noresult">Aucun résultat pour "{searchTerm}"</div>
-          )}
-          {!loading && !error && suggestions.length > 0 && (
-            suggestions.map((item, idx) => (
-              <div
-                key={item.type + '-' + item.id}
-                className={`searchbar-suggestion${idx === selectedIndex ? ' selected' : ''}`}
-                onClick={() => handleSelect(item)}
-                onMouseEnter={() => setSelectedIndex(idx)}
-              >
-                {item.type === 'custom' && (
-                  <span className="searchbar-suggestion-title searchbar-custom-suggestion">
-                    {item.title}
-                  </span>
-                )}
-                {item.type === 'product' && (
-                  <>
-                    <img
-                      className="searchbar-suggestion-img"
-                      src={getProductImageUrl(item.images || item.image)}
-                      alt={item.title}
-                      onError={e => { e.target.src = '/images/default-product.jpg'; }}
-                    />
-                    <span className="searchbar-suggestion-title">
-                      {highlightMatch(item.title, searchTerm)}
-                    </span>
-                    <span className="searchbar-suggestion-price">
-                      {item.price ? `${item.price} DA` : ''}
-                    </span>
-                  </>
-                )}
-                {item.type === 'category' && (
-                  <>
-                    <span className="searchbar-suggestion-title" style={{ color: '#ff7a00', fontWeight: 600 }}>
-                      <span role="img" aria-label="cat">📂</span> {highlightMatch(item.title, searchTerm)}
-                    </span>
-                  </>
-                )}
-                {item.type === 'brand' && (
-                  <>
-                    <span className="searchbar-suggestion-title" style={{ color: '#2196F3', fontWeight: 600 }}>
-                      <span role="img" aria-label="brand">🏷️</span> {highlightMatch(item.title, searchTerm)}
-                    </span>
-                  </>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-      )}
+      </form>
     </div>
   );
 };

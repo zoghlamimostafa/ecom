@@ -9,6 +9,7 @@ const ProductFilters = ({ onFilterChange, activeFilters = {}, horizontal = false
         brands: true,
         categories: true,
         colors: true,
+        tags: true, // Nouveau filtre pour les statuts
     // sizes: true,
         rating: true,
         availability: true,
@@ -21,6 +22,7 @@ const ProductFilters = ({ onFilterChange, activeFilters = {}, horizontal = false
         brands: [],
         categories: [],
         colors: [],
+        tags: [], // Nouveau filtre pour les statuts
     // sizes: [],
         rating: '',
         inStock: false,
@@ -43,6 +45,14 @@ const ProductFilters = ({ onFilterChange, activeFilters = {}, horizontal = false
         }
         return Array.isArray(colorArray) ? colorArray.map(c => c?.title || c).filter(Boolean) : [];
     }))] || [];
+    
+    // Tags/Statuts disponibles
+    const availableTags = [
+        { value: 'new', label: '🆕 Nouveau produit', icon: '🆕' },
+        { value: 'bestseller', label: '⭐ Best-seller', icon: '⭐' },
+        { value: 'promotion', label: '🔥 En promotion', icon: '🔥' },
+        { value: 'featured', label: '💎 En vedette', icon: '💎' }
+    ];
     
     // const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
     // ✅ FIX: Utiliser {id, title} au lieu de juste title pour avoir l'ID
@@ -102,6 +112,7 @@ const ProductFilters = ({ onFilterChange, activeFilters = {}, horizontal = false
             brands: [],
             categories: [],
             colors: [],
+            tags: [],
             sizes: [],
             rating: '',
             inStock: false,
@@ -117,6 +128,7 @@ const ProductFilters = ({ onFilterChange, activeFilters = {}, horizontal = false
         localFilters.brands.length +
         localFilters.categories.length +
         localFilters.colors.length +
+        localFilters.tags.length +
     // localFilters.sizes.length +
         (localFilters.rating ? 1 : 0) +
         (localFilters.inStock ? 1 : 0) +
@@ -252,6 +264,35 @@ const ProductFilters = ({ onFilterChange, activeFilters = {}, horizontal = false
                                     >
                                         {color}
                                     </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Statut produit */}
+            {availableTags.length > 0 && (
+                <div className="filter-section">
+                    <button 
+                        className="filter-section-header"
+                        onClick={() => toggleSection('tags')}
+                    >
+                        <span>🏷️ Statut du produit</span>
+                        {isOpen.tags ? <FaChevronUp /> : <FaChevronDown />}
+                    </button>
+                    {isOpen.tags && (
+                        <div className="filter-content">
+                            <div className="filter-checkboxes">
+                                {availableTags.map((tag) => (
+                                    <label key={tag.value} className="filter-checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={localFilters.tags.includes(tag.value)}
+                                            onChange={() => toggleArrayFilter('tags', tag.value)}
+                                        />
+                                        <span className="checkbox-text">{tag.label}</span>
+                                    </label>
                                 ))}
                             </div>
                         </div>

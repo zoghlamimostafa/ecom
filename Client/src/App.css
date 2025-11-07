@@ -3339,9 +3339,19 @@ h1, h2, h3, h4, h5, h6 {
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  overflow: hidden;
+  overflow: visible !important; /* MODIFIÉ: Permet l'affichage des suggestions */
   border: 2px solid transparent;
   transition: all 0.3s ease;
+  z-index: 1000; /* AJOUTÉ: Assure que les suggestions sont au-dessus */
+}
+
+/* Assurer que le searchbar-container à l'intérieur de search-bar fonctionne */
+.search-bar .searchbar-container {
+  z-index: 10000 !important;
+}
+
+.search-bar .searchbar-suggestions {
+  z-index: 99999 !important;
 }
 
 .search-bar:hover {
@@ -8177,6 +8187,26 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex: 1;
+}
+
+.customer-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid #FF914D;
+}
+
+.customer-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.customer-details {
+  flex: 1;
 }
 
 .customer-details h6 {
@@ -8185,6 +8215,14 @@ h1, h2, h3, h4, h5, h6 {
   color: #2c3e50;
   margin: 0;
   font-size: 1rem;
+}
+
+.avis-card.real-review {
+  border-left: 3px solid #FF914D;
+}
+
+.avis-card.real-review .customer-details h6 {
+  color: #FF914D;
 }
 
 .product-name {

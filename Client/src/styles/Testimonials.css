@@ -76,6 +76,20 @@
   font-weight: 400;
 }
 
+.testimonial-product {
+  margin: 0.8rem 0 0 0;
+  padding-top: 0.8rem;
+  border-top: 1px solid #f5f5f5;
+  color: #718096;
+  font-style: italic;
+}
+
+.testimonial-product small {
+  font-size: 0.85rem;
+  color: #FF914D;
+  font-weight: 500;
+}
+
 .testimonial-author {
   text-align: left;
   margin-top: 2rem;

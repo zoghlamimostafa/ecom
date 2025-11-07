@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FaFacebookF, FaInstagram, FaWhatsapp, FaLinkedinIn, FaArrowUp } from 'react-icons/fa';
 import { useTranslation } from '../contexts/TranslationContext';
+import CONTACT_INFO from '../config/contactInfo';
 import logosanny from "../images/logosanny.png";
 
 const Footer = () => {
@@ -56,29 +57,29 @@ const Footer = () => {
                   <span>{t('location')}</span>
                 </div>
                 <div className="contact-item">
-                  <span>📞 +216 99 249 987</span>
+                  <span>📞 {CONTACT_INFO.phoneFormatted}</span>
                 </div>
                 <div className="contact-item">
-                  <span>📧 Sannyshop02@gmail.com</span>
+                  <span>📧 {CONTACT_INFO.email}</span>
                 </div>
               </div>
               
               <div className="footer-social-section">
                 <h6>{t('followUs')}</h6>
                 <div className="footer-socials">
-                  <a href="https://www.facebook.com/profile.php?id=61551214524462" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="social-link">
+                  <a href={CONTACT_INFO.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="social-link">
                     <FaFacebookF />
                     <span>{t('facebook')}</span>
                   </a>
-                  <a href="https://www.instagram.com/sanny_tn/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="social-link">
+                  <a href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="social-link">
                     <FaInstagram />
                     <span>{t('instagram')}</span>
                   </a>
-                  <a href="https://wa.me/21699249987" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="social-link">
+                  <a href={CONTACT_INFO.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="social-link">
                     <FaWhatsapp />
                     <span>WhatsApp</span>
                   </a>
-                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="social-link">
+                  <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="social-link">
                     <FaLinkedinIn />
                     <span>{t('linkedin')}</span>
                   </a>

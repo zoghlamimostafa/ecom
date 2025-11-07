@@ -312,35 +312,119 @@ const PageMesCommandes = () => {
                           </div>
                         )}
 
+                        {/* Informations de paiement */}
+                        <div className="payment-info">
+                          <h4 className="details-title">💳 Informations de paiement</h4>
+                          <div className="payment-details">
+                            <div className="payment-method">
+                              <span className="payment-label">Méthode de paiement:</span>
+                              <span className="payment-value">
+                                {commande.paymentMethod === 'card' ? '💳 Carte bancaire' : 
+                                 commande.paymentMethod === 'cod' ? '💵 Paiement à la livraison' : 
+                                 '💰 ' + (commande.paymentMethod || 'Non spécifié')}
+                              </span>
+                            </div>
+                            
+                            <div className="payment-status">
+                              <span className="payment-label">Statut du paiement:</span>
+                              <span className={`payment-value ${commande.isPaid ? 'paid' : 'unpaid'}`}>
+                                {commande.isPaid ? '✅ Payé' : '⏳ En attente'}
+                              </span>
+                            </div>
+                            
+                            {commande.paidAt && (
+                              <div className="payment-date">
+                                <span className="payment-label">Date de paiement:</span>
+                                <span className="payment-value">
+                                  {new Date(commande.paidAt).toLocaleDateString('fr-FR', {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
                         {/* Résumé de la commande */}
                         <div className="order-summary">
-                          <h4 className="details-title">💰 Récapitulatif</h4>
-                          <div className="summary-row">
-                            <span>Sous-total:</span>
-                            <span>{commande.totalPrice} TND</span>
-                          </div>
-                          {commande.couponApplied && (
-                            <div className="summary-row coupon-applied-row">
-                              <span>🎫 Code promo ({commande.couponApplied}):</span>
-                              <span className="coupon-discount-text">-{commande.couponDiscount}%</span>
-                            </div>
-                          )}
-                          {commande.totalPriceAfterDiscount && commande.totalPriceAfterDiscount < commande.totalPrice && (
-                            <>
-                              <div className="summary-row discount">
-                                <span>Réduction totale:</span>
-                                <span>-{(commande.totalPrice - commande.totalPriceAfterDiscount).toFixed(2)} TND</span>
-                              </div>
-                              <div className="summary-row total">
-                                <span>Total après réduction:</span>
-                                <span>{commande.totalPriceAfterDiscount} TND</span>
-                              </div>
-                            </>
-                          )}
-                          <div className="summary-row total">
-                            <span><strong>Total payé:</strong></span>
-                            <span><strong>{commande.totalPriceAfterDiscount || commande.totalPrice} TND</strong></span>
-                          </div>
+                          <h4 className="details-title">💰 Récapitulatif financier</h4>
+                          
+                          {/* Calcul du sous-total des produits */}
+                          {(() => {
+                            const productsTotal = commande.orderItems?.reduce((total, item) => {
+                              return total + (item.price * item.quantity);
+                            }, 0) || 0;
+                            
+                            const shippingCost = 7.00; // Frais de livraison standard
+                            const totalBeforeDiscount = productsTotal + shippingCost;
+                            
+                            return (
+                              <>
+                                <div className="summary-row">
+                                  <span>Sous-total des produits:</span>
+                                  <span>{productsTotal.toFixed(2)} TND</span>
+                                </div>
+                                
+                                <div className="summary-row">
+                                  <span>Frais de livraison:</span>
+                                  <span>{shippingCost.toFixed(2)} TND</span>
+                                </div>
+                                
+                                <div className="summary-row subtotal">
+                                  <span>Total avant réduction:</span>
+                                  <span>{totalBeforeDiscount.toFixed(2)} TND</span>
+                                </div>
+                                
+                                {/* Afficher le coupon appliqué */}
+                                {commande.couponApplied && (
+                                  <>
+                                    <div className="summary-divider"></div>
+                                    <div className="summary-row coupon-applied-row highlight">
+                                      <span>🎫 Code promo appliqué:</span>
+                                      <span className="coupon-code"><strong>{commande.couponApplied}</strong></span>
+                                    </div>
+                                    <div className="summary-row coupon-discount-row">
+                                      <span>Taux de réduction:</span>
+                                      <span className="coupon-discount-text">-{commande.couponDiscount}%</span>
+                                    </div>
+                                  </>
+                                )}
+                                
+                                {/* Afficher la réduction si présente */}
+                                {commande.totalPriceAfterDiscount && commande.totalPriceAfterDiscount < commande.totalPrice ? (
+                                  <>
+                                    <div className="summary-row discount">
+                                      <span>Montant de la réduction:</span>
+                                      <span className="discount-amount">-{(commande.totalPrice - commande.totalPriceAfterDiscount).toFixed(2)} TND</span>
+                                    </div>
+                                    <div className="summary-divider"></div>
+                                    <div className="summary-row total-after-discount">
+                                      <span>Total après réduction:</span>
+                                      <span className="price-after-discount">{commande.totalPriceAfterDiscount.toFixed(2)} TND</span>
+                                    </div>
+                                  </>
+                                ) : null}
+                                
+                                <div className="summary-divider bold"></div>
+                                <div className="summary-row total final-total">
+                                  <span><strong>💳 Total payé:</strong></span>
+                                  <span className="final-price"><strong>{(commande.totalPriceAfterDiscount || commande.totalPrice).toFixed(2)} TND</strong></span>
+                                </div>
+                                
+                                {/* Afficher l'économie réalisée */}
+                                {commande.totalPriceAfterDiscount && commande.totalPriceAfterDiscount < commande.totalPrice && (
+                                  <div className="summary-row savings">
+                                    <span>✨ Vous avez économisé:</span>
+                                    <span className="savings-amount">{(commande.totalPrice - commande.totalPriceAfterDiscount).toFixed(2)} TND</span>
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     )}

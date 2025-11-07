@@ -22,8 +22,7 @@ const Coupon = sequelize.define('Coupon', {
     type: DataTypes.DATE,
     allowNull: false,
     validate: {
-      isDate: true,
-      isAfter: new Date().toISOString()
+      isDate: true
     }
   },
   discount: {
@@ -33,6 +32,11 @@ const Coupon = sequelize.define('Coupon', {
       min: 0,
       max: 100
     }
+  },
+  applicableProducts: {
+    type: DataTypes.JSON,
+    defaultValue: null,
+    comment: 'Liste des IDs de produits sur lesquels le coupon est applicable. Si null, le coupon est global.'
   },
   isActive: {
     type: DataTypes.BOOLEAN,

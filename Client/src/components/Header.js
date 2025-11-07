@@ -9,6 +9,7 @@ import LanguageSelector from './LanguageSelector';
 import UserAvatar from './UserAvatar';
 import SearchBar from './SearchBar';
 import categoryService from '../services/categoryService';
+import CONTACT_INFO from '../config/contactInfo';
 import logo from '../images/logosanny.png';
 
 const Header = () => {
@@ -105,15 +106,15 @@ const Header = () => {
                     <div className="container-xxl">
                         <div className="top-bar-content">
                             <div className="top-bar-left">
-                                <a href="tel:+21695403883" className="top-bar-phone">
+                                <a href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`} className="top-bar-phone">
                                     <FaPhone />
-                                    <span>+216 95 403 883</span>
+                                    <span>{CONTACT_INFO.phoneFormatted}</span>
                                 </a>
                                 <div className="top-bar-social">
-                                    <a href="https://facebook.com/sannystore" target="_blank" rel="noopener noreferrer" className="social-icon" title="Facebook">
+                                    <a href={CONTACT_INFO.facebook} target="_blank" rel="noopener noreferrer" className="social-icon" title="Facebook">
                                         <FaFacebookF />
                                     </a>
-                                    <a href="https://instagram.com/sannystore" target="_blank" rel="noopener noreferrer" className="social-icon" title="Instagram">
+                                    <a href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="social-icon" title="Instagram">
                                         <FaInstagram />
                                     </a>
                                 </div>

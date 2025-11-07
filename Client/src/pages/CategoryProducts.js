@@ -68,7 +68,7 @@ const CategoryProducts = () => {
                 <div className="row">
                     {filteredProducts && filteredProducts.length > 0 ? (
                         filteredProducts.map((product, index) => (
-                            <div key={product.id || index} className="col-6 col-md-4 col-lg-3 mb-4">
+                            <div key={product.id || index} className="col-lg-4 col-md-6 col-sm-6 mb-4">
                                 <ProductCard data={product} />
                             </div>
                         ))

@@ -49,6 +49,16 @@ const Couponlist = () => {
   useEffect(() => {
     dispatch(getAllCoupon());
   }, [dispatch]);
+  
+  // Recharger quand on revient sur la page
+  useEffect(() => {
+    const handleFocus = () => {
+      dispatch(getAllCoupon());
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [dispatch]);
+  
   const couponState = useSelector((state) => state.coupon.coupons);
   const data1 = [];
   for (let i = 0; i < couponState.length; i++) {

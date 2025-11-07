@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getBrands } from "../features/brand/brandSlice";
 import { getCategories } from "../features/pcategory/pcategorySlice";
 import { getColors } from "../features/color/colorSlice";
-import { Select, Switch, Collapse, Badge, Card, Row, Col, Divider } from "antd";
+import { Select, Switch, Collapse, Badge, Card, Row, Col, Divider, InputNumber } from "antd";
 import { 
   TagOutlined, 
   ShoppingOutlined, 
@@ -693,6 +693,23 @@ const AddproductIntelligent = () => {
                         unCheckedChildren="Non"
                       />
                     </div>
+                    {isOnSale && (
+                      <div className="mt-3">
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
+                          Pourcentage de réduction :
+                        </label>
+                        <InputNumber
+                          style={{ width: '100%' }}
+                          min={0}
+                          max={100}
+                          value={salePercentage}
+                          onChange={setSalePercentage}
+                          formatter={value => `${value}%`}
+                          parser={value => value.replace('%', '')}
+                          placeholder="Ex: 20"
+                        />
+                      </div>
+                    )}
                   </Card>
                 </Col>
                 

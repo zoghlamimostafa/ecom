@@ -803,6 +803,80 @@ const getProductCount = asyncHandler(async (req, res) => {
   }
 });
 
+// Récupérer tous les avis de tous les produits
+const getAllRatings = asyncHandler(async (req, res) => {
+  try {
+    // Récupérer tous les produits avec leurs avis et utilisateurs
+    const products = await Product.findAll({
+      attributes: ['id', 'title', 'slug', 'images'],
+      include: [{
+        model: ProductRating,
+        as: 'ratings',
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['firstname', 'lastname', 'email']
+        }],
+        order: [['createdAt', 'DESC']]
+      }]
+    });
+
+    // Extraire tous les avis avec les infos produit
+    const allRatings = [];
+    products.forEach(product => {
+      if (product.ratings && product.ratings.length > 0) {
+        product.ratings.forEach(rating => {
+          // Parser les images si c'est une chaîne JSON
+          let productImages = product.images;
+          if (typeof productImages === 'string') {
+            try {
+              productImages = JSON.parse(productImages);
+            } catch (e) {
+              productImages = [];
+            }
+          }
+          if (!Array.isArray(productImages)) {
+            productImages = [];
+          }
+          
+          allRatings.push({
+            id: rating.id,
+            star: rating.star,
+            comment: rating.comment,
+            createdAt: rating.createdAt,
+            user: {
+              firstname: rating.user?.firstname || 'Utilisateur',
+              lastname: rating.user?.lastname || 'Anonyme',
+              email: rating.user?.email
+            },
+            product: {
+              id: product.id,
+              title: product.title,
+              slug: product.slug,
+              images: productImages // Retourner tout le tableau d'images
+            }
+          });
+        });
+      }
+    });
+
+    // Trier par date (plus récent en premier)
+    allRatings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    res.json({
+      success: true,
+      count: allRatings.length,
+      ratings: allRatings
+    });
+  } catch (error) {
+    console.error('❌ Error fetching all ratings:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
 module.exports = {
   createProduct,
   getAllProduct,
@@ -813,4 +887,5 @@ module.exports = {
   rating,
   uploadImages,
   getProductCount,
+  getAllRatings,
 };

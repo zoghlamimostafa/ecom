@@ -5,6 +5,7 @@ import Meta from '../components/Meta';
 import SEOEnhancer from '../components/SEOEnhancer';
 import Container from '../components/Container';
 import HeroSection from '../components/HeroSection';
+import CONTACT_INFO from '../config/contactInfo';
 import { FaStore, FaUsers, FaShieldAlt, FaTruck, FaHeart, FaStar, FaEnvelope, FaPhone, FaMapMarkerAlt, FaAward, FaRocket, FaHandshake } from 'react-icons/fa';
 import '../styles/About-minimalist.css';
 
@@ -168,14 +169,14 @@ const About = () => {
                   <div className="contact-box">
                     <FaEnvelope className="contact-icon" />
                     <h3>Email</h3>
-                    <p>Sannyshop02@gmail.com</p>
+                    <p>{CONTACT_INFO.email}</p>
                   </div>
                 </div>
                 <div className="col-lg-4 mb-4">
                   <div className="contact-box">
                     <FaPhone className="contact-icon" />
                     <h3>Téléphone</h3>
-                    <p>+216 99 249 987</p>
+                    <p>{CONTACT_INFO.phoneFormatted}</p>
                   </div>
                 </div>
                 <div className="col-lg-4 mb-4">

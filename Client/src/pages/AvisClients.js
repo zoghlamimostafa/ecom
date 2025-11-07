@@ -1,11 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Meta from '../components/Meta';
 import BrandCrumb from '../components/BrandCrumb';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../contexts/TranslationContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllRatings } from '../features/products/productSlice';
+import { getProductImageUrl } from '../utils/imageHelper';
+import moment from 'moment';
+import 'moment/locale/fr';
+
+moment.locale('fr');
 
 const AvisClients = () => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const allRatings = useSelector((state) => state?.product?.allRatings);
+  const isLoading = useSelector((state) => state?.product?.isLoading);
+
+  useEffect(() => {
+    dispatch(getAllRatings());
+  }, [dispatch]);
+
+  // Avis statiques pour compléter si nécessaire
   const avisData = [
     {
       id: 1,
@@ -106,30 +122,90 @@ const AvisClients = () => {
             </div>
           </div>
           
-          <div className="row">
-            {avisData.map((avis) => (
-              <div key={avis.id} className="col-lg-4 col-md-6 mb-3">
-                <div className="avis-card">
-                  <div className="avis-header">
-                    <div className="customer-info">
-                      <div className="customer-details">
-                        <h6>{avis.nom}</h6>
-                        <p className="product-name">{avis.produit}</p>
+          {isLoading ? (
+            <div className="row">
+              <div className="col-12 text-center py-5">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Chargement...</span>
+                </div>
+                <p className="mt-3">Chargement des avis clients...</p>
+              </div>
+            </div>
+          ) : (
+            <div className="row">
+              {/* Afficher d'abord les vrais avis de la base de données */}
+              {allRatings && allRatings.length > 0 ? (
+                allRatings.map((rating) => (
+                  <div key={`real-${rating.id}`} className="col-lg-4 col-md-6 mb-3">
+                    <div className="avis-card real-review">
+                      <div className="avis-header">
+                        <div className="customer-info">
+                          <div className="customer-avatar">
+                            <img 
+                              src={getProductImageUrl(rating.product?.images)} 
+                              alt={rating.product?.title}
+                              onError={(e) => { e.target.src = '/images/default-product.jpg'; }}
+                            />
+                          </div>
+                          <div className="customer-details">
+                            <h6>{rating.user?.firstname} {rating.user?.lastname}</h6>
+                            <Link to={`/product/${rating.product?.slug}`} className="product-name">
+                              {rating.product?.title}
+                            </Link>
+                          </div>
+                        </div>
+                        <div className="rating">
+                          {renderStars(rating.star)}
+                        </div>
+                      </div>
+                      
+                      <div className="avis-body">
+                        <p className="commentaire">"{rating.comment}"</p>
+                        <span className="date">{moment(rating.createdAt).format('D MMMM YYYY')}</span>
                       </div>
                     </div>
-                    <div className="rating">
-                      {renderStars(avis.note)}
+                  </div>
+                ))
+              ) : null}
+
+              {/* Afficher les avis statiques en complément */}
+              {avisData.map((avis) => (
+                <div key={`static-${avis.id}`} className="col-lg-4 col-md-6 mb-3">
+                  <div className="avis-card">
+                    <div className="avis-header">
+                      <div className="customer-info">
+                        <div className="customer-details">
+                          <h6>{avis.nom}</h6>
+                          <p className="product-name">{avis.produit}</p>
+                        </div>
+                      </div>
+                      <div className="rating">
+                        {renderStars(avis.note)}
+                      </div>
+                    </div>
+                    
+                    <div className="avis-body">
+                      <p className="commentaire">"{avis.commentaire}"</p>
+                      <span className="date">{avis.date}</span>
                     </div>
                   </div>
-                  
-                  <div className="avis-body">
-                    <p className="commentaire">"{avis.commentaire}"</p>
-                    <span className="date">{avis.date}</span>
+                </div>
+              ))}
+
+              {/* Message si aucun avis */}
+              {(!allRatings || allRatings.length === 0) && avisData.length === 0 && (
+                <div className="col-12">
+                  <div className="no-reviews-message text-center py-5">
+                    <h4>Aucun avis client pour le moment</h4>
+                    <p>Soyez le premier à partager votre expérience !</p>
+                    <Link to="/product" className="button mt-3">
+                      Découvrir nos produits
+                    </Link>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </>

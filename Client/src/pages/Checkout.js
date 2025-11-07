@@ -73,14 +73,45 @@ const Checkout = () => {
         
         setCouponLoading(true);
         try {
+            // Récupérer le token depuis sessionStorage
+            const customer = sessionStorage.getItem("customer");
+            
+            console.log('🔍 Vérification authentification pour coupon');
+            console.log('📦 Customer data exists:', !!customer);
+            
+            if (!customer) {
+                toast.error('Veuillez vous connecter pour utiliser un code promo');
+                setCouponLoading(false);
+                return;
+            }
+            
+            const customerData = JSON.parse(customer);
+            const token = customerData.token;
+            
+            console.log('🔑 Token exists:', !!token);
+            console.log('👤 User email:', customerData.email);
+            
+            if (!token) {
+                toast.error('Session expirée. Veuillez vous reconnecter pour utiliser un code promo');
+                setCouponLoading(false);
+                return;
+            }
+            
             const config = {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.token}`
+                    'Authorization': `Bearer ${token}`
                 }
             };
             
             const cartTotalBeforeShipping = subtotal + shippingCost;
+            
+            console.log('🎫 Application du coupon:', {
+                couponCode: couponCode.toUpperCase(),
+                cartTotal: cartTotalBeforeShipping,
+                hasToken: !!token,
+                tokenLength: token.length
+            });
             
             const response = await fetch('http://localhost:4000/api/coupon/apply', {
                 method: 'POST',
@@ -93,14 +124,23 @@ const Checkout = () => {
             
             const data = await response.json();
             
+            console.log('📦 Réponse coupon:', data);
+            
             if (data.success) {
                 setAppliedCoupon(data.coupon);
                 toast.success(data.message);
             } else {
-                toast.error(data.message || 'Code promo invalide');
+                // Messages d'erreur plus précis
+                if (data.expired) {
+                    toast.error('Votre session a expiré. Veuillez vous reconnecter.');
+                } else if (data.invalid) {
+                    toast.error('Session invalide. Veuillez vous reconnecter.');
+                } else {
+                    toast.error(data.message || 'Code promo invalide');
+                }
             }
         } catch (error) {
-            console.error('Erreur application coupon:', error);
+            console.error('❌ Erreur application coupon:', error);
             toast.error('Erreur lors de l\'application du code promo');
         } finally {
             setCouponLoading(false);

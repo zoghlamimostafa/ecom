@@ -3,14 +3,15 @@ import { getConfig } from "../../utils/axiosConfig";
 import { base_url } from "../../utils/baseUrl";
 const getCoupons = async () => {
   const response = await axios.get(`${base_url}coupon/`, getConfig());
-
-  return response.data;
+  console.log('📦 Coupons reçus du backend:', response.data);
+  return response.data.coupons || response.data;
 };
 
 const createCoupons = async (coupon) => {
+  console.log('📤 Envoi du coupon:', coupon);
   const response = await axios.post(`${base_url}coupon/`, coupon, getConfig());
-
-  return response.data;
+  console.log('✅ Réponse création coupon:', response.data);
+  return response.data.coupon || response.data;
 };
 const updateCoupon = async (coupon) => {
   const response = await axios.put(
@@ -27,8 +28,8 @@ const updateCoupon = async (coupon) => {
 };
 const getCoupon = async (id) => {
   const response = await axios.get(`${base_url}coupon/${id}`, getConfig());
-
-  return response.data;
+  console.log('📦 Coupon reçu:', response.data);
+  return response.data.coupon || response.data;
 };
 
 const deleteCoupon = async (id) => {

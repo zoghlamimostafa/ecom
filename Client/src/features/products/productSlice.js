@@ -53,12 +53,23 @@ export const getWishlist = createAsyncThunk(
 
 // Action asynchrone pour ajouter un avis
 export const addRating = createAsyncThunk(
-  "product/rating",
+  'product/rating',
   async (data, thunkAPI) => {
     try {
       return await productService.rateProduct(data);
     } catch (error) {
-      return thunkAPI.rejectWithValue('Failed to add rating');
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getAllRatings = createAsyncThunk(
+  'product/getAllRatings',
+  async (_, thunkAPI) => {
+    try {
+      return await productService.getAllRatings();
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
     }
   }
 );
@@ -71,6 +82,7 @@ const productState = {
   special: [],
   supermarket: [],
   wishlist: [],
+  allRatings: [], // Tous les avis de tous les produits
   isError: false,
   isSuccess: false,
   isLoading: false,
@@ -195,6 +207,21 @@ export const productSlice = createSlice({
         state.isSuccess = false;
         state.message = action.payload || action.error.message;
         toast.error(state.message);
+      })
+      .addCase(getAllRatings.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getAllRatings.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.allRatings = action.payload?.ratings || [];
+      })
+      .addCase(getAllRatings.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.payload || action.error.message;
       })
       // DÉSACTIVÉ - Utiliser toggleProductWishlist dans userSlice à la place
       // .addCase(addToWishlist.pending, (state) => {

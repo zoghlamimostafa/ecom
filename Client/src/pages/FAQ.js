@@ -3,6 +3,7 @@ import BreadCrumb from '../components/BreadCrumb';
 import Meta from '../components/Meta';
 import Container from '../components/Container';
 import HeroSection from '../components/HeroSection';
+import CONTACT_INFO from '../config/contactInfo';
 import { FaChevronDown, FaChevronUp, FaQuestionCircle, FaPhone, FaEnvelope, FaClock, FaUserFriends } from 'react-icons/fa';
 
 const FAQ = () => {
@@ -43,7 +44,7 @@ const FAQ = () => {
     },
     {
       question: "Comment contacter le service client ?",
-      answer: "Notre service client est disponible du lundi au vendredi de 9h à 18h. Vous pouvez nous contacter par email à Sannyshop02@gmail.com, par téléphone au +216 99 249 987, ou via notre formulaire de contact."
+      answer: `Notre service client est disponible du lundi au vendredi de 9h à 18h. Vous pouvez nous contacter par email à ${CONTACT_INFO.email}, par téléphone au ${CONTACT_INFO.phoneFormatted}, ou via notre formulaire de contact.`
     },
     {
       question: "Les produits sont-ils garantis ?",
@@ -106,11 +107,11 @@ const FAQ = () => {
                     <h4>Support Direct</h4>
                     <div className="quick-contact-item">
                       <FaPhone />
-                      <span>+216 99 249 987</span>
+                      <span>{CONTACT_INFO.phoneFormatted}</span>
                     </div>
                     <div className="quick-contact-item">
                       <FaEnvelope />
-                      <span>Sannyshop02@gmail.com</span>
+                      <span>{CONTACT_INFO.email}</span>
                     </div>
                   </div>
                 </div>
@@ -154,7 +155,7 @@ const FAQ = () => {
                         </div>
                         <div className="contact-info">
                           <h4>Email Support</h4>
-                          <p>Sannyshop02@gmail.com</p>
+                          <p>{CONTACT_INFO.email}</p>
                           <span className="response-time">Réponse sous 24h</span>
                         </div>
                       </div>
@@ -164,7 +165,7 @@ const FAQ = () => {
                         </div>
                         <div className="contact-info">
                           <h4>Support Téléphonique</h4>
-                          <p>+216 99 249 987</p>
+                          <p>{CONTACT_INFO.phoneFormatted}</p>
                           <span className="response-time">Disponible immédiatement</span>
                         </div>
                       </div>

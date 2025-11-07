@@ -52,6 +52,90 @@ const Home = () => {
     return () => clearInterval(brandRefreshInterval);
   }, [dispatch]);
 
+  // Fonction pour filtrer les produits par tag
+  const filterProductsByTag = (products, tagValue) => {
+    if (!products || products.length === 0) {
+      console.log(`⚠️ filterProductsByTag(${tagValue}): Aucun produit disponible`);
+      return [];
+    }
+    
+    console.log(`🔍 Filtrage pour tag "${tagValue}" parmi ${products.length} produits`);
+    
+    const filtered = products.filter(product => {
+      let productTags = product.tags;
+      
+      // Si tags est vide, null ou undefined
+      if (!productTags || productTags === 'null' || productTags === '' || productTags === '[]' || productTags === '""') {
+        return false;
+      }
+      
+      // Debug: afficher les tags du produit
+      console.log(`  📦 Produit "${product.title}":`, productTags, typeof productTags);
+      
+      // Si c'est déjà un tableau
+      if (Array.isArray(productTags)) {
+        return productTags.includes(tagValue);
+      }
+      
+      // Si c'est une chaîne JSON
+      if (typeof productTags === 'string') {
+        // Essayer de parser comme JSON
+        if (productTags.startsWith('[') || productTags.startsWith('{')) {
+          try {
+            const parsed = JSON.parse(productTags);
+            if (Array.isArray(parsed)) {
+              return parsed.includes(tagValue);
+            }
+          } catch (e) {
+            console.log(`    ⚠️ Erreur parsing JSON pour "${product.title}":`, e.message);
+          }
+        }
+        
+        // Si c'est une chaîne simple, vérifier les correspondances
+        // "promo" → "promotion", "new" → "new", etc.
+        const tagMap = {
+          'promo': 'promotion',
+          'promotion': 'promotion',
+          'new': 'new',
+          'nouveau': 'new',
+          'bestseller': 'bestseller',
+          'best-seller': 'bestseller',
+          'featured': 'featured',
+          'vedette': 'featured'
+        };
+        
+        const normalizedTag = productTags.toLowerCase().replace(/['"]/g, '').trim();
+        const mappedTag = tagMap[normalizedTag];
+        
+        console.log(`    🔄 Tag normalisé: "${normalizedTag}" → "${mappedTag}"`);
+        
+        return mappedTag === tagValue;
+      }
+      
+      return false;
+    });
+    
+    console.log(`✅ ${filtered.length} produit(s) trouvé(s) avec tag "${tagValue}"`);
+    return filtered;
+  };
+
+  // Filtrer les produits par statut
+  const promotionProducts = filterProductsByTag(allProducts, 'promotion');
+  const bestsellerProducts = filterProductsByTag(allProducts, 'bestseller');
+  const newProducts = filterProductsByTag(allProducts, 'new');
+  const featuredProductsFiltered = filterProductsByTag(allProducts, 'featured');
+  
+  // Debug: afficher les résultats
+  useEffect(() => {
+    if (allProducts && allProducts.length > 0) {
+      console.log('📊 Résumé des produits filtrés:');
+      console.log('  🔥 Promotions:', promotionProducts.length);
+      console.log('  ⭐ Best-sellers:', bestsellerProducts.length);
+      console.log('  🆕 Nouveaux:', newProducts.length);
+      console.log('  💎 En vedette:', featuredProductsFiltered.length);
+    }
+  }, [allProducts, promotionProducts.length, bestsellerProducts.length, newProducts.length, featuredProductsFiltered.length]);
+
   // Mapping des icônes pour chaque catégorie (principales ET sous-catégories)
   const categoryIcons = {
     // Catégories principales
@@ -232,14 +316,23 @@ const Home = () => {
           <p className="section-subtitle">{t('discoverBestDeals')}</p>
         </div>
         <div className="row">
-          {featuredProducts && featuredProducts.length > 0 ? (
-            featuredProducts.slice(0, 4).map((product) => (
-              <div className="col-lg-3 col-md-6 col-sm-6 mb-4" key={product.id}>
+          {promotionProducts && promotionProducts.length > 0 ? (
+            promotionProducts.slice(0, 3).map((product) => (
+              <div className="col-lg-4 col-md-6 col-sm-6 mb-4" key={product.id}>
                 <ProductCard data={product} gridView={true} />
               </div>
             ))
           ) : (
-            <p className="text-center w-100">{t('noPromotionsAvailable')}</p>
+            // Fallback: afficher les produits featured si pas de promotions
+            featuredProducts && featuredProducts.length > 0 ? (
+              featuredProducts.slice(0, 3).map((product) => (
+                <div className="col-lg-4 col-md-6 col-sm-6 mb-4" key={product.id}>
+                  <ProductCard data={product} gridView={true} />
+                </div>
+              ))
+            ) : (
+              <p className="text-center w-100">{t('noPromotionsAvailable')}</p>
+            )
           )}
         </div>
         <div className="text-center mt-4">
@@ -249,27 +342,33 @@ const Home = () => {
         </div>
       </Container>
 
-      {/* Section Produits Populaires */}
+      {/* Section Produits Populaires / Best-sellers */}
       <Container class1="popular-products-wrapper py-5" style={{backgroundColor: "var(--sanny-bg-light)"}}>
         <div className="section-title-wrapper">
           <div className="title-with-badge">
             <h2 className="section-title">{t('popularProducts')}</h2>
-            <span className="popular-badge"><FaStar /> Populaire</span>
+            <span className="popular-badge"><FaStar /> Best-seller</span>
           </div>
           <p className="section-subtitle">{t('discoverMostAppreciated')}</p>
         </div>
         <div className="row">
-          {popularProducts && popularProducts.length > 0 ? (
-            popularProducts.slice(0, 8).map((product) => (
-              <div className="col-lg-3 col-md-6 col-sm-6 mb-4" key={product.id}>
+          {bestsellerProducts && bestsellerProducts.length > 0 ? (
+            bestsellerProducts.slice(0, 6).map((product) => (
+              <div className="col-lg-4 col-md-6 col-sm-6 mb-4" key={product.id}>
                 <ProductCard data={product} gridView={true} />
               </div>
             ))
           ) : (
-            // Afficher tous les produits si pas de produits populaires
-            allProducts && allProducts.length > 0 ? (
-              allProducts.slice(0, 8).map((product) => (
-                <div className="col-lg-3 col-md-6 col-sm-6 mb-4" key={product.id}>
+            // Fallback: afficher les produits populaires ou tous les produits
+            popularProducts && popularProducts.length > 0 ? (
+              popularProducts.slice(0, 6).map((product) => (
+                <div className="col-lg-4 col-md-6 col-sm-6 mb-4" key={product.id}>
+                  <ProductCard data={product} gridView={true} />
+                </div>
+              ))
+            ) : allProducts && allProducts.length > 0 ? (
+              allProducts.slice(0, 6).map((product) => (
+                <div className="col-lg-4 col-md-6 col-sm-6 mb-4" key={product.id}>
                   <ProductCard data={product} gridView={true} />
                 </div>
               ))
@@ -295,19 +394,27 @@ const Home = () => {
           <p className="section-subtitle">{t('latestArrivals')}</p>
         </div>
         <div className="row">
-          {allProducts && allProducts.length > 0 ? (
-            // Afficher les 6 derniers produits (triés par date de création)
-            allProducts
-              .slice()
-              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-              .slice(0, 6)
-              .map((product) => (
-                <div className="col-lg-4 col-md-6 col-sm-6 mb-4" key={product.id}>
-                  <ProductCard data={product} gridView={true} />
-                </div>
-              ))
+          {newProducts && newProducts.length > 0 ? (
+            newProducts.slice(0, 6).map((product) => (
+              <div className="col-lg-4 col-md-6 col-sm-6 mb-4" key={product.id}>
+                <ProductCard data={product} gridView={true} />
+              </div>
+            ))
           ) : (
-            <p className="text-center w-100">{t('noNewProducts')}</p>
+            // Fallback: afficher les derniers produits par date de création
+            allProducts && allProducts.length > 0 ? (
+              allProducts
+                .slice()
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .slice(0, 6)
+                .map((product) => (
+                  <div className="col-lg-4 col-md-6 col-sm-6 mb-4" key={product.id}>
+                    <ProductCard data={product} gridView={true} />
+                  </div>
+                ))
+            ) : (
+              <p className="text-center w-100">{t('noNewProducts')}</p>
+            )
           )}
         </div>
         <div className="text-center mt-4">
@@ -316,6 +423,31 @@ const Home = () => {
           </Link>
         </div>
       </Container>
+
+      {/* Section Produits en Vedette */}
+      {featuredProductsFiltered && featuredProductsFiltered.length > 0 && (
+        <Container class1="featured-products-wrapper py-5" style={{backgroundColor: "var(--sanny-bg-light)"}}>
+          <div className="section-title-wrapper">
+            <div className="title-with-badge">
+              <h2 className="section-title">Produits en Vedette</h2>
+              <span className="featured-badge" style={{backgroundColor: "#9333ea", color: "white"}}>💎 Vedette</span>
+            </div>
+            <p className="section-subtitle">Notre sélection exclusive pour vous</p>
+          </div>
+          <div className="row">
+            {featuredProductsFiltered.slice(0, 3).map((product) => (
+              <div className="col-lg-4 col-md-6 col-sm-6 mb-4" key={product.id}>
+                <ProductCard data={product} gridView={true} />
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-4">
+            <Link to="/product" className="btn btn-primary">
+              Voir tous les produits en vedette
+            </Link>
+          </div>
+        </Container>
+      )}
 
       {/* Categories Section - Carrousel Automatique */}
       <Container class1="categories-carousel-wrapper py-5" style={{backgroundColor: "var(--sanny-bg-light)"}}>

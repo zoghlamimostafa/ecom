@@ -241,15 +241,15 @@ const ProductCard = ({ data, gridView = true }) => {
                         <h3 className="product-title" onClick={handleViewProduct}>
                             {productData.title}
                         </h3>
-                        <div className="product-price-section" style={{marginTop: 2, marginBottom: 2}}>
+                        <div className="product-price-section">
                             {data.discount > 0 ? (
                                 <>
-                                    <span className="product-price-original" style={{fontSize: '14px', color: '#999', textDecoration: 'line-through', marginRight: '8px'}}>{productData.price.toFixed(2)} TND</span>
-                                    <span className="product-price product-price-orange" style={{fontSize: '17px', color: '#FF7A00', fontWeight: 700, display: 'block', lineHeight: '1.1'}}>{(productData.price - data.discount).toFixed(2)} TND</span>
-                                    <span className="discount-badge" style={{fontSize: '12px', backgroundColor: '#ff4444', color: '#fff', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px'}}>-{data.discount.toFixed(2)} DT</span>
+                                    <span className="original-price">{productData.price.toFixed(2)} TND</span>
+                                    <span className="product-price has-discount">{(productData.price - data.discount).toFixed(2)} TND</span>
+                                    <span className="discount-badge">-{data.discount.toFixed(2)} DT</span>
                                 </>
                             ) : (
-                                <span className="product-price product-price-orange" style={{fontSize: '17px', color: '#FF7A00', fontWeight: 700, display: 'block', lineHeight: '1.1'}}>{productData.price.toFixed(2)} TND</span>
+                                <span className="product-price">{productData.price.toFixed(2)} TND</span>
                             )}
                         </div>
                         <div className="rating-row">
@@ -349,15 +349,15 @@ const ProductCard = ({ data, gridView = true }) => {
                     <h3 className="product-title" onClick={handleViewProduct}>
                         {productData.title}
                     </h3>
-                    <div className="product-price-section" style={{marginTop: 2, marginBottom: 2}}>
+                    <div className="product-price-section">
                         {data.discount > 0 ? (
                             <>
-                                <span className="product-price-original" style={{fontSize: '14px', color: '#999', textDecoration: 'line-through', marginRight: '8px'}}>{productData.price.toFixed(2)} TND</span>
-                                <span className="product-price product-price-orange" style={{fontSize: '17px', color: '#FF7A00', fontWeight: 700, display: 'block', lineHeight: '1.1'}}>{(productData.price - data.discount).toFixed(2)} TND</span>
-                                <span className="discount-badge" style={{fontSize: '12px', backgroundColor: '#ff4444', color: '#fff', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px'}}>-{data.discount.toFixed(2)} DT</span>
+                                <span className="original-price">{productData.price.toFixed(2)} TND</span>
+                                <span className="product-price has-discount">{(productData.price - data.discount).toFixed(2)} TND</span>
+                                <span className="discount-badge">-{data.discount.toFixed(2)} DT</span>
                             </>
                         ) : (
-                            <span className="product-price product-price-orange" style={{fontSize: '17px', color: '#FF7A00', fontWeight: 700, display: 'block', lineHeight: '1.1'}}>{productData.price.toFixed(2)} TND</span>
+                            <span className="product-price">{productData.price.toFixed(2)} TND</span>
                         )}
                     </div>
                     <div className="product-rating-section">

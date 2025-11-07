@@ -147,13 +147,19 @@ const getWishlist = async () => {
   }
 };
 
+const getAllRatings = async () => {
+    const response = await axios.get(`${base_url}product/ratings/all`);
+    return response.data;
+};
+
 
 const productService = {
     getProducts,
     addToWishlist,
     getWishlist,
     getSingleProduct,
-    rateProduct
+    rateProduct,
+    getAllRatings
 };
 
 export default productService;

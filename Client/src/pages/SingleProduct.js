@@ -11,7 +11,7 @@ import { AiOutlineHeart, AiOutlineShoppingCart } from "react-icons/ai";
 import Container from '../components/Container';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { addRating, getAProduct, getAllProducts } from '../features/products/productSlice';
+import { addRating, getAProduct, getAllProducts, getAllRatings } from '../features/products/productSlice';
 import { toast } from 'react-toastify';
 import { addProdToCart, getUserCart, setBuyNowItem, toggleProductWishlist } from '../features/user/userSlice';
 import { useTranslation } from '../contexts/TranslationContext';
@@ -135,24 +135,40 @@ const SingleProduct = () => {
     };
   }, [selectedImage]);
 
-  const addRatingToProduct = () => {
+  const addRatingToProduct = async () => {
     if (!productState?.id) {
       toast.error("ID produit manquant");
       return false;
     }
     if (star === null) {
-      toast.error("Please add star rating ");
+      toast.error("Veuillez ajouter une note");
       return false;
-    } else if (comment === null) {
-      toast.error("Please Write Review About the Product");
+    } else if (comment === null || comment.trim() === '') {
+      toast.error("Veuillez écrire un commentaire sur le produit");
       return false;
     } else {
-      // Debug log for prodId
-      console.log('[DEBUG] Sending rating with prodId:', productState.id, 'star:', star, 'comment:', comment);
-      dispatch(addRating({ star, comment, prodId: productState.id }));
-      setTimeout(() => {
-        dispatch(getAProduct(getProductSlug)); // Récupérer à nouveau le produit après avoir ajouté un avis
-      }, 100);
+      try {
+        // Debug log for prodId
+        console.log('[DEBUG] Sending rating with prodId:', productState.id, 'star:', star, 'comment:', comment);
+        
+        // Dispatch l'action et attendre la réponse
+        await dispatch(addRating({ star, comment, prodId: productState.id })).unwrap();
+        
+        // Réinitialiser le formulaire
+        setStar(null);
+        setComment('');
+        
+        // Recharger immédiatement le produit pour afficher le nouvel avis
+        await dispatch(getAProduct(getProductSlug)).unwrap();
+        
+        // 🔄 NOUVEAU : Rafraîchir également tous les avis pour la section Témoignages de Home
+        dispatch(getAllRatings());
+        
+        toast.success("✅ Votre avis a été ajouté avec succès et apparaît ci-dessous !");
+      } catch (error) {
+        console.error('❌ Error adding rating:', error);
+        toast.error("Erreur lors de l'ajout de l'avis");
+      }
     }
     return false;
   };
