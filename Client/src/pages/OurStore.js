@@ -8,7 +8,7 @@ import ProductFilters from '../components/ProductFilters';
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from '../contexts/TranslationContext';
 import { getAllProducts } from '../features/products/productSlice';
-import { FaSearch, FaTh, FaList, FaSort } from 'react-icons/fa';
+import { FaSearch, FaTh, FaList } from 'react-icons/fa';
 import './OurStore.css';
 
 const OurStore = () => {
@@ -18,9 +18,10 @@ const OurStore = () => {
     const productState = useSelector((state) => state?.product?.product);
     
     const [gridView, setGridView] = useState(true);
-    const [sort, setSort] = useState('-createdAt');
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilters, setActiveFilters] = useState({});
+    const [suggestions, setSuggestions] = useState([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
 
     // Récupérer les paramètres category et search de l'URL
     useEffect(() => {
@@ -104,25 +105,14 @@ const OurStore = () => {
             });
         }
 
-        if (filters.sizes && filters.sizes.length > 0) {
-            filtered = filtered.filter(p => {
-                let productSizes = p.size || p.sizes;
-                if (typeof productSizes === 'string') {
-                    try {
-                        productSizes = JSON.parse(productSizes);
-                    } catch (e) {
-                        return false;
-                    }
-                }
-                if (Array.isArray(productSizes)) {
-                    return productSizes.some(s => filters.sizes.includes(s));
-                }
-                return false;
-            });
-        }
+        // Suppression du filtre par taille
 
         if (filters.rating) {
-            filtered = filtered.filter(p => parseFloat(p.totalrating || 0) >= filters.rating);
+            if (filters.rating === 'none') {
+                filtered = filtered.filter(p => !p.totalrating || parseFloat(p.totalrating) === 0);
+            } else {
+                filtered = filtered.filter(p => parseFloat(p.totalrating || 0) >= filters.rating);
+            }
         }
 
         if (filters.inStock) {
@@ -137,6 +127,37 @@ const OurStore = () => {
     };
 
     const filteredProducts = applyFilters(productState || [], activeFilters);
+
+    // Générer les suggestions d'autocomplete
+    const handleSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        
+        if (value.length >= 2 && productState) {
+            // Créer un Set pour éviter les doublons
+            const suggestionSet = new Set();
+            
+            productState.forEach(product => {
+                if (product.title?.toLowerCase().includes(value.toLowerCase())) {
+                    suggestionSet.add(product.title);
+                }
+                if (product.brand?.toLowerCase().includes(value.toLowerCase())) {
+                    suggestionSet.add(product.brand);
+                }
+            });
+            
+            setSuggestions(Array.from(suggestionSet).slice(0, 5));
+            setShowSuggestions(true);
+        } else {
+            setSuggestions([]);
+            setShowSuggestions(false);
+        }
+    };
+
+    const handleSuggestionClick = (suggestion) => {
+        setSearchTerm(suggestion);
+        setShowSuggestions(false);
+    };
 
     return (
         <>
@@ -161,8 +182,24 @@ const OurStore = () => {
                                             placeholder={t('searchProducts') || 'Rechercher des produits...'}
                                             className="search-input"
                                             value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            onChange={handleSearchChange}
+                                            onFocus={() => searchTerm.length >= 2 && setShowSuggestions(true)}
+                                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                                         />
+                                        {showSuggestions && suggestions.length > 0 && (
+                                            <div className="autocomplete-suggestions">
+                                                {suggestions.map((suggestion, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="suggestion-item"
+                                                        onClick={() => handleSuggestionClick(suggestion)}
+                                                    >
+                                                        <FaSearch className="suggestion-icon" />
+                                                        <span>{suggestion}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

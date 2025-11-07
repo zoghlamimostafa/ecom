@@ -1,10 +1,10 @@
 import axios from "axios";
 import { base_url } from "../../utils/baseUrl";
 
-// Fonction pour récupérer le token actuel depuis le localStorage
+// Fonction pour récupérer le token actuel depuis le sessionStorage
 const getAuthConfig = () => {
   // Try to get customer object first (new format)
-  const customer = localStorage.getItem("customer");
+  const customer = sessionStorage.getItem("customer");
   let token = "";
   
   if (customer) {
@@ -12,13 +12,13 @@ const getAuthConfig = () => {
       const parsedCustomer = JSON.parse(customer);
       token = parsedCustomer.token || "";
     } catch (e) {
-      console.error("Error parsing customer from localStorage:", e);
+  console.error("Error parsing customer from sessionStorage:", e);
     }
   }
   
   // Fallback to old accessToken format
   if (!token) {
-    token = localStorage.getItem("accessToken") || "";
+  token = sessionStorage.getItem("accessToken") || "";
   }
   
   return {
@@ -35,12 +35,12 @@ const refreshToken = async () => {
     const response = await axios.post(`${base_url}token/refresh`, {}, getAuthConfig());
     
     if (response.data && response.data.token) {
-      // Update token in localStorage
-      const customer = localStorage.getItem("customer");
+  // Update token in sessionStorage
+  const customer = sessionStorage.getItem("customer");
       if (customer) {
         const customerData = JSON.parse(customer);
         customerData.token = response.data.token;
-        localStorage.setItem("customer", JSON.stringify(customerData));
+  sessionStorage.setItem("customer", JSON.stringify(customerData));
       }
       
       return response.data.token;
@@ -49,7 +49,7 @@ const refreshToken = async () => {
   } catch (error) {
     console.error("Token refresh failed:", error);
     // Clear invalid token data
-    localStorage.removeItem("customer");
+  sessionStorage.removeItem("customer");
     // Redirect to login page
     window.location.href = "/login";
     return null;
@@ -130,7 +130,7 @@ const register = async (userData) => {
     const response = await axios.post(`${base_url}user/register`, userData);
     if (response.data) {
       console.log('✅ userService.register - Réponse reçue:', response.data);
-      localStorage.setItem("user", JSON.stringify(response.data));
+  sessionStorage.setItem("user", JSON.stringify(response.data));
       return response.data;
     }
   } catch (error) {
@@ -144,7 +144,7 @@ const login = async (userData) => {
   try {
     const response = await axios.post(`${base_url}user/login`, userData);
     if (response.data) {
-      localStorage.setItem("customer", JSON.stringify(response.data));
+  sessionStorage.setItem("customer", JSON.stringify(response.data));
       return response.data;
     }
   } catch (error) {
@@ -286,7 +286,7 @@ const updateUser = async (data) => {
 // Fonction de déconnexion
 const logout = async () => {
   try {
-    // Clear ALL localStorage data to ensure complete logout
+  // Clear ALL sessionStorage data to ensure complete logout
     localStorage.clear();
     sessionStorage.clear();
     

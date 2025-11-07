@@ -111,8 +111,8 @@ const About = () => {
                 <div className="col-lg-3 col-md-6 mb-4">
                   <div className="service-box">
                     <FaTruck className="service-icon" />
-                    <h3>Livraison Gratuite</h3>
-                    <p>Sur commandes +100 DT</p>
+                    <h3>Livraison Rapide</h3>
+                    <p>Livraison 7 DT partout en Tunisie</p>
                   </div>
                 </div>
                 <div className="col-lg-3 col-md-6 mb-4">

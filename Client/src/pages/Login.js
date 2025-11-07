@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { loginUser } from '../features/user/userSlice';
 import { useTranslation } from '../contexts/TranslationContext';
 import Meta from '../components/Meta';
@@ -15,7 +15,11 @@ const Login = () => {
   const authState = useSelector(state => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
+  
+  // Récupérer la page d'où vient l'utilisateur
+  const from = location.state?.from?.pathname || '/';
 
   const personSchema = yup.object({
     email: yup.string().nullable().email(t('invalidEmail')).required(t('emailRequired')),
@@ -32,16 +36,16 @@ const Login = () => {
       dispatch(loginUser(values));
       setTimeout(() => {
         if (authState.isSuccess)
-          navigate('/');
+          navigate(from, { replace: true });
       }, 300);
     },
   });
 
   useEffect(() => {
     if (authState.auth !== null && authState.isError === false) {
-      navigate('/');
+      navigate(from, { replace: true });
     }
-  }, [authState, navigate]);
+  }, [authState, navigate, from]);
 
   return (
     <>

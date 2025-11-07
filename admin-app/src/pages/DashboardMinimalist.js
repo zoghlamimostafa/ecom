@@ -349,7 +349,7 @@ const DashboardMinimalist = () => {
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <StatCard
-            title="Produits"
+            title={<span style={{ color: 'white' }}>Produits</span>}
             value={stats.totalProducts}
             icon={<AppstoreOutlined />}
             trend="up"

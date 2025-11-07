@@ -27,6 +27,23 @@ const createUser = asyncHandler(async (req, res) => {
       });
     }
 
+    // Validation robuste du mot de passe
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Le mot de passe doit contenir au moins 8 caractères"
+      });
+    }
+
+    // Vérifier complexité du mot de passe (au moins une lettre et un chiffre)
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: "Le mot de passe doit contenir au moins 8 caractères, une lettre et un chiffre"
+      });
+    }
+
     // Vérifier si l'utilisateur existe déjà
     const findUser = await User.findOne({ where: { email: email } });
     if (findUser) {
@@ -46,13 +63,30 @@ const createUser = asyncHandler(async (req, res) => {
       role: "user"
     });
 
-    // Retourner les données sans le mot de passe
-    const { password: pwd, ...userWithoutPassword } = newUser.toJSON();
+    // Generate tokens for immediate authentication
+    const token = generateToken(newUser.id);
+    const refreshToken = generateRefreshToken(newUser.id);
+    
+    // Save refresh token to database
+    await User.update(
+      { refreshToken: refreshToken }, 
+      { where: { id: newUser.id } }
+    );
+
+    // Set refresh token cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      maxAge: 72 * 60 * 60 * 1000, // 3 days
+    });
+
+    // Retourner les données sans le mot de passe, avec token
+    const { password: pwd, refreshToken: rt, ...userWithoutPassword } = newUser.toJSON();
     
     res.status(201).json({
       success: true,
       message: "Utilisateur créé avec succès",
-      user: userWithoutPassword
+      user: userWithoutPassword,
+      token: token
     });
   } catch (error) {
     console.error('Erreur createUser:', error);
@@ -74,6 +108,23 @@ const createAdmin = asyncHandler(async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Tous les champs obligatoires doivent être remplis"
+      });
+    }
+
+    // Validation robuste du mot de passe
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Le mot de passe doit contenir au moins 8 caractères"
+      });
+    }
+
+    // Vérifier complexité du mot de passe (au moins une lettre et un chiffre)
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: "Le mot de passe doit contenir au moins 8 caractères, une lettre et un chiffre"
       });
     }
 
@@ -866,10 +917,14 @@ module.exports = {
   // Créer une commande depuis le panier
   createOrder: asyncHandler(async (req, res) => {
     const userId = req.user?.id; // Sequelize utilise 'id', pas '_id'
-    const { shippingInfo, paymentInfo } = req.body;
+    const { shippingInfo, paymentInfo, totalPrice: frontendTotal, shippingCost, subtotal, couponCode } = req.body;
 
     console.log('📦 Données reçues pour createOrder:', JSON.stringify(req.body, null, 2));
     console.log('📋 shippingInfo:', JSON.stringify(shippingInfo, null, 2));
+    console.log('💰 Total frontend (avec livraison):', frontendTotal);
+    console.log('🚚 Frais de livraison:', shippingCost);
+    console.log('💵 Sous-total:', subtotal);
+    console.log('🎫 Code coupon:', couponCode || 'Aucun');
 
     if (!userId) {
       console.error('❌ ID utilisateur manquant dans req.user');
@@ -908,8 +963,8 @@ module.exports = {
         });
       }
 
-      // Calculer le total
-      let totalPrice = 0;
+      // Calculer le total des produits seulement
+      let cartTotal = 0;
       const orderItemsData = [];
 
       for (const item of cartItems) {
@@ -926,7 +981,7 @@ module.exports = {
         }
 
         const itemTotal = item.price * item.quantity;
-        totalPrice += itemTotal;
+        cartTotal += itemTotal;
 
         orderItemsData.push({
           productId: item.productId,
@@ -936,13 +991,68 @@ module.exports = {
         });
       }
 
+      // Utiliser le totalPrice du frontend qui inclut déjà la livraison
+      let finalTotal = frontendTotal || (cartTotal + (shippingCost || 0));
+      let couponApplied = null;
+      let couponDiscount = 0;
+      let totalAfterDiscount = finalTotal;
+      
+      // Appliquer le coupon si fourni
+      if (couponCode && couponCode.trim() !== '') {
+        try {
+          const coupon = await Coupon.findOne({ 
+            where: { name: couponCode.toUpperCase() } 
+          });
+
+          if (coupon && coupon.isActive) {
+            const now = new Date();
+            const expiryDate = new Date(coupon.expiry);
+            
+            // Vérifier validité
+            if (expiryDate >= now && (!coupon.usageLimit || coupon.usageCount < coupon.usageLimit)) {
+              couponDiscount = parseFloat(coupon.discount);
+              const discountAmount = (finalTotal * couponDiscount) / 100;
+              totalAfterDiscount = finalTotal - discountAmount;
+              couponApplied = coupon.name;
+              
+              // Incrémenter le compteur d'utilisation
+              await Coupon.update(
+                { usageCount: coupon.usageCount + 1 },
+                { where: { id: coupon.id } }
+              );
+              
+              console.log('✅ Coupon appliqué:', {
+                code: couponApplied,
+                discount: couponDiscount + '%',
+                discountAmount: discountAmount.toFixed(2),
+                totalBeforeDiscount: finalTotal,
+                totalAfterDiscount: totalAfterDiscount.toFixed(2)
+              });
+            } else {
+              console.log('⚠️ Coupon invalide ou expiré:', couponCode);
+            }
+          } else {
+            console.log('⚠️ Coupon non trouvé ou inactif:', couponCode);
+          }
+        } catch (couponError) {
+          console.error('❌ Erreur lors de l\'application du coupon:', couponError);
+          // On continue sans coupon en cas d'erreur
+        }
+      }
+      
+      console.log('✅ Total panier:', cartTotal);
+      console.log('✅ Total final (avec livraison):', finalTotal);
+      console.log('✅ Total après réduction:', totalAfterDiscount);
+
       // Créer la commande
       const order = await Order.create({
         userId: userId,
         shippingInfo,
         paymentInfo: paymentInfo || { method: 'COD' },
-        totalPrice,
-        totalPriceAfterDiscount: totalPrice,
+        totalPrice: finalTotal,
+        totalPriceAfterDiscount: totalAfterDiscount,
+        couponApplied: couponApplied,
+        couponDiscount: couponDiscount,
         orderStatus: paymentInfo?.method === 'COD' ? 'Cash on Delivery' : 'Not Processed'
       });
 
@@ -1187,7 +1297,7 @@ module.exports = {
               {
                 model: Product,
                 as: 'product',
-                attributes: ['id', 'title', 'price', 'images', 'slug', 'brand', 'createdAt']
+                attributes: ['id', 'title', 'price', 'images', 'slug', 'brandId', 'createdAt']
               }
             ]
           }

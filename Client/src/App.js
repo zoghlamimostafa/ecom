@@ -110,6 +110,7 @@ function App() {
 <Route path="mentions-legales" element={<LegalNotice />}/>
 <Route path="avis-clients" element={<AvisClients />}/>
 <Route path="my-orders" element={<PrivateRoutes><Orders /></PrivateRoutes>}/>
+<Route path="orders" element={<PrivateRoutes><Orders /></PrivateRoutes>}/>
 <Route path="livraison" element={<PrivateRoutes><Livraison /></PrivateRoutes>}/>
 <Route path="payment" element={<PrivateRoutes><Payment /></PrivateRoutes>}/>
 

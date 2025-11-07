@@ -88,7 +88,7 @@
 .search-icon {
     position: absolute;
     left: 1rem;
-    color: #ff8c00;
+    color: #FF914D;
     font-size: 1.2rem;
     z-index: 1;
 }
@@ -105,10 +105,59 @@
 
 .search-input:focus {
     outline: none;
-    border-color: #ff8c00;
+    border-color: #FF914D;
     background: white;
     box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
     transform: translateY(-2px);
+}
+
+/* Autocomplete Suggestions */
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #FF914D;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: -2px;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem 0.875rem 3rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background: #fff5e6;
+    color: #FF914D;
+}
+
+.suggestion-icon {
+    color: #FF914D;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    position: absolute;
+    left: 1rem;
+}
+
+.suggestion-item span {
+    font-size: 0.95rem;
+    font-weight: 500;
 }
 
 /* Store Controls */
@@ -124,7 +173,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.875rem 1.5rem;
-    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    background: linear-gradient(135deg, #FF914D 0%, #FF914D 100%);
     color: white;
     border: none;
     border-radius: 12px;
@@ -141,7 +190,7 @@
 }
 
 .filter-toggle-btn.active {
-    background: linear-gradient(135deg, #ff6b00 0%, #ff4500 100%);
+    background: linear-gradient(135deg, #FF914D 0%, #ff4500 100%);
 }
 
 /* View Toggle Buttons */
@@ -167,11 +216,11 @@
 
 .view-btn:hover {
     background: #f3f4f6;
-    color: #ff8c00;
+    color: #FF914D;
 }
 
 .view-btn.active {
-    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    background: linear-gradient(135deg, #FF914D 0%, #FF914D 100%);
     color: white;
 }
 
@@ -201,7 +250,7 @@
     margin: 0;
     font-size: 1.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    background: linear-gradient(135deg, #FF914D 0%, #FF914D 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -254,7 +303,7 @@
     content: '';
     width: 4px;
     height: 20px;
-    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    background: linear-gradient(135deg, #FF914D 0%, #FF914D 100%);
     border-radius: 2px;
 }
 
@@ -276,13 +325,13 @@
 }
 
 .filter-option:hover {
-    border-color: #ff8c00;
+    border-color: #FF914D;
     background: #fff5e6;
     transform: translateX(5px);
 }
 
 .filter-option.selected {
-    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    background: linear-gradient(135deg, #FF914D 0%, #FF914D 100%);
     color: white;
     border-color: transparent;
     font-weight: 600;
@@ -309,13 +358,13 @@
 
 .filter-tag:hover {
     background: #e5e7eb;
-    border-color: #ff8c00;
-    color: #ff8c00;
+    border-color: #FF914D;
+    color: #FF914D;
     transform: translateY(-2px);
 }
 
 .filter-tag.selected {
-    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    background: linear-gradient(135deg, #FF914D 0%, #FF914D 100%);
     color: white;
     border-color: transparent;
     font-weight: 600;
@@ -343,7 +392,7 @@
 
 .price-input input:focus {
     outline: none;
-    border-color: #ff8c00;
+    border-color: #FF914D;
     box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
 }
 
@@ -393,7 +442,7 @@
 
 .sort-select:focus {
     outline: none;
-    border-color: #ff8c00;
+    border-color: #FF914D;
     box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
 }
 
@@ -409,6 +458,48 @@
 
 .products-grid .row > div {
     padding: 0 0.75rem;
+}
+
+/* Fix pour afficher les cartes en grille correctement */
+.products-grid .row.g-4 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.products-grid .row.g-4 > div {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* Assurer que les cartes gardent leur format normal - CORRECTION ÉTIREMENT */
+.products-grid .product-card-container {
+    width: 240px !important;
+    height: 300px !important;
+    min-height: 300px !important;
+    max-height: 300px !important;
+    flex-shrink: 0;
+}
+
+.products-grid .modern-product-card-grid {
+    height: 300px !important;
+}
+
+.products-grid .modern-product-card-grid .product-card-container {
+    height: 300px !important;
+}
+
+/* Force les dimensions pour éviter l'étirement dans la recherche */
+.products-grid .row.g-4 .product-card-container {
+    width: 240px !important;
+    height: 300px !important;
+}
+
+.products-grid .product-image-section {
+    height: 160px !important;
+    flex-shrink: 0;
 }
 
 /* Product Card Animations */
@@ -726,10 +817,10 @@
 }
 
 .filters-sidebar::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    background: linear-gradient(135deg, #FF914D 0%, #FF914D 100%);
     border-radius: 10px;
 }
 
 .filters-sidebar::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+    background: linear-gradient(135deg, #FF914D 0%, #FF914D 100%);
 }

@@ -89,6 +89,15 @@ router.post("/cart", authMiddleware, asyncHandler(async (req, res) => {
     }
 
     try {
+        // Vérification du stock produit
+        const product = await Product.findByPk(productId);
+        if (!product) {
+            return res.status(404).json({ message: "Produit introuvable" });
+        }
+        if (product.quantity < quantity) {
+            return res.status(400).json({ message: `Stock insuffisant : il reste seulement ${product.quantity} exemplaire(s) en stock.` });
+        }
+
         const cartData = {
             userId,
             productId,
@@ -248,7 +257,7 @@ router.get("/wishlist", authMiddleware, asyncHandler(async (req, res) => {
                 {
                     model: Product,
                     as: 'product',
-                    attributes: ['id', 'title', 'price', 'images', 'description', 'brand', 'category', 'slug']
+                    attributes: ['id', 'title', 'price', 'images', 'description', 'brandId', 'category', 'slug']
                 }
             ]
         });
@@ -260,7 +269,7 @@ router.get("/wishlist", authMiddleware, asyncHandler(async (req, res) => {
             price: item.product?.price,
             images: item.product?.images,
             description: item.product?.description,
-            brand: item.product?.brand,
+            brandId: item.product?.brandId,
             category: item.product?.category,
             slug: item.product?.slug
         }));

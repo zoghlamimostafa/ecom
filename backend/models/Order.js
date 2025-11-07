@@ -32,6 +32,18 @@ const Order = sequelize.define('Order', {
     type: DataTypes.JSON,
     allowNull: false
   },
+  // Coupon Information (optional)
+  couponApplied: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null
+  },
+  couponDiscount: {
+    type: DataTypes.DECIMAL(5, 2),
+    allowNull: true,
+    defaultValue: 0,
+    comment: 'Pourcentage de réduction du coupon'
+  },
   // Order Status
   orderStatus: {
     type: DataTypes.ENUM('Not Processed', 'Cash on Delivery', 'Processing', 'Dispatched', 'Cancelled', 'Delivered'),

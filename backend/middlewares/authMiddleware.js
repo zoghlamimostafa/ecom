@@ -1,13 +1,18 @@
 const { User } = require("../models/index");
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
-const { JWT_SECRET } = require('../config/config');
+const config = require('../config/config');
+const JWT_SECRET = config.JWT_SECRET;
 
 const authMiddleware = asyncHandler(async (req, res, next) => {
     console.log("🔐 Auth middleware called");
     console.log("Authorization header:", req.headers.authorization);
-    console.log("JWT_SECRET length:", JWT_SECRET.length);
-    console.log("JWT_SECRET start:", JWT_SECRET.substring(0, 10));
+    if (!JWT_SECRET) {
+        console.error("❌ JWT_SECRET is undefined! Check your .env or config.js");
+    } else {
+        console.log("JWT_SECRET length:", JWT_SECRET.length);
+        console.log("JWT_SECRET start:", JWT_SECRET.substring(0, 10));
+    }
     
     let token;
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {

@@ -1,7 +1,8 @@
 import "./App.css";
 import "./styles/admin-modern.css";
 import "./styles/mobile-responsive-fix.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import Login from "./pages/Login";
 import Resetpassword from "./pages/Resetpassword";
 import Forgotpassword from "./pages/Forgotpassword";
@@ -35,29 +36,50 @@ import EditUser from "./pages/EditUser";
 import DiagnosticTest from "./components/DiagnosticTest";
 import OpenRoutes from "./routing/OpenRoutes";
 import PrivateRoutes from "./routing/PrivateRoutes";
-function App() {
+
+function AppContent() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Déconnexion automatique lors de la fermeture/rafraîchissement de la fenêtre
+    const handleBeforeUnload = (e) => {
+      const userString = localStorage.getItem("user");
+      if (userString) {
+        // Déconnexion silencieuse
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        sessionStorage.clear();
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [navigate]);
+
   return (
-    <Router>
-      <AuthChecker>
-        <Routes>
-          <Route path="/" element={<OpenRoutes><Login /></OpenRoutes>} />
-          <Route path="/diagnostic" element={<DiagnosticTest />} />
-          <Route path="/create-admin" element={<OpenRoutes><CreateAdmin /></OpenRoutes>} />
-          <Route path="/reset-password" element={<OpenRoutes><Resetpassword /></OpenRoutes>} />
-          <Route path="/forgot-password" element={<OpenRoutes><Forgotpassword /></OpenRoutes>} />
-          <Route path="/admin" element={<MainLayout />}>
-            <Route index element={<DashboardMinimalist />} />
-            <Route path="diagnostic" element={<DiagnosticTest />} />
-            <Route path="enquiries" element={<Enquiries />} />
-            <Route path="enquiries/:id" element={<PrivateRoutes><ViewEnq /></PrivateRoutes>} />
-            <Route path="blog-list" element={<PrivateRoutes><Bloglist /></PrivateRoutes>} />
-            <Route path="blog" element={<PrivateRoutes><Addblog /></PrivateRoutes>} />
-            <Route path="blog/:id" element={<PrivateRoutes><Addblog /></PrivateRoutes>} />
-            <Route path="coupon-list" element={<Couponlist />} />
-            <Route path="coupon" element={<AddCoupon />} />
-            <Route path="coupon/:id" element={<AddCoupon />} />
-            <Route path="blog-category-list" element={<Blogcatlist />} />
-            <Route path="blog-category" element={<Addblogcat />} />
+    <AuthChecker>
+      <Routes>
+        <Route path="/" element={<OpenRoutes><Login /></OpenRoutes>} />
+        <Route path="/diagnostic" element={<DiagnosticTest />} />
+        <Route path="/create-admin" element={<OpenRoutes><CreateAdmin /></OpenRoutes>} />
+        <Route path="/reset-password" element={<OpenRoutes><Resetpassword /></OpenRoutes>} />
+        <Route path="/forgot-password" element={<OpenRoutes><Forgotpassword /></OpenRoutes>} />
+        <Route path="/admin" element={<MainLayout />}>
+          <Route index element={<DashboardMinimalist />} />
+          <Route path="diagnostic" element={<DiagnosticTest />} />
+          <Route path="enquiries" element={<Enquiries />} />
+          <Route path="enquiries/:id" element={<PrivateRoutes><ViewEnq /></PrivateRoutes>} />
+          <Route path="blog-list" element={<PrivateRoutes><Bloglist /></PrivateRoutes>} />
+          <Route path="blog" element={<PrivateRoutes><Addblog /></PrivateRoutes>} />
+          <Route path="blog/:id" element={<PrivateRoutes><Addblog /></PrivateRoutes>} />
+          <Route path="coupon-list" element={<Couponlist />} />
+          <Route path="coupon" element={<AddCoupon />} />
+          <Route path="coupon/:id" element={<AddCoupon />} />
+          <Route path="blog-category-list" element={<Blogcatlist />} />
+          <Route path="blog-category" element={<Addblogcat />} />
           <Route path="blog-category/:id" element={<Addblogcat />} />
           <Route path="orders" element={<Orders />} />
           <Route path="order/:id" element={<ViewOrder />} />
@@ -80,7 +102,14 @@ function App() {
           <Route path="product/:id" element={<AddproductIntelligent />} />
         </Route>
       </Routes>
-      </AuthChecker>
+    </AuthChecker>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

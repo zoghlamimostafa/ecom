@@ -11,12 +11,12 @@ const CategoryProducts = () => {
     const dispatch = useDispatch();
     const productState = useSelector(state => state.product.product);
     const [filteredProducts, setFilteredProducts] = useState([]);
+    const [minRating, setMinRating] = useState(0); // Ajout du filtre de note
 
     useEffect(() => {
-        if (!productState || productState.length === 0) {
-            dispatch(getAllProducts());
-        }
-    }, [dispatch, productState]);
+        // Toujours charger les produits quand on arrive sur la page
+        dispatch(getAllProducts());
+    }, [dispatch]);
 
     useEffect(() => {
         if (productState && categoryId) {
@@ -28,19 +28,16 @@ const CategoryProducts = () => {
                 // Convertir product.category en string pour comparaison fiable
                 const productCategory = product.category ? product.category.toString() : '';
                 const productSubcategory = product.subcategory ? product.subcategory.toString() : '';
-                
-                // Filtrer par catégorie principale OU sous-catégorie
-                return productCategory === categoryIdStr || 
-                       productSubcategory === categoryIdStr ||
-                       productCategory === categoryIdNum.toString();
+                const matches = productCategory === categoryIdStr || 
+                               productSubcategory === categoryIdStr ||
+                               productCategory === categoryIdNum.toString();
+                // Filtrer aussi par note minimale si précisée
+                const rating = Number(product.totalRating) || 0;
+                return matches && rating >= minRating;
             });
-            
-            console.log('🔍 Filtrage catégorie:', categoryId);
-            console.log('📦 Produits trouvés:', filtered.length);
-            
             setFilteredProducts(filtered);
         }
-    }, [productState, categoryId]);
+    }, [productState, categoryId, minRating]);
 
     return (
         <>
@@ -49,6 +46,23 @@ const CategoryProducts = () => {
                 <div className="row">
                     <div className="col-12">
                         <h3 className="mb-4">Produits de la catégorie</h3>
+                        {/* Filtre par note (étoiles) */}
+                        <div style={{ marginBottom: 20 }}>
+                            <label htmlFor="minRating">Note minimale : </label>
+                            <select
+                                id="minRating"
+                                value={minRating}
+                                onChange={e => setMinRating(Number(e.target.value))}
+                                style={{ marginLeft: 8 }}
+                            >
+                                <option value={0}>Toutes</option>
+                                <option value={5}>5 étoiles</option>
+                                <option value={4}>4 étoiles et +</option>
+                                <option value={3}>3 étoiles et +</option>
+                                <option value={2}>2 étoiles et +</option>
+                                <option value={1}>1 étoile et +</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div className="row">

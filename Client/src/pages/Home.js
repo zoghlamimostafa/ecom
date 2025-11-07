@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from '../contexts/TranslationContext';
 import Meta from '../components/Meta';
+import SEO from '../components/SEO';
 import SEOEnhancer from '../components/SEOEnhancer';
 import ProductCard from '../components/ProductCard';
 import Container from '../components/Container';
@@ -42,6 +43,13 @@ const Home = () => {
     dispatch(getAllBrands());
     // Récupérer toutes les catégories
     dispatch(getAllCategories());
+    
+    // Rafraîchir les marques toutes les 5 minutes pour récupérer les nouvelles
+    const brandRefreshInterval = setInterval(() => {
+      dispatch(getAllBrands());
+    }, 300000); // 5 minutes
+    
+    return () => clearInterval(brandRefreshInterval);
   }, [dispatch]);
 
   // Mapping des icônes pour chaque catégorie (principales ET sous-catégories)
@@ -160,6 +168,11 @@ const Home = () => {
 
   return (
     <>
+      <SEO 
+        title="Sanny Shop - Boutique en Ligne | Smartphones, Électronique & Mode"
+        description="Découvrez notre large sélection de smartphones, produits électroniques, mode et accessoires. Livraison rapide et paiement sécurisé."
+        keywords="sanny shop, boutique en ligne, e-commerce, smartphones, iPhone, Samsung, électronique, mode, accessoires"
+      />
       <SEOEnhancer 
         title={t('homePageTitle')}
         description={t('homePageDescription')}

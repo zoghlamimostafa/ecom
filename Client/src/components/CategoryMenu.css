@@ -21,7 +21,7 @@
 .subcategories-header {
     padding: 15px 20px;
     border-bottom: 2px solid #f0f0f0;
-    background: linear-gradient(135deg, #FF7A00 0%, #FF9F40 100%);
+    background: linear-gradient(135deg, #FF914D 0%, #FFA76D 100%);
     color: white;
     border-radius: 8px 8px 0 0;
 }
@@ -61,7 +61,7 @@
 }
 
 .subcategory-link-item:hover {
-    background: linear-gradient(135deg, #FF7A00 0%, #FF9F40 100%);
+    background: linear-gradient(135deg, #FF914D 0%, #FFA76D 100%);
     color: white;
     transform: translateX(3px);
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
@@ -72,7 +72,7 @@
     margin-right: 12px;
     width: 20px;
     text-align: center;
-    color: #FF7A00;
+    color: #FF914D;
 }
 
 .subcategory-link-item:hover i {
@@ -219,7 +219,7 @@
 }
 
 .subcategories-side-menu::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #FF7A00 0%, #FF9F40 100%);
+    background: linear-gradient(135deg, #FF914D 0%, #FFA76D 100%);
     border-radius: 10px;
 }
 
@@ -275,7 +275,7 @@
     min-width: 20px;
     height: 20px;
     padding: 0 6px;
-    background: #FF7A00;
+    background: #FF914D;
     color: white;
     border-radius: 10px;
     font-size: 0.75rem;
@@ -285,5 +285,5 @@
 
 .subcategory-link-item:hover[data-has-subsub]::after {
     background: white;
-    color: #FF7A00;
+    color: #FF914D;
 }

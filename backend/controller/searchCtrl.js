@@ -12,7 +12,7 @@ const globalSearch = asyncHandler(async (req, res) => {
   try {
     const { q, limit = 10 } = req.query;
 
-    if (!q || q.trim().length < 2) {
+  if (!q || q.trim().length < 1) {
       return res.json({
         success: true,
         query: q,
@@ -41,11 +41,10 @@ const globalSearch = asyncHandler(async (req, res) => {
           { description: { [Op.like]: `%${searchTerm}%` } },
           { category: { [Op.like]: `%${searchTerm}%` } },
           { subcategory: { [Op.like]: `%${searchTerm}%` } },
-          { brand: { [Op.like]: `%${searchTerm}%` } },
           { slug: { [Op.like]: `%${searchTerm}%` } }
         ]
       },
-      attributes: ['id', 'title', 'slug', 'price', 'images', 'category', 'subcategory', 'brand', 'quantity'],
+      attributes: ['id', 'title', 'slug', 'price', 'images', 'category', 'subcategory', 'brandId', 'quantity'],
       limit: searchLimit,
       order: [['createdAt', 'DESC']]
     });
@@ -112,7 +111,7 @@ const autocompleteProducts = asyncHandler(async (req, res) => {
   try {
     const { q, limit = 10 } = req.query;
 
-    if (!q || q.trim().length < 2) {
+  if (!q || q.trim().length < 1) {
       return res.json({
         success: true,
         suggestions: []
@@ -126,11 +125,10 @@ const autocompleteProducts = asyncHandler(async (req, res) => {
       where: {
         [Op.or]: [
           { title: { [Op.like]: `%${searchTerm}%` } },
-          { category: { [Op.like]: `%${searchTerm}%` } },
-          { brand: { [Op.like]: `%${searchTerm}%` } }
+          { category: { [Op.like]: `%${searchTerm}%` } }
         ]
       },
-      attributes: ['id', 'title', 'slug', 'price', 'images', 'category', 'brand'],
+      attributes: ['id', 'title', 'slug', 'price', 'images', 'category', 'brandId'],
       limit: searchLimit,
       order: [
         ['sold', 'DESC'],  // Produits les plus vendus en premier
@@ -146,7 +144,7 @@ const autocompleteProducts = asyncHandler(async (req, res) => {
         slug: product.slug,
         price: product.price,
         category: product.category,
-        brand: product.brand,
+        brandId: product.brandId,
         image: product.images && product.images.length > 0 ? product.images[0].url : null,
         type: 'product'
       };
@@ -176,7 +174,7 @@ const autocompleteCategories = asyncHandler(async (req, res) => {
   try {
     const { q, limit = 10 } = req.query;
 
-    if (!q || q.trim().length < 2) {
+  if (!q || q.trim().length < 1) {
       return res.json({
         success: true,
         suggestions: []
@@ -231,7 +229,7 @@ const autocompleteBrands = asyncHandler(async (req, res) => {
   try {
     const { q, limit = 10 } = req.query;
 
-    if (!q || q.trim().length < 2) {
+  if (!q || q.trim().length < 1) {
       return res.json({
         success: true,
         suggestions: []
@@ -284,7 +282,7 @@ const smartSuggestions = asyncHandler(async (req, res) => {
   try {
     const { q, limit = 10 } = req.query;
 
-    if (!q || q.trim().length < 2) {
+  if (!q || q.trim().length < 1) {
       return res.json({
         success: true,
         suggestions: []
@@ -423,7 +421,7 @@ const advancedSearch = asyncHandler(async (req, res) => {
       whereConditions.subcategory = subcategory;
     }
     if (brand) {
-      whereConditions.brand = brand;
+      whereConditions.brandId = brand;
     }
     if (minPrice) {
       whereConditions.price = { [Op.gte]: parseFloat(minPrice) };

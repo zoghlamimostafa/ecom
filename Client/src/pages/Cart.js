@@ -45,6 +45,16 @@ const Cart = () => {
   const handleQuantityChange = (itemId, newQuantity) => {
     if (newQuantity < 1 || newQuantity > 10) return;
 
+    // Trouver l'item et le stock disponible
+    const item = userCartState.find(i => (i.id || i.id) === itemId);
+    const product = item?.product || item?.productId;
+    const stock = product?.quantity ?? 0;
+
+    if (stock > 0 && newQuantity > stock) {
+      toast.error(`Stock insuffisant : il reste seulement ${stock} exemplaire(s) en stock.`);
+      return;
+    }
+
     setQuantity(prevState => ({
       ...prevState,
       [itemId]: newQuantity,
@@ -102,7 +112,6 @@ const Cart = () => {
 
   // Frais de livraison
   const SHIPPING_COST = 7.00; // 7 TND frais de livraison standard
-  const FREE_SHIPPING_THRESHOLD = 100.00; // Livraison gratuite à partir de 100 TND
 
   const subtotalPrice = (userCartState && Array.isArray(userCartState)) 
     ? userCartState.reduce((acc, item) => {
@@ -115,8 +124,8 @@ const Cart = () => {
       }, 0) 
     : 0;
 
-  // Calcul des frais de livraison (gratuit si > 100 TND)
-  const shippingCost = subtotalPrice >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+  // Livraison toujours 7dt
+  const shippingCost = subtotalPrice > 0 ? SHIPPING_COST : 0;
   
   // Calcul du total avec livraison
   const totalPrice = subtotalPrice > 0 ? subtotalPrice + shippingCost : 0;
@@ -164,6 +173,8 @@ const Cart = () => {
                       const productPrice = item.price || product.price || 0;
                       const itemId = item.id || item.id;
                       const productId = product.id || product.id || item.productId;
+                      // DEBUG: Afficher le stock et logguer en console
+                      console.log('🛒 Cart - Stock produit', productTitle, ':', product.quantity);
                       return (
                         <div key={itemId} className='cart-item-modern mb-4'>
                           <div className='cart-item-content'>
@@ -181,6 +192,7 @@ const Cart = () => {
                             </div>
                             <div className='cart-item-details'>
                               <h5 className="cart-item-title">{productTitle}</h5>
+                              <div style={{fontSize:'13px',color:'#888'}}>Stock disponible : <b>{typeof product.quantity === 'number' ? product.quantity : 'inconnu'}</b></div>
                               {item.color && (
                                 <div className="cart-item-color-info">
                                   <span className="color-label">Couleur:</span>
@@ -249,46 +261,8 @@ const Cart = () => {
                         
                         <div className="summary-line">
                           <span className="summary-label">Livraison standard</span>
-                          {shippingCost === 0 ? (
-                            <span className="summary-value shipping-free">
-                              <span className="free-badge">GRATUIT</span>
-                              <span className="original-price">{SHIPPING_COST.toFixed(2)} TND</span>
-                            </span>
-                          ) : (
-                            <span className="summary-value shipping-value">{shippingCost.toFixed(2)} TND</span>
-                          )}
+                          <span className="summary-value shipping-value">{shippingCost.toFixed(2)} TND (Livraison 7 DT partout en Tunisie)</span>
                         </div>
-                        
-                        {shippingCost > 0 && (
-                          <div className="summary-line summary-shipping-progress">
-                            <div className="shipping-progress-info">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shipping-icon">
-                                <rect x="1" y="3" width="15" height="13"></rect>
-                                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                                <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                                <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                              </svg>
-                              <span className="shipping-progress-text">
-                                Plus que <strong>{(FREE_SHIPPING_THRESHOLD - subtotalPrice).toFixed(2)} TND</strong> pour la livraison gratuite
-                              </span>
-                            </div>
-                            <div className="shipping-progress-bar">
-                              <div 
-                                className="shipping-progress-fill" 
-                                style={{ width: `${Math.min((subtotalPrice / FREE_SHIPPING_THRESHOLD) * 100, 100)}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {shippingCost === 0 && (
-                          <div className="summary-line summary-free-shipping-info">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shipping-icon">
-                              <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                            <span className="free-shipping-text">Vous bénéficiez de la livraison gratuite !</span>
-                          </div>
-                        )}
                         
                         <div className="summary-divider"></div>
                         

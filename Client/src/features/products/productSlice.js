@@ -183,7 +183,11 @@ export const productSlice = createSlice({
         state.isError = false;
         state.rating = action.payload;
         state.message = "Rating Added Successfully";
-        toast.success("Rating added successfully");
+        // Update the current product with the new ratings if available
+        if (action.payload?.product) {
+          state.product = action.payload.product;
+        }
+        toast.success("Avis ajouté avec succès");
       })
       .addCase(addRating.rejected, (state, action) => {
         state.isLoading = false;

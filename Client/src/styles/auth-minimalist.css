@@ -147,7 +147,7 @@
 .auth-logo-section h2 {
   font-size: 32px;
   font-weight: 900;
-  background: linear-gradient(135deg, #FF7A00 0%, #FF9F40 50%, #FFB366 100%);
+  background: linear-gradient(135deg, #FF914D 0%, #FFA76D 50%, #FFB366 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -165,7 +165,7 @@
   transform: translateX(-50%);
   width: 60px;
   height: 4px;
-  background: linear-gradient(90deg, transparent, #FF7A00, transparent);
+  background: linear-gradient(90deg, transparent, #FF914D, transparent);
   border-radius: 2px;
 }
 
@@ -210,14 +210,14 @@
 }
 
 .auth-form-input:hover {
-  border-color: #FF9F40;
+  border-color: #FFA76D;
   background: #ffffff;
   box-shadow: 0 2px 8px rgba(255, 122, 0, 0.05);
 }
 
 .auth-form-input:focus {
   outline: none;
-  border-color: #FF7A00;
+  border-color: #FF914D;
   background: #ffffff;
   box-shadow: 
     0 0 0 5px rgba(255, 122, 0, 0.1),
@@ -238,7 +238,7 @@
   font-size: 17px;
   font-weight: 800;
   color: #ffffff;
-  background: linear-gradient(135deg, #FF7A00 0%, #FF9F40 50%, #FFB366 100%);
+  background: linear-gradient(135deg, #FF914D 0%, #FFA76D 50%, #FFB366 100%);
   background-size: 200% 100%;
   border: none;
   border-radius: 16px;
@@ -279,7 +279,7 @@
   content: '';
   position: absolute;
   inset: -2px;
-  background: linear-gradient(135deg, #FF7A00, #FF9F40, #FFB366);
+  background: linear-gradient(135deg, #FF914D, #FFA76D, #FFB366);
   border-radius: 16px;
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -329,7 +329,7 @@
 }
 
 .auth-links a {
-  color: #FF7A00;
+  color: #FF914D;
   text-decoration: none;
   font-size: 16px;
   font-weight: 800;
@@ -358,7 +358,7 @@
 }
 
 .auth-links a:hover {
-  color: #FF9F40;
+  color: #FFA76D;
   transform: translateX(-6px) scale(1.05);
   box-shadow: 0 4px 16px rgba(255, 122, 0, 0.2);
 }
@@ -465,7 +465,7 @@
 }
 
 .password-toggle-btn:hover {
-  color: #FF7A00;
+  color: #FF914D;
   background: rgba(255, 122, 0, 0.08);
 }
 
@@ -483,7 +483,7 @@
   transform: translateY(-50%);
   width: 3px;
   height: 16px;
-  background: linear-gradient(135deg, #FF7A00 0%, #FF9F40 100%);
+  background: linear-gradient(135deg, #FF914D 0%, #FFA76D 100%);
   border-radius: 2px;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -564,6 +564,6 @@
 }
 
 .auth-extra-info a {
-  color: #FF7A00;
+  color: #FF914D;
   font-weight: 600;
 }

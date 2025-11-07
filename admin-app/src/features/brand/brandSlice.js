@@ -106,6 +106,7 @@ export const brandSlice = createSlice({
         state.isError = false;
         state.isSuccess = true;
         state.brandName = action.payload.title;
+        state.brandImage = action.payload.image;
       })
       .addCase(getABrand.rejected, (state, action) => {
         state.isLoading = false;

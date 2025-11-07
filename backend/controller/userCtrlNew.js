@@ -368,7 +368,8 @@ const getWishlist = asyncHandler(async (req, res) => {
       include: [
         { 
           model: Product, 
-          as: 'product'
+          as: 'product',
+          attributes: ['id', 'title', 'price', 'images', 'description', 'brandId', 'category', 'slug']
         }
       ]
     });

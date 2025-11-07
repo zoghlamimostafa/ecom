@@ -30,6 +30,16 @@ const Product = sequelize.define('Product', {
       min: 0
     }
   },
+  // Champ de réduction (en pourcentage, ex: 20 pour -20%)
+  discount: {
+    type: DataTypes.DECIMAL(5, 2),
+    allowNull: true,
+    defaultValue: 0,
+    validate: {
+      min: 0,
+      max: 100
+    }
+  },
   category: {
     type: DataTypes.STRING,
     allowNull: false
@@ -38,9 +48,13 @@ const Product = sequelize.define('Product', {
     type: DataTypes.STRING,
     allowNull: true
   },
-  brand: {
-    type: DataTypes.STRING,
-    allowNull: true  // ✅ Marque non obligatoire
+  brandId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'Brands',
+      key: 'id'
+    }
   },
   quantity: {
     type: DataTypes.INTEGER,

@@ -1,4 +1,4 @@
-/* Sidebar de filtres moderne avec couleur orange #FF7A00 */
+/* Sidebar de filtres moderne avec couleur orange #FF914D */
 
 .product-filters-sidebar {
     background: white;
@@ -34,14 +34,14 @@
 }
 
 .filters-title svg {
-    color: #FF7A00;
+    color: #FF914D;
     font-size: 1.1rem;
 }
 
 .clear-all-btn {
     background: #fff0e6;
-    color: #FF7A00;
-    border: 2px solid #FF7A00;
+    color: #FF914D;
+    border: 2px solid #FF914D;
     padding: 0.5rem 1rem;
     border-radius: 8px;
     font-size: 0.875rem;
@@ -54,7 +54,7 @@
 }
 
 .clear-all-btn:hover {
-    background: #FF7A00;
+    background: #FF914D;
     color: white;
     transform: translateY(-2px);
 }
@@ -94,7 +94,7 @@
 }
 
 .filter-section-header svg {
-    color: #FF7A00;
+    color: #FF914D;
     font-size: 0.875rem;
 }
 
@@ -131,7 +131,7 @@
 .price-label {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #FF7A00;
+    color: #FF914D;
     margin-bottom: 0.25rem;
 }
 
@@ -147,7 +147,7 @@
 
 .price-input:focus {
     outline: none;
-    border-color: #FF7A00;
+    border-color: #FF914D;
     box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.1);
 }
 
@@ -182,7 +182,7 @@
     width: 18px;
     height: 18px;
     cursor: pointer;
-    accent-color: #FF7A00;
+    accent-color: #FF914D;
 }
 
 .checkbox-text {
@@ -211,15 +211,15 @@
 }
 
 .color-chip:hover {
-    border-color: #FF7A00;
+    border-color: #FF914D;
     background: #fff5f0;
     transform: translateY(-2px);
 }
 
 .color-chip.active {
-    background: #FF7A00;
+    background: #FF914D;
     color: white;
-    border-color: #FF7A00;
+    border-color: #FF914D;
 }
 
 /* Tailles */
@@ -246,15 +246,15 @@
 }
 
 .size-chip:hover {
-    border-color: #FF7A00;
+    border-color: #FF914D;
     background: #fff5f0;
     transform: translateY(-2px);
 }
 
 .size-chip.active {
-    background: #FF7A00;
+    background: #FF914D;
     color: white;
-    border-color: #FF7A00;
+    border-color: #FF914D;
 }
 
 /* Scrollbar personnalisée */
@@ -268,7 +268,7 @@
 }
 
 .product-filters-sidebar::-webkit-scrollbar-thumb {
-    background: #FF7A00;
+    background: #FF914D;
     border-radius: 10px;
 }
 

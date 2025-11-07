@@ -30,7 +30,7 @@ const ProductCard = ({ data, gridView = true }) => {
         if (!data) return null;
         
         const productId = data.id || data.id;
-        let { title, brand, totalrating, price, images, slug, description, tags, color, category } = data;
+        let { title, brand, totalrating, price, images, slug, description, tags, color, category, quantity, sold } = data;
         
         // Normaliser images
         if (typeof images === 'string' && images !== 'null' && images !== '') {
@@ -63,7 +63,9 @@ const ProductCard = ({ data, gridView = true }) => {
             description: description || '',
             tags: Array.isArray(tags) ? tags : (tags ? [tags] : []),
             color,
-            category: category || ''
+            category: category || '',
+            quantity: parseInt(quantity || 0),
+            sold: parseInt(sold || 0)
         };
     }, [data]);
     
@@ -93,10 +95,13 @@ const ProductCard = ({ data, gridView = true }) => {
             // Normaliser les images une seule fois
             const normalizedImages = getAllProductImageUrls(productData.images);
             
+            // Calculate final price with discount
+            const finalPrice = data.discount > 0 ? productData.price - data.discount : productData.price;
+            
             const cartData = {
                 productId: productData.productId,
                 quantity: 1,
-                price: productData.price,
+                price: finalPrice,
                 title: productData.title,
                 images: normalizedImages, // Images normalisées
                 imageUrl: normalizedImages[0] // Première image pour l'affichage principal
@@ -170,6 +175,12 @@ const ProductCard = ({ data, gridView = true }) => {
     // Format des badges
     const renderBadges = () => {
         const badges = [];
+        
+        // Badge rupture de stock en priorité
+        if (productData.quantity === 0) {
+            badges.push(<span key="outofstock" className="product-badge badge-outofstock" style={{backgroundColor: '#ff4444', color: 'white'}}>❌ Rupture</span>);
+        }
+        
         if (productData.tags?.includes('special')) {
             badges.push(<span key="special" className="product-badge badge-special">🔥 Spécial</span>);
         }
@@ -188,7 +199,7 @@ const ProductCard = ({ data, gridView = true }) => {
     if (!gridView) {
         // Vue liste moderne et responsive
         return (
-            <div className="modern-product-card-list">
+            <div className="modern-product-card-list" onClick={handleViewProduct} style={{cursor: 'pointer'}}>
                 <div className="product-list-container">
                     <div className="product-image-section">
                         <div className="product-image-wrapper">
@@ -227,36 +238,48 @@ const ProductCard = ({ data, gridView = true }) => {
                         <div className="product-meta">
                             <span className="product-brand">{productData.brand}</span>
                         </div>
-                        
                         <h3 className="product-title" onClick={handleViewProduct}>
                             {productData.title}
                         </h3>
-
-                        <div className="product-rating-section">
+                        <div className="product-price-section" style={{marginTop: 2, marginBottom: 2}}>
+                            {data.discount > 0 ? (
+                                <>
+                                    <span className="product-price-original" style={{fontSize: '14px', color: '#999', textDecoration: 'line-through', marginRight: '8px'}}>{productData.price.toFixed(2)} TND</span>
+                                    <span className="product-price product-price-orange" style={{fontSize: '17px', color: '#FF7A00', fontWeight: 700, display: 'block', lineHeight: '1.1'}}>{(productData.price - data.discount).toFixed(2)} TND</span>
+                                    <span className="discount-badge" style={{fontSize: '12px', backgroundColor: '#ff4444', color: '#fff', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px'}}>-{data.discount.toFixed(2)} DT</span>
+                                </>
+                            ) : (
+                                <span className="product-price product-price-orange" style={{fontSize: '17px', color: '#FF7A00', fontWeight: 700, display: 'block', lineHeight: '1.1'}}>{productData.price.toFixed(2)} TND</span>
+                            )}
+                        </div>
+                        <div className="rating-row">
                             <ReactStars
                                 count={5}
-                                value={Number(productData.totalrating) || 0}
+                                value={productData.totalrating ? parseFloat(productData.totalrating) : 0}
                                 edit={false}
                                 size={18}
                                 activeColor="#FF6F00"
                             />
                             <span className="rating-text">({productData.totalrating || 0})</span>
                         </div>
-
                         <p className="product-description">
-                            {productData.description?.substring(0, 120)}{productData.description?.length > 120 ? '...' : ''}
+                            {(() => {
+                                if (!productData.description) return '';
+                                const tempDiv = document.createElement('div');
+                                tempDiv.innerHTML = productData.description;
+                                const textContent = (tempDiv.textContent || tempDiv.innerText || '').replace(/\s+/g, ' ').trim();
+                                return textContent.substring(0, 120) + (textContent.length > 120 ? '...' : '');
+                            })()}
                         </p>
-
-                        <div className="product-price-section">
-                            <span className="product-price">{productData.price.toFixed(2)} TND</span>
-                        </div>
-
                         <button 
                             className="add-to-cart-btn modern"
                             onClick={handleAddToCart}
-                            disabled={isLoading}
+                            disabled={isLoading || productData.quantity === 0}
+                            style={productData.quantity === 0 ? {opacity: 0.5, cursor: 'not-allowed'} : {}}
                         >
-                            {isLoading ? (
+                            {productData.quantity === 0 ? (
+                                <>❌ Rupture de stock</>
+                            ) : isLoading ? (
                                 <>⏳ Ajout...</>
                             ) : (
                                 <>
@@ -273,7 +296,7 @@ const ProductCard = ({ data, gridView = true }) => {
     
     // Vue grille moderne et responsive
     return (
-        <div className="modern-product-card-grid">
+        <div className="modern-product-card-grid" onClick={handleViewProduct} style={{cursor: 'pointer'}}>
             <div className="product-card-container">
                 <div className="product-image-section">
                     <div className="product-image-wrapper">
@@ -293,10 +316,11 @@ const ProductCard = ({ data, gridView = true }) => {
                                 <button 
                                     className="overlay-btn cart"
                                     onClick={handleAddToCart}
-                                    disabled={isLoading}
-                                    title="Ajout rapide au panier"
+                                    disabled={isLoading || productData.quantity === 0}
+                                    title={productData.quantity === 0 ? 'Rupture de stock' : 'Ajouter au panier'}
+                                    style={productData.quantity === 0 ? {opacity: 0.5, cursor: 'not-allowed'} : {}}
                                 >
-                                    {isLoading ? '⏳' : <AiOutlineShoppingCart />}
+                                    {productData.quantity === 0 ? '❌' : isLoading ? '⏳' : <AiOutlineShoppingCart />}
                                 </button>
                                 <button 
                                     className={`overlay-btn wishlist ${isInWishlist ? 'active' : ''}`}
@@ -322,11 +346,20 @@ const ProductCard = ({ data, gridView = true }) => {
                     <div className="product-meta">
                         <span className="product-brand">{productData.brand}</span>
                     </div>
-                    
                     <h3 className="product-title" onClick={handleViewProduct}>
                         {productData.title}
                     </h3>
-
+                    <div className="product-price-section" style={{marginTop: 2, marginBottom: 2}}>
+                        {data.discount > 0 ? (
+                            <>
+                                <span className="product-price-original" style={{fontSize: '14px', color: '#999', textDecoration: 'line-through', marginRight: '8px'}}>{productData.price.toFixed(2)} TND</span>
+                                <span className="product-price product-price-orange" style={{fontSize: '17px', color: '#FF7A00', fontWeight: 700, display: 'block', lineHeight: '1.1'}}>{(productData.price - data.discount).toFixed(2)} TND</span>
+                                <span className="discount-badge" style={{fontSize: '12px', backgroundColor: '#ff4444', color: '#fff', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px'}}>-{data.discount.toFixed(2)} DT</span>
+                            </>
+                        ) : (
+                            <span className="product-price product-price-orange" style={{fontSize: '17px', color: '#FF7A00', fontWeight: 700, display: 'block', lineHeight: '1.1'}}>{productData.price.toFixed(2)} TND</span>
+                        )}
+                    </div>
                     <div className="product-rating-section">
                         <ReactStars
                             count={5}
@@ -337,17 +370,15 @@ const ProductCard = ({ data, gridView = true }) => {
                         />
                         <span className="rating-text">({productData.totalrating || 0})</span>
                     </div>
-
-                    <div className="product-price-section">
-                        <span className="product-price">{productData.price.toFixed(2)} TND</span>
-                    </div>
-
                     <button 
                         className="add-to-cart-btn modern"
                         onClick={handleAddToCart}
-                        disabled={isLoading}
+                        disabled={isLoading || productData.quantity === 0}
+                        style={productData.quantity === 0 ? {opacity: 0.5, cursor: 'not-allowed'} : {}}
                     >
-                        {isLoading ? (
+                        {productData.quantity === 0 ? (
+                            <>❌ Rupture</>
+                        ) : isLoading ? (
                             <>⏳ Ajout...</>
                         ) : (
                             <>

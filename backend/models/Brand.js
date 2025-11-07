@@ -14,6 +14,11 @@ const Brand = sequelize.define('Brand', {
     validate: {
       notEmpty: true
     }
+  },
+  image: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null
   }
 }, {
   timestamps: true

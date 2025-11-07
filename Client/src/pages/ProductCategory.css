@@ -101,7 +101,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.25rem;
-    background: #FF7A00;
+    background: #FF914D;
     color: white;
     border: none;
     border-radius: 10px;
@@ -147,11 +147,11 @@
 
 .view-btn:hover {
     background: white;
-    color: #FF7A00;
+    color: #FF914D;
 }
 
 .view-btn.active {
-    background: #FF7A00;
+    background: #FF914D;
     color: white;
 }
 
@@ -256,7 +256,7 @@
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
-    color: #ff8c00;
+    color: #FF914D;
     letter-spacing: 1px;
     margin: 0;
 }
@@ -277,7 +277,7 @@
 }
 
 .new-informatique-card:hover .new-informatique-title {
-    color: #ff8c00;
+    color: #FF914D;
 }
 
 /* Rating Stars */
@@ -288,9 +288,9 @@
 .new-informatique-price {
     font-size: 26px;
     font-weight: 800;
-    color: #ff8c00;
+    color: #FF914D;
     margin: 8px 0 0 0;
-    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    background: linear-gradient(135deg, #FF914D 0%, #FF914D 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -609,7 +609,7 @@
     align-items: center;
     min-height: 400px;
     font-size: 18px;
-    color: #ff8c00;
+    color: #FF914D;
 }
 
 /* Empty State */

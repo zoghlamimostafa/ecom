@@ -32,6 +32,7 @@ const brandRoute = require('./routes/brandRoute');
 const colorRoute = require('./routes/colorRoute');
 const couponRoute = require('./routes/couponRoute');
 const uploadRoute = require('./routes/uploadRoute');
+const searchRoute = require('./routes/searchRoute');
 
 app.use('/api/user', authRoute);
 app.use('/api/product', productRoute);
@@ -41,6 +42,7 @@ app.use('/api/brand', brandRoute);
 app.use('/api/color', colorRoute);
 app.use('/api/coupon', couponRoute);
 app.use('/api/upload', uploadRoute);
+app.use('/api/search', searchRoute);
 
 // Test route
 app.get('/', (req, res) => {

@@ -8,7 +8,7 @@ const asyncHandler = require("express-async-handler");
 // CREATE - Créer une marque
 const createBrand = asyncHandler(async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, image } = req.body;
 
     // Validation des champs obligatoires
     if (!title) {
@@ -20,7 +20,7 @@ const createBrand = asyncHandler(async (req, res) => {
 
     // Vérifier que le titre est unique
     const existingBrand = await Brand.findOne({ 
-      where: { title: { [Op.iLike]: title.trim() } } 
+      where: { title: title.trim() } 
     });
     
     if (existingBrand) {
@@ -33,7 +33,8 @@ const createBrand = asyncHandler(async (req, res) => {
     // Préparer les données de la marque
     const brandData = {
       title: title.trim(),
-      description: description ? description.trim() : null
+      description: description ? description.trim() : null,
+      image: image || null
     };
 
     // Créer la marque
@@ -70,8 +71,8 @@ const getAllBrand = asyncHandler(async (req, res) => {
     // Recherche par titre ou description
     if (search) {
       whereClause[Op.or] = [
-        { title: { [Op.iLike]: `%${search}%` } },
-        { description: { [Op.iLike]: `%${search}%` } }
+        { title: { [Op.like]: `%${search}%` } },
+        { description: { [Op.like]: `%${search}%` } }
       ];
     }
 
@@ -139,7 +140,7 @@ const getBrand = asyncHandler(async (req, res) => {
 const updateBrand = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description } = req.body;
+    const { title, description, image } = req.body;
     
     if (!id) {
       return res.status(400).json({
@@ -161,7 +162,7 @@ const updateBrand = asyncHandler(async (req, res) => {
     if (title && title.trim() !== brand.title) {
       const existingBrand = await Brand.findOne({ 
         where: { 
-          title: { [Op.iLike]: title.trim() },
+          title: title.trim(),
           id: { [Op.ne]: id }
         } 
       });
@@ -178,6 +179,7 @@ const updateBrand = asyncHandler(async (req, res) => {
     const updateData = {};
     if (title) updateData.title = title.trim();
     if (description !== undefined) updateData.description = description ? description.trim() : null;
+    if (image !== undefined) updateData.image = image || null;
 
     // Mettre à jour la marque
     await Brand.update(updateData, { where: { id: id } });
@@ -222,7 +224,7 @@ const deleteBrand = asyncHandler(async (req, res) => {
 
     // Vérifier si des produits utilisent cette marque
     const { Product } = require('../models');
-    const productsWithBrand = await Product.count({ where: { brand: brand.title } });
+    const productsWithBrand = await Product.count({ where: { brandId: id } });
     
     if (productsWithBrand > 0) {
       return res.status(400).json({

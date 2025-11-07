@@ -17,7 +17,7 @@
   right: -10%;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(255,111,0,0.03) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 145, 77,0.03) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -130,7 +130,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(255,111,0,0.1) 0%, rgba(255,193,7,0.1) 100%);
+  background: linear-gradient(135deg, rgba(255, 145, 77,0.1) 0%, rgba(255,193,7,0.1) 100%);
   border-radius: 18px;
   font-size: 28px;
   color: var(--sanny-orange);

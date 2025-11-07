@@ -14,8 +14,8 @@ const getBaseUrl = () => {
 
 export const base_url = getBaseUrl();
 
-const getTokenFromLocalStorage = localStorage.getItem("customer")
-  ? JSON.parse(localStorage.getItem("customer"))
+const getTokenFromLocalStorage = sessionStorage.getItem("customer")
+  ? JSON.parse(sessionStorage.getItem("customer"))
   : null;
 
 export const config = {

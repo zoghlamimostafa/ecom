@@ -1,321 +1,137 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaSearch, FaTimes, FaFire, FaTags } from 'react-icons/fa';
-import categoryService from '../services/categoryService';
-import { useSelector } from 'react-redux';
-import { getProductImageUrl } from '../utils/imageHelper';
 
-const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }) => {
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FaSearch, FaTimes } from 'react-icons/fa';
+import { getProductImageUrl } from '../utils/imageHelper';
+import './SearchBar.css';
+
+import { getBackendUrl } from '../utils/imageHelper';
+const API_URL = getBackendUrl() + '/api/search/suggestions';
+
+function debounce(fn, delay) {
+  let timer = null;
+  return (...args) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
+const SearchBar = ({ placeholder = 'Rechercher des produits...' }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [autoCompleteValue, setAutoCompleteValue] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [showPopularKeywords, setShowPopularKeywords] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [brands, setBrands] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const searchRef = useRef(null);
+  const inputRef = useRef(null);
   const navigate = useNavigate();
-  
-  // Récupérer tous les produits depuis Redux
-  const reduxProducts = useSelector(state => state?.product?.product);
-  const allProducts = reduxProducts || products;
-  
-  // Debug: vérifier les produits disponibles
-  useEffect(() => {
-    console.log('🔍 SearchBar - Redux State Debug:');
-    console.log('  - reduxProducts type:', typeof reduxProducts);
-    console.log('  - reduxProducts isArray:', Array.isArray(reduxProducts));
-    console.log('  - reduxProducts:', reduxProducts);
-    console.log('  - allProducts length:', allProducts?.length || 0);
-    
-    if (allProducts && allProducts.length > 0) {
-      console.log('✅ Premier produit:', allProducts[0]?.title);
-    } else {
-      console.warn('⚠️ AUCUN PRODUIT DISPONIBLE POUR LA RECHERCHE!');
-    }
-  }, [allProducts, reduxProducts]);
 
-  // Charger les catégories depuis l'API
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const data = await categoryService.getCategoriesWithSubcategories();
-        setCategories(data);
-        console.log('✅ Catégories chargées pour recherche:', data.length);
-      } catch (error) {
-        console.error('❌ Erreur chargement catégories:', error);
-      }
-    };
-    loadCategories();
-  }, []);
-
-  // Extraire les marques uniques des produits
-  useEffect(() => {
-    if (allProducts && allProducts.length > 0) {
-      const uniqueBrands = [...new Set(
-        allProducts
-          .map(p => p.brand)
-          .filter(b => b && b.trim() !== '')
-      )].sort();
-      setBrands(uniqueBrands);
-      console.log('✅ Marques extraites:', uniqueBrands.length);
-    }
-  }, [allProducts]);
-
-  // Base de mots-clés e-commerce populaires (useMemo pour éviter recréation)
-  const ecommerceKeywords = useMemo(() => ({
-    categories: categories.slice(0, 10).map(cat => ({
-      term: cat.title,
-      icon: '�',
-      popular: true,
-      id: cat.id
-    })),
-    productTypes: [
-      'Smartphone', 'Téléphone', 'Mobile', 'Ordinateur portable', 'Laptop', 'PC', 'Tablette', 'iPad',
-      'Écouteurs', 'Casque audio', 'AirPods', 'Montre connectée', 'Smartwatch', 'Watch',
-      'Appareil photo', 'Caméra', 'Console de jeux', 'PlayStation', 'Xbox', 'Gaming',
-      'Télévision', 'TV', 'Écran', 'Moniteur', 'Enceinte', 'Haut-parleur', 'Speaker',
-      'Clavier', 'Keyboard', 'Souris', 'Mouse', 'Casque', 'Headset',
-      'T-shirt', 'Tshirt', 'Polo', 'Chemise', 'Pantalon', 'Jean', 'Robe', 'Jupe',
-      'Chaussures', 'Baskets', 'Sneakers', 'Sandales', 'Bottes', 'Sac', 'Sacoche', 'Sac à dos',
-      'Parfum', 'Eau de toilette', 'Maquillage', 'Cosmétique', 'Crème', 'Lotion', 'Shampoing',
-      'Meuble', 'Canapé', 'Lit', 'Table', 'Chaise', 'Décoration', 'Déco', 'Cuisine', 
-      'Électroménager', 'Réfrigérateur', 'Frigo', 'Machine à laver', 'Four', 'Micro-ondes',
-      'Jouet', 'Jeu', 'Peluche', 'Poupée', 'Livre', 'Roman', 'BD', 'Magazine',
-      'Sport', 'Fitness', 'Vélo', 'Tapis de yoga', 'Haltères', 'Ballon'
-    ],
-    attributes: [
-      'Nouveau', 'Promotion', 'Soldes', 'Offre spéciale', 'Best seller',
-      'Tendance', 'Populaire', 'Recommandé', 'Exclusif', 'Limité',
-      'Premium', 'Luxe', 'Économique', 'Qualité', 'Pas cher'
-    ],
-    brands: brands.length > 0 ? brands : [
-      'Samsung', 'Apple', 'Xiaomi', 'Huawei', 'Oppo', 'Realme',
-      'Nike', 'Adidas', 'Puma', 'Zara', 'H&M',
-      'Sony', 'LG', 'Philips', 'Bosch', 'Dell', 'HP', 'Lenovo'
-    ],
-    actions: [
-      'Acheter', 'Comparer', 'Nouveautés', 'Promotions', 'Meilleures ventes',
-      'Tendances', 'Réductions', 'Outlet', 'Flash sale', 'Deals du jour'
-    ]
-  }), [categories, brands]);
-
-  // Mots-clés populaires combinés
-  const popularSearches = [
-    { text: 'Smartphones pas cher', icon: '📱', type: 'popular' },
-    { text: 'Nouveautés', icon: '✨', type: 'new' },
-    { text: 'Promotions du jour', icon: '🔥', type: 'hot' },
-    { text: 'Ordinateurs portables', icon: '💻', type: 'popular' },
-    { text: 'Mode femme', icon: '👗', type: 'popular' },
-    { text: 'Électronique', icon: '⚡', type: 'popular' },
-    { text: 'Accessoires', icon: '🎧', type: 'popular' },
-    { text: 'Meilleures offres', icon: '💰', type: 'hot' }
-  ];
-
-  // Générer des mots-clés pour un produit (useCallback pour stabilité)
-  const generateProductKeywords = useCallback((product) => {
-    const keywords = new Set();
-    const title = product.title?.toLowerCase() || '';
-    const desc = product.description?.toLowerCase() || '';
-    const category = product.category?.toLowerCase() || '';
-    const brand = product.brand?.toLowerCase() || '';
-    
-    // Ajouter titre, catégorie, marque
-    keywords.add(title);
-    if (category) keywords.add(category);
-    if (brand) keywords.add(brand);
-    
-    // Ajouter les tags si disponibles
-    if (product.tags && Array.isArray(product.tags)) {
-      product.tags.forEach(tag => keywords.add(tag.toLowerCase()));
-    }
-    
-    // Ajouter les couleurs si disponibles
-    if (product.color) {
-      if (Array.isArray(product.color)) {
-        // Si color est un tableau JSON
-        product.color.forEach(c => {
-          if (typeof c === 'string') {
-            keywords.add(c.toLowerCase());
-          }
-        });
-      } else if (typeof product.color === 'string') {
-        // Si color est une string simple
-        keywords.add(product.color.toLowerCase());
-      }
-    }
-    
-    // Ajouter mots du titre (tokenization)
-    title.split(/\s+/).forEach(word => {
-      if (word.length > 2) keywords.add(word);
-    });
-    
-    // Ajouter mots-clés correspondants
-    ecommerceKeywords.productTypes.forEach(keyword => {
-      const kw = keyword.toLowerCase();
-      if (title.includes(kw) || desc.includes(kw)) {
-        keywords.add(kw);
-      }
-    });
-    
-    ecommerceKeywords.attributes.forEach(keyword => {
-      const kw = keyword.toLowerCase();
-      if (title.includes(kw) || desc.includes(kw)) {
-        keywords.add(kw);
-      }
-    });
-    
-    ecommerceKeywords.brands.forEach(keyword => {
-      const kw = keyword.toLowerCase();
-      if (title.includes(kw) || desc.includes(kw) || brand.includes(kw)) {
-        keywords.add(kw);
-      }
-    });
-    
-    // Ajouter toutes les catégories et sous-catégories
-    categories.forEach(cat => {
-      const catTitle = cat.title.toLowerCase();
-      if (title.includes(catTitle) || desc.includes(catTitle) || category.includes(catTitle)) {
-        keywords.add(catTitle);
-      }
-      
-      // Vérifier les sous-catégories
-      if (cat.subcategories) {
-        cat.subcategories.forEach(subcat => {
-          const subcatTitle = subcat.title.toLowerCase();
-          if (title.includes(subcatTitle) || desc.includes(subcatTitle) || category.includes(subcatTitle)) {
-            keywords.add(subcatTitle);
-          }
-        });
-      }
-    });
-    
-    return Array.from(keywords);
-  }, [ecommerceKeywords, categories]);
-
-  // Filtrer les suggestions en temps réel avec recherche améliorée
-  useEffect(() => {
-    if (searchTerm.trim().length > 0) {
-      const searchLower = searchTerm.toLowerCase();
-      const searchWords = searchLower.split(/\s+/).filter(w => w.length > 0);
-      
-      console.log('🔍 Recherche active:', searchLower);
-      console.log('📦 Produits disponibles pour recherche:', allProducts?.length || 0);
-      console.log('📦 Type de allProducts:', typeof allProducts, 'isArray:', Array.isArray(allProducts));
-      
-      if (!allProducts || !Array.isArray(allProducts) || allProducts.length === 0) {
-        console.warn('⚠️ Aucun produit disponible pour la recherche');
-        console.warn('   allProducts:', allProducts);
+  // Debounced fetch
+  const fetchSuggestions = useCallback(
+    debounce(async (query) => {
+      if (!query.trim()) {
         setSuggestions([]);
-        setShowSuggestions(true); // Afficher quand même le message "Aucun résultat"
-        setShowPopularKeywords(false);
+        setShowSuggestions(false);
+        setLoading(false);
+        setError(null);
         return;
       }
-      
-      console.log('📦 Premiers produits:', allProducts.slice(0, 3).map(p => p?.title));
-      
-      // Recherche dans les produits avec mots-clés générés et scoring
-      const filtered = allProducts.map(product => {
-        // Générer les mots-clés pour le produit
-        const productKeywords = generateProductKeywords(product);
-        
-        let score = 0;
-        
-        // Recherche exacte dans le titre (score le plus élevé)
-        const titleLower = product.title?.toLowerCase() || '';
-        if (titleLower === searchLower) score += 100;
-        else if (titleLower.includes(searchLower)) score += 50;
-        else if (searchWords.length > 0 && searchWords.every(word => titleLower.includes(word))) score += 30;
-        
-        // Debug pour "iphone"
-        if (searchLower === 'iphone' && titleLower.includes('iphone')) {
-          console.log('✅ Match iPhone trouvé!', product.title, 'Score:', score);
-        }
-        
-        // Recherche dans la description
-        const descLower = product.description?.toLowerCase() || '';
-        if (descLower.includes(searchLower)) score += 20;
-        
-        // Recherche dans la catégorie
-        const categoryLower = product.category?.toLowerCase() || '';
-        if (categoryLower === searchLower) score += 40;
-        else if (categoryLower.includes(searchLower)) score += 15;
-        
-        // Recherche dans la marque
-        const brandLower = product.brand?.toLowerCase() || '';
-        if (brandLower === searchLower) score += 35;
-        else if (brandLower.includes(searchLower)) score += 10;
-        
-        // Recherche dans les tags
-        if (product.tags?.some(tag => tag.toLowerCase() === searchLower)) score += 25;
-        else if (product.tags?.some(tag => tag.toLowerCase().includes(searchLower))) score += 8;
-        
-        // Recherche dans les mots-clés générés
-        if (productKeywords.some(kw => kw === searchLower)) score += 15;
-        else if (productKeywords.some(kw => kw.includes(searchLower))) score += 5;
-        
-        // Recherche dans la couleur (gérer tableau et string)
-        if (product.color) {
-          if (Array.isArray(product.color)) {
-            // Si color est un tableau, chercher dans chaque couleur
-            if (product.color.some(c => typeof c === 'string' && c.toLowerCase().includes(searchLower))) {
-              score += 5;
-            }
-          } else if (typeof product.color === 'string' && product.color.toLowerCase().includes(searchLower)) {
-            // Si color est une string simple
-            score += 5;
+      setLoading(true);
+      setError(null);
+      let suggestions = [];
+      // Ajoute la suggestion personnalisée en haut, toujours
+      if (query && query.trim().length > 0) {
+        suggestions.push({
+          id: '__search__',
+          type: 'custom',
+          title: `Rechercher "${query}"`,
+          query: query
+        });
+      }
+      try {
+        const res = await fetch(`${API_URL}?q=${encodeURIComponent(query)}`);
+        if (!res.ok) throw new Error('Erreur API');
+        const data = await res.json();
+        // Supporte toutes les suggestions (produits, catégories, marques)
+        if (data.suggestions && Array.isArray(data.suggestions)) {
+          suggestions = suggestions.concat(data.suggestions);
+        } else {
+          // Rétrocompatibilité : produits et catégories séparés
+          if (data.products && Array.isArray(data.products)) {
+            suggestions = suggestions.concat(data.products.map(p => ({ ...p, type: 'product', images: p.image ? [p.image] : [] })));
+          }
+          if (data.categories && Array.isArray(data.categories)) {
+            suggestions = suggestions.concat(data.categories.map(c => ({ ...c, type: 'category' })));
+          }
+          if (data.brands && Array.isArray(data.brands)) {
+            suggestions = suggestions.concat(data.brands.map(b => ({ ...b, type: 'brand' })));
           }
         }
-        
-        return { product, score };
-      })
-      .filter(item => item.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 8)
-      .map(item => item.product);
-      
-      console.log('✅ Résultats filtrés:', filtered.length);
-      if (filtered.length > 0) {
-        console.log('🎯 Premier résultat:', filtered[0].title, '(score le plus élevé)');
+        setSuggestions(suggestions);
+        setShowSuggestions(true);
+      } catch (err) {
+        setError('Erreur lors de la recherche');
+        setSuggestions(suggestions);
+        setShowSuggestions(true);
+      } finally {
+        setLoading(false);
       }
-      
-      setSuggestions(filtered);
-      setShowSuggestions(true);
-      setShowPopularKeywords(false);
+  }, 120),
+    []
+  );
+
+  useEffect(() => {
+    if (searchTerm.trim()) {
+      fetchSuggestions(searchTerm);
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
+      setLoading(false);
+      setError(null);
+      setAutoCompleteValue('');
     }
-  }, [searchTerm, allProducts, generateProductKeywords]);
+  }, [searchTerm, fetchSuggestions]);
 
-  // Fermer les suggestions quand on clique à l'extérieur
+  // Met à jour l’autocomplétion inline dès que suggestions changent
+  useEffect(() => {
+    if (!searchTerm.trim() || !suggestions.length) {
+      setAutoCompleteValue('');
+      return;
+    }
+  // Cherche la première suggestion produit/catégorie/marque qui CONTIENT le searchTerm
+  const first = suggestions.find(s => (s.type === 'product' || s.type === 'category' || s.type === 'brand') && s.title && s.title.toLowerCase().includes(searchTerm.toLowerCase()));
+    if (first && first.title && first.title.length > searchTerm.length) {
+      setAutoCompleteValue(first.title);
+    } else {
+      setAutoCompleteValue('');
+    }
+  }, [suggestions, searchTerm]);
+
+  // Close suggestions on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowSuggestions(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Navigation au clavier
+  // Keyboard navigation
   const handleKeyDown = (e) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelectedIndex(prev => 
-        prev < suggestions.length - 1 ? prev + 1 : prev
-      );
+      setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
     } else if (e.key === 'Enter') {
       e.preventDefault();
       if (selectedIndex >= 0 && suggestions[selectedIndex]) {
-        handleSelectProduct(suggestions[selectedIndex]);
+        handleSelect(suggestions[selectedIndex]);
       } else if (searchTerm.trim()) {
         handleSearch();
       }
@@ -325,8 +141,17 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
     }
   };
 
-  const handleSelectProduct = (product) => {
-    navigate(`/product/${product.id}`);
+  const handleSelect = (item) => {
+    // Toujours rediriger vers la page de recherche filtrée avec le mot tapé ou le titre de la suggestion
+    let searchValue = '';
+    if (item.type === 'custom') {
+      searchValue = item.query;
+    } else if (item.title) {
+      searchValue = item.title;
+    } else {
+      searchValue = searchTerm;
+    }
+    navigate(`/product?search=${encodeURIComponent(searchValue)}`);
     setSearchTerm('');
     setShowSuggestions(false);
     setSelectedIndex(-1);
@@ -337,6 +162,13 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
       navigate(`/product?search=${encodeURIComponent(searchTerm)}`);
       setShowSuggestions(false);
       setSelectedIndex(-1);
+      setSearchTerm('');
+      setAutoCompleteValue('');
+      // Focus automatique sur l'input après recherche
+      setTimeout(() => {
+        if (inputRef.current) inputRef.current.focus();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 200);
     }
   };
 
@@ -344,26 +176,16 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
     setSearchTerm('');
     setSuggestions([]);
     setShowSuggestions(false);
-    setShowPopularKeywords(false);
     setSelectedIndex(-1);
-  };
-
-  const handleKeywordClick = (keyword) => {
-    setSearchTerm(keyword);
-    setShowPopularKeywords(false);
-    // Trigger la recherche automatiquement
-    setTimeout(() => {
-      navigate(`/product?search=${encodeURIComponent(keyword)}`);
-    }, 100);
+    setError(null);
   };
 
   const highlightMatch = (text, query) => {
     if (!query.trim()) return text;
-    
     const parts = text.split(new RegExp(`(${query})`, 'gi'));
-    return parts.map((part, index) => 
+    return parts.map((part, i) =>
       part.toLowerCase() === query.toLowerCase() ? (
-        <mark key={index} className="search-highlight">{part}</mark>
+        <mark key={i} className="searchbar-highlight">{part}</mark>
       ) : (
         part
       )
@@ -371,142 +193,121 @@ const SearchBar = ({ products = [], placeholder = 'Rechercher des produits...' }
   };
 
   return (
-    <div className="search-bar-container" ref={searchRef}>
-      <div className="search-input-wrapper">
-        <FaSearch className="search-icon" />
-        <input
-          type="text"
-          className="search-input"
-          placeholder={placeholder}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={() => {
-            if (suggestions.length > 0) {
-              setShowSuggestions(true);
-            } else if (!searchTerm.trim()) {
-              setShowPopularKeywords(true);
-            }
-          }}
-        />
+    <div className="searchbar-autosuggest" ref={searchRef}>
+      <div className="searchbar-input-wrapper">
+        <div style={{position: 'relative', width: '100%'}}>
+          {/* Input visible */}
+          <input
+            ref={inputRef}
+            type="text"
+            className="searchbar-input"
+            placeholder={placeholder}
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setSelectedIndex(-1);
+            }}
+            onKeyDown={handleKeyDown}
+            onFocus={e => {
+              if (suggestions.length > 0) setShowSuggestions(true);
+              // Sélectionne la partie complétée si autocomplétion
+              if (autoCompleteValue && autoCompleteValue.toLowerCase() !== searchTerm.toLowerCase()) {
+                setTimeout(() => {
+                  const input = e.target;
+                  input.setSelectionRange(searchTerm.length, autoCompleteValue.length);
+                }, 0);
+              }
+            }}
+            autoComplete="off"
+            spellCheck={false}
+            style={{position: 'relative', background: 'transparent'}}
+          />
+          {/* Input d’autocomplétion (derrière, grisé) */}
+          {autoCompleteValue && autoCompleteValue.toLowerCase() !== searchTerm.toLowerCase() && (
+            <input
+              type="text"
+              tabIndex={-1}
+              className="searchbar-input"
+              value={autoCompleteValue}
+              readOnly
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                color: '#bbb',
+                background: 'transparent',
+                pointerEvents: 'none',
+                zIndex: 1,
+                fontWeight: 400
+              }}
+            />
+          )}
+        </div>
         {searchTerm && (
-          <button className="search-clear-btn" onClick={handleClear}>
+          <button className="searchbar-clear-btn" onClick={handleClear}>
             <FaTimes />
           </button>
         )}
-        <button className="search-submit-btn" onClick={handleSearch}>
-          Rechercher
+        <button className="searchbar-submit-btn" onClick={handleSearch}>
+          <FaSearch className="searchbar-submit-icon" />
         </button>
       </div>
 
-      {/* Mots-clés populaires quand le champ est vide */}
-      {showPopularKeywords && !searchTerm && (
-        <div className="search-suggestions">
-          <div className="popular-keywords-section">
-            <div className="keywords-header">
-              <FaFire className="fire-icon" />
-              <span>Recherches populaires</span>
-            </div>
-            <div className="popular-keywords-grid">
-              {popularSearches.map((search, index) => (
-                <button
-                  key={index}
-                  className={`popular-keyword-btn ${search.type}`}
-                  onClick={() => handleKeywordClick(search.text)}
-                >
-                  <span className="keyword-icon">{search.icon}</span>
-                  <span className="keyword-text">{search.text}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="categories-quick-access">
-            <div className="keywords-header">
-              <FaTags className="tags-icon" />
-              <span>Catégories populaires</span>
-            </div>
-            <div className="categories-grid">
-              {ecommerceKeywords.categories.filter(cat => cat.popular).map((category, index) => (
-                <button
-                  key={index}
-                  className="category-btn"
-                  onClick={() => handleKeywordClick(category.term)}
-                >
-                  <span className="category-icon">{category.icon}</span>
-                  <span className="category-text">{category.term}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showSuggestions && suggestions.length > 0 && (
-        <div className="search-suggestions">
-          <div className="suggestions-header">
-            <span className="suggestions-count">
-              {suggestions.length} résultat{suggestions.length > 1 ? 's' : ''}
-            </span>
-          </div>
-          
-          <div className="suggestions-list">
-            {suggestions.map((product, index) => (
-              <div
-                key={product.id}
-                className={`suggestion-item ${index === selectedIndex ? 'selected' : ''}`}
-                onClick={() => handleSelectProduct(product)}
-                onMouseEnter={() => setSelectedIndex(index)}
-              >
-                <div className="suggestion-image">
-                  <img 
-                    src={getProductImageUrl(product.images)} 
-                    alt={product.title}
-                    onError={(e) => {
-                      e.target.src = '/images/default-product.jpg';
-                    }}
-                  />
-                </div>
-                
-                <div className="suggestion-content">
-                  <div className="suggestion-title">
-                    {highlightMatch(product.title, searchTerm)}
-                  </div>
-                  {product.category && (
-                    <div className="suggestion-category">
-                      <i className="fas fa-tag"></i>
-                      {product.category}
-                    </div>
-                  )}
-                  <div className="suggestion-price">
-                    {product.price ? `${product.price} DA` : 'Prix non disponible'}
-                  </div>
-                </div>
-                
-                <i className="fas fa-arrow-right suggestion-arrow"></i>
-              </div>
-            ))}
-          </div>
-          
-          {searchTerm.trim() && (
-            <div className="suggestions-footer">
-              <button className="view-all-results" onClick={handleSearch}>
-                <i className="fas fa-search"></i>
-                Voir tous les résultats pour "{searchTerm}"
-                <i className="fas fa-arrow-right"></i>
-              </button>
-            </div>
+      {showSuggestions && (
+        <div className="searchbar-suggestions">
+          {loading && <div className="searchbar-loading">Recherche...</div>}
+          {error && <div className="searchbar-noresult">{error}</div>}
+          {!loading && !error && suggestions.length === 0 && searchTerm.trim() && (
+            <div className="searchbar-noresult">Aucun résultat pour "{searchTerm}"</div>
           )}
-        </div>
-      )}
-
-      {showSuggestions && searchTerm.trim() && suggestions.length === 0 && (
-        <div className="search-suggestions">
-          <div className="no-results">
-            <i className="fas fa-search"></i>
-            <p>Aucun produit trouvé pour "{searchTerm}"</p>
-            <span>Essayez avec d'autres mots-clés</span>
-          </div>
+          {!loading && !error && suggestions.length > 0 && (
+            suggestions.map((item, idx) => (
+              <div
+                key={item.type + '-' + item.id}
+                className={`searchbar-suggestion${idx === selectedIndex ? ' selected' : ''}`}
+                onClick={() => handleSelect(item)}
+                onMouseEnter={() => setSelectedIndex(idx)}
+              >
+                {item.type === 'custom' && (
+                  <span className="searchbar-suggestion-title searchbar-custom-suggestion">
+                    {item.title}
+                  </span>
+                )}
+                {item.type === 'product' && (
+                  <>
+                    <img
+                      className="searchbar-suggestion-img"
+                      src={getProductImageUrl(item.images || item.image)}
+                      alt={item.title}
+                      onError={e => { e.target.src = '/images/default-product.jpg'; }}
+                    />
+                    <span className="searchbar-suggestion-title">
+                      {highlightMatch(item.title, searchTerm)}
+                    </span>
+                    <span className="searchbar-suggestion-price">
+                      {item.price ? `${item.price} DA` : ''}
+                    </span>
+                  </>
+                )}
+                {item.type === 'category' && (
+                  <>
+                    <span className="searchbar-suggestion-title" style={{ color: '#ff7a00', fontWeight: 600 }}>
+                      <span role="img" aria-label="cat">📂</span> {highlightMatch(item.title, searchTerm)}
+                    </span>
+                  </>
+                )}
+                {item.type === 'brand' && (
+                  <>
+                    <span className="searchbar-suggestion-title" style={{ color: '#2196F3', fontWeight: 600 }}>
+                      <span role="img" aria-label="brand">🏷️</span> {highlightMatch(item.title, searchTerm)}
+                    </span>
+                  </>
+                )}
+              </div>
+            ))
+          )}
         </div>
       )}
     </div>

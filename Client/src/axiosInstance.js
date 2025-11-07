@@ -41,19 +41,19 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use((config) => {
   // Try customer object first (new format)
   let token = "";
-  const customer = localStorage.getItem('customer');
+  const customer = sessionStorage.getItem('customer');
   if (customer) {
     try {
       const parsedCustomer = JSON.parse(customer);
       token = parsedCustomer.token || "";
     } catch (e) {
-      console.error("Error parsing customer from localStorage:", e);
+  console.error("Error parsing customer from sessionStorage:", e);
     }
   }
   
   // Fallback to old accessToken format
   if (!token) {
-    token = localStorage.getItem('accessToken') || "";
+  token = sessionStorage.getItem('accessToken') || "";
   }
   
   if (token) {

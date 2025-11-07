@@ -77,10 +77,10 @@ const Signup = () => {
     if (isSuccess) {
       console.log('✅ Signup - Succès détecté');
       setShowSuccessMessage(true);
-      toast.success('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
+      toast.success('Compte créé avec succès ! Vous êtes maintenant connecté.');
       setTimeout(() => {
-        navigate('/my-Profile');
-      }, 2000);
+        navigate('/product');
+      }, 1500);
     }
     if (isError) {
       console.log('❌ Signup - Erreur détectée:', errorMessage);
@@ -110,7 +110,7 @@ const Signup = () => {
               <i className="fas fa-check-circle"></i>
             </div>
             <h3>{t('accountCreatedSuccessfully')}</h3>
-            <p>{t('redirectingToLogin')}</p>
+            <p>Redirection vers la boutique...</p>
             <div className="loading-spinner"></div>
           </div>
         ) : (

@@ -9,7 +9,7 @@ const ProductFilters = ({ onFilterChange, activeFilters = {}, horizontal = false
         brands: true,
         categories: true,
         colors: true,
-        sizes: true,
+    // sizes: true,
         rating: true,
         availability: true,
         discount: true
@@ -21,7 +21,7 @@ const ProductFilters = ({ onFilterChange, activeFilters = {}, horizontal = false
         brands: [],
         categories: [],
         colors: [],
-        sizes: [],
+    // sizes: [],
         rating: '',
         inStock: false,
         onSale: false
@@ -44,7 +44,7 @@ const ProductFilters = ({ onFilterChange, activeFilters = {}, horizontal = false
         return Array.isArray(colorArray) ? colorArray.map(c => c?.title || c).filter(Boolean) : [];
     }))] || [];
     
-    const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+    // const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
     // ✅ FIX: Utiliser {id, title} au lieu de juste title pour avoir l'ID
     const categories = categoryState?.filter(cat => cat.level === 0).map(cat => ({
         id: cat.id,
@@ -117,7 +117,7 @@ const ProductFilters = ({ onFilterChange, activeFilters = {}, horizontal = false
         localFilters.brands.length +
         localFilters.categories.length +
         localFilters.colors.length +
-        localFilters.sizes.length +
+    // localFilters.sizes.length +
         (localFilters.rating ? 1 : 0) +
         (localFilters.inStock ? 1 : 0) +
         (localFilters.onSale ? 1 : 0);
@@ -259,31 +259,7 @@ const ProductFilters = ({ onFilterChange, activeFilters = {}, horizontal = false
                 </div>
             )}
 
-            {/* Tailles */}
-            <div className="filter-section">
-                <button 
-                    className="filter-section-header"
-                    onClick={() => toggleSection('sizes')}
-                >
-                    <span>📏 Tailles</span>
-                    {isOpen.sizes ? <FaChevronUp /> : <FaChevronDown />}
-                </button>
-                {isOpen.sizes && (
-                    <div className="filter-content">
-                        <div className="size-chips">
-                            {sizes.map((size, index) => (
-                                <button
-                                    key={index}
-                                    className={`size-chip ${localFilters.sizes.includes(size) ? 'active' : ''}`}
-                                    onClick={() => toggleArrayFilter('sizes', size)}
-                                >
-                                    {size}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
-            </div>
+            {/* Taille supprimée */}
 
             {/* Note moyenne */}
             <div className="filter-section">
@@ -310,6 +286,15 @@ const ProductFilters = ({ onFilterChange, activeFilters = {}, horizontal = false
                                     </span>
                                 </label>
                             ))}
+                            <label className="filter-checkbox-label">
+                                <input
+                                    type="radio"
+                                    name="rating"
+                                    checked={localFilters.rating === 'none'}
+                                    onChange={() => handleRatingChange('none')}
+                                />
+                                <span className="checkbox-text">Pas de note encore</span>
+                            </label>
                         </div>
                     </div>
                 )}

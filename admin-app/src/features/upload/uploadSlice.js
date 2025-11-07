@@ -43,6 +43,11 @@ export const uploadSlice = createSlice({
       state.isSuccess = false;
       state.message = "";
     },
+    setImages: (state, action) => {
+      console.log("📸 Set existing images:", action.payload);
+      state.images = action.payload;
+      state.isSuccess = true;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -120,5 +125,5 @@ export const uploadSlice = createSlice({
   },
 });
 
-export const { resetUploadState } = uploadSlice.actions;
+export const { resetUploadState, setImages } = uploadSlice.actions;
 export default uploadSlice.reducer;

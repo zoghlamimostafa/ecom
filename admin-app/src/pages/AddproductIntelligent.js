@@ -37,6 +37,7 @@ let schema = yup.object().shape({
   title: yup.string().required("Le titre est requis"),
   description: yup.string().required("La description est requise"),
   price: yup.number().required("Le prix est requis").positive("Le prix doit être positif"),
+  discount: yup.number().min(0, "La réduction ne peut pas être négative").default(0),
   brand: yup.string().nullable(),  // ✅ Marque optionnelle
   category: yup.string().required("La catégorie est requise"),
   quantity: yup.number().required("La quantité est requise").min(0, "La quantité ne peut pas être négative"),
@@ -193,6 +194,7 @@ const AddproductIntelligent = () => {
       title: productData?.title || "",
       description: productData?.description || "",
       price: productData?.price || "",
+      discount: productData?.discount || 0,
       brand: productData?.brand || "",
       category: productData?.category || "",
       subcategory: productData?.subcategory || "",
@@ -209,8 +211,9 @@ const AddproductIntelligent = () => {
         return;
       }
       
-      if (!img || img.length === 0) {
-        toast.error("❌ Veuillez ajouter au moins une image");
+      // Images obligatoires uniquement pour la création, pas pour la modification
+      if (!isEdit && (!img || img.length === 0)) {
+        toast.error("❌ Veuillez ajouter au moins une image pour créer un nouveau produit");
         return;
       }
       
@@ -218,13 +221,13 @@ const AddproductIntelligent = () => {
         title: values.title,
         description: values.description,
         price: Number(values.price),
-        brand: values.brand,
+        discount: Number(values.discount) || 0,
+        brand: values.brand || null,  // ✅ null si vide
         category: parseInt(finalCategory),
         subcategory: selectedSubcategory ? parseInt(selectedSubcategory) : (values.subcategory ? parseInt(values.subcategory) : null),
         tags: buildTags(),
         color: color.length > 0 ? color : [],
         quantity: Number(values.quantity),
-        images: img,
         metadata: {
           sizes: sizes.length > 0 ? sizes : null,
           gender: gender || null,
@@ -232,12 +235,18 @@ const AddproductIntelligent = () => {
         }
       };
       
+      // N'inclure les images que si elles ont été uploadées (modification ou création)
+      if (img && img.length > 0) {
+        productPayload.images = img;
+      }
+      
       console.log("📦 Envoi du produit:", productPayload);
       console.log("📊 Validation:", {
         hasCategory: !!productPayload.category,
-        hasImages: productPayload.images.length,
+        hasImages: productPayload.images?.length || 0,
         hasTitle: !!productPayload.title,
         hasPrice: !!productPayload.price,
+        isEdit: isEdit,
       });
       
       if (isEdit) {
@@ -461,13 +470,12 @@ const AddproductIntelligent = () => {
                 <label className="form-label">Marque (optionnel)</label>
                 <Select
                   showSearch
-                  mode="tags"
-                  maxTagCount={1}
+                  allowClear
                   placeholder="Sélectionnez ou saisissez une marque"
                   className="w-100"
                   size="large"
-                  value={formik.values.brand ? [formik.values.brand] : []}
-                  onChange={(value) => formik.setFieldValue("brand", value[0] || "")}
+                  value={formik.values.brand || undefined}
+                  onChange={(value) => formik.setFieldValue("brand", value || null)}
                   filterOption={(input, option) => {
                     const children = option.children;
                     if (typeof children === 'string') {
@@ -476,9 +484,6 @@ const AddproductIntelligent = () => {
                     return false;
                   }}
                 >
-                  <Option key="none" value="">
-                    Aucune
-                  </Option>
                   {brandState.map((brand) => (
                     <Option key={brand.id} value={brand.title}>
                       {brand.title}
@@ -486,7 +491,7 @@ const AddproductIntelligent = () => {
                   ))}
                 </Select>
                 <small className="text-muted">
-                  Sélectionnez dans la liste, saisissez une nouvelle marque ou choisissez "Aucune"
+                  Optionnel - Laissez vide si le produit n'a pas de marque
                 </small>
                 {formik.touched.brand && formik.errors.brand && (
                   <div className="error-message">{formik.errors.brand}</div>
@@ -571,8 +576,8 @@ const AddproductIntelligent = () => {
             key="4"
           >
             <Row gutter={[16, 16]}>
-              <Col xs={24} md={8}>
-                <label className="form-label required">Prix (TND)</label>
+              <Col xs={24} md={6}>
+                <label className="form-label required">Prix (DT)</label>
                 <CustomInput
                   type="number"
                   placeholder="0.00"
@@ -586,8 +591,26 @@ const AddproductIntelligent = () => {
                   <div className="error-message">{formik.errors.price}</div>
                 )}
               </Col>
-              
-              <Col xs={24} md={8}>
+
+              <Col xs={24} md={6}>
+                <label className="form-label">Réduction (DT)</label>
+                <CustomInput
+                  type="number"
+                  placeholder="0"
+                  name="discount"
+                  onChng={formik.handleChange}
+                  onBlr={formik.handleBlur}
+                  val={formik.values.discount}
+                  step="0.01"
+                  min="0"
+                />
+                {formik.touched.discount && formik.errors.discount && (
+                  <div className="error-message">{formik.errors.discount}</div>
+                )}
+                <small className="text-muted">Montant de la réduction en dinars tunisiens (ex: 5.000)</small>
+              </Col>
+
+              <Col xs={24} md={6}>
                 <label className="form-label required">Quantité en stock</label>
                 <CustomInput
                   type="number"
@@ -600,20 +623,6 @@ const AddproductIntelligent = () => {
                 {formik.touched.quantity && formik.errors.quantity && (
                   <div className="error-message">{formik.errors.quantity}</div>
                 )}
-              </Col>
-              
-              <Col xs={24} md={8}>
-                <label className="form-label">Réduction (%)</label>
-                <CustomInput
-                  type="number"
-                  placeholder="0"
-                  disabled={!isOnSale}
-                  value={salePercentage}
-                  onChange={(e) => setSalePercentage(e.target.value)}
-                  min="0"
-                  max="100"
-                />
-                <small className="text-muted">Activez "En Promotion" ci-dessous</small>
               </Col>
             </Row>
           </Panel>
@@ -725,12 +734,17 @@ const AddproductIntelligent = () => {
           <Panel 
             header={
               <span className="panel-header">
-                <PictureOutlined /> Images du produit
+                <PictureOutlined /> Images du produit {isEdit && <span className="text-muted">(optionnel lors de la modification)</span>}
               </span>
             } 
             key="6"
           >
             <div className="upload-section">
+              {isEdit && (
+                <div className="alert alert-info mb-3">
+                  <strong>ℹ️ Mode modification :</strong> Vous pouvez garder les images actuelles ou en uploader de nouvelles. Si vous uploadez de nouvelles images, elles remplaceront les anciennes.
+                </div>
+              )}
               <Dropzone 
                 onDrop={(acceptedFiles) => {
                   console.log("📸 Dropzone - Fichiers acceptés:", acceptedFiles.length);

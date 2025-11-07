@@ -92,9 +92,9 @@ const createProduct = async (product) => {
     if (!product.title) throw new Error("Le titre est requis");
     if (!product.description) throw new Error("La description est requise");
     if (!product.price || product.price <= 0) throw new Error("Le prix doit être positif");
-    if (!product.brand) throw new Error("La marque est requise");
+    // La marque est optionnelle - pas de validation
     if (!product.category) throw new Error("La catégorie est requise");
-    if (!product.quantity || product.quantity <= 0) throw new Error("La quantité doit être positive");
+    if (!product.quantity || product.quantity < 0) throw new Error("La quantité doit être positive ou zéro");
     
     // Nettoyer les données
     const cleanProduct = {

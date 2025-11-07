@@ -243,8 +243,8 @@ export const logoutUser = createAsyncThunk(
 );
 
 // État initial
-const getCustomerfromLocalStorage = localStorage.getItem("customer")
-  ? JSON.parse(localStorage.getItem("customer"))
+const getCustomerfromLocalStorage = sessionStorage.getItem("customer")
+  ? JSON.parse(sessionStorage.getItem("customer"))
   : null;
 
 // Extract user object from customer data if it exists
@@ -303,13 +303,13 @@ export const authSlice = createSlice({
       state.isSuccess = true;
       state.address = action.payload; // On met l'adresse dans l'état
       // Si l'adresse a bien été enregistrée, on peut mettre à jour le localStorage
-      const currentUser = JSON.parse(localStorage.getItem("customer"));
+  const currentUser = JSON.parse(sessionStorage.getItem("customer"));
       if (currentUser) {
         const updatedUser = {
           ...currentUser,
           address: action.payload, // On ajoute l'adresse à l'utilisateur
         };
-        localStorage.setItem("customer", JSON.stringify(updatedUser)); // Mise à jour dans localStorage
+  sessionStorage.setItem("customer", JSON.stringify(updatedUser)); // Mise à jour dans sessionStorage
       }
       toast.success("Adresse enregistrée avec succès");
     })
@@ -330,6 +330,12 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.auth = action.payload;
+        // Set user in state so auth checks pass immediately (like login does)
+        state.user = action.payload?.user || action.payload;
+        // Persist to sessionStorage in "customer" key for consistency with login & getAuthConfig
+        if (typeof window !== 'undefined' && window.sessionStorage) {
+          sessionStorage.setItem("customer", JSON.stringify(action.payload));
+        }
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -541,13 +547,13 @@ export const authSlice = createSlice({
         state.auth = { ...state.auth, user: updatedUser };
         
         // Update localStorage "customer" with complete structure
-        const currentCustomerData = JSON.parse(localStorage.getItem("customer"));
+  const currentCustomerData = JSON.parse(sessionStorage.getItem("customer"));
         if (currentCustomerData) {
           const updatedCustomerData = {
             ...currentCustomerData,
             user: updatedUser // Replace the nested user object
           };
-          localStorage.setItem("customer", JSON.stringify(updatedCustomerData));
+          sessionStorage.setItem("customer", JSON.stringify(updatedCustomerData));
           console.log('💾 localStorage updated with new user data');
         }
         

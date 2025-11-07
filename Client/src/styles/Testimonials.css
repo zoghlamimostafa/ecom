@@ -43,13 +43,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #FF6F00;
+  color: #FF914D;
   font-size: 1.3rem;
   transition: all 0.3s ease;
 }
 
 .testimonial-card:hover .quote-icon {
-  background: #FF6F00;
+  background: #FF914D;
   color: white;
 }
 
@@ -61,7 +61,7 @@
 }
 
 .star-icon {
-  color: #FF6F00;
+  color: #FF914D;
   font-size: 1.1rem;
   opacity: 0.9;
 }

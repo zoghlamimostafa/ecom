@@ -163,21 +163,22 @@
   color: #333 !important;
 }
 
-/* Page Headers with Orange Accent */
+/* Page Headers with White Text on Orange Background */
 .page-header {
-  background: linear-gradient(135deg, #ffffff 0%, #fff9f5 100%);
+  background: linear-gradient(135deg, #FF7A00 0%, #FF9F40 100%);
   padding: 20px;
   border-radius: 12px;
   margin-bottom: 20px;
-  border-left: 4px solid #FF7A00;
-  box-shadow: 0 2px 8px rgba(255, 122, 0, 0.1);
+  border-left: 4px solid #FF5500;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);
 }
 
 .page-header h3 {
   margin: 0;
-  color: #FF7A00 !important;
+  color: #FFFFFF !important;
   font-weight: 700;
   font-size: 26px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Responsive Design */
@@ -490,13 +491,11 @@ a:hover {
 .page-header h3,
 .admin-page-container h3,
 .title {
-  background: linear-gradient(135deg, #FF7A00 0%, #FF9F40 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #FFFFFF !important;
   font-weight: 700;
   font-size: 28px;
   margin-bottom: 20px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Card Improvements */

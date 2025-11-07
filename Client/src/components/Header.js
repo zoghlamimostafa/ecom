@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import { FaShoppingCart, FaUser, FaHeart, FaBars, FaCaretDown, FaSignOutAlt, FaThLarge, FaPhone, FaFacebookF, FaInstagram } from 'react-icons/fa';
 import { logoutUser } from '../features/user/userSlice';
@@ -14,6 +14,7 @@ import logo from '../images/logosanny.png';
 const Header = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const location = useLocation();
     const dispatch = useDispatch();
     const authState = useSelector(state => state?.auth);
     const cartState = useSelector(state => state?.auth?.cartProducts);
@@ -76,6 +77,10 @@ const Header = () => {
         };
     }, []);
 
+    // Minimal header variant for product pages (cleaner look)
+    // Désactivé pour afficher le menu partout
+    const isMinimalHeader = false;
+
     const handleLogout = async () => {
         try {
             // Dispatch logout action
@@ -94,32 +99,34 @@ const Header = () => {
 
     return (
         <>
-            {/* Barre supérieure */}
-            <div className="header-top-bar">
-                <div className="container-xxl">
-                    <div className="top-bar-content">
-                        <div className="top-bar-left">
-                            <a href="tel:+21695403883" className="top-bar-phone">
-                                <FaPhone />
-                                <span>+216 95 403 883</span>
-                            </a>
-                            <div className="top-bar-social">
-                                <a href="https://facebook.com/sannystore" target="_blank" rel="noopener noreferrer" className="social-icon" title="Facebook">
-                                    <FaFacebookF />
+            {/* Barre supérieure (masquée en mode minimal) */}
+            {!isMinimalHeader && (
+                <div className="header-top-bar">
+                    <div className="container-xxl">
+                        <div className="top-bar-content">
+                            <div className="top-bar-left">
+                                <a href="tel:+21695403883" className="top-bar-phone">
+                                    <FaPhone />
+                                    <span>+216 95 403 883</span>
                                 </a>
-                                <a href="https://instagram.com/sannystore" target="_blank" rel="noopener noreferrer" className="social-icon" title="Instagram">
-                                    <FaInstagram />
-                                </a>
+                                <div className="top-bar-social">
+                                    <a href="https://facebook.com/sannystore" target="_blank" rel="noopener noreferrer" className="social-icon" title="Facebook">
+                                        <FaFacebookF />
+                                    </a>
+                                    <a href="https://instagram.com/sannystore" target="_blank" rel="noopener noreferrer" className="social-icon" title="Instagram">
+                                        <FaInstagram />
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                        <div className="top-bar-right">
-                            <LanguageSelector />
+                            <div className="top-bar-right">
+                                <LanguageSelector />
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
 
-            <header className='header'>
+            <header className={`header ${isMinimalHeader ? 'minimal' : ''}`}>
                 <div className='container-xxl'>
                     <div className='header-inner'>
                         <div className="header-logo">
@@ -144,7 +151,7 @@ const Header = () => {
                             <NavLink to="/blogs" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>{t('blog')}</NavLink>
                         </nav>
 
-                        <div className='header-actions'>
+                        <div className={`header-actions ${isMinimalHeader ? 'compact-actions' : ''}`}>
                             <Link to='/wishlist' className='header-action' title={t('wishlist')}>
                                 <FaHeart />
                                 {wishlistItemCount > 0 && <span className='badge'>{wishlistItemCount}</span>}
@@ -294,7 +301,6 @@ const Header = () => {
 
                         <div className="search-bar">
                             <SearchBar 
-                                products={productState} 
                                 placeholder={t('searchProducts')} 
                             />
                         </div>

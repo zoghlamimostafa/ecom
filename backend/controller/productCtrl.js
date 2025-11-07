@@ -1,10 +1,12 @@
-// ===== CONTRÔLEUR PRODUITS CORRIGÉ =====
+// CONTROLEUR PRODUITS
 const { Product, User, Order, Category, Brand, Color, Cart, Wishlist, ProductRating, OrderItem } = require('../models');
 const { Op } = require('sequelize');
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const fs = require("fs");
 const cloudinaryUploadImg = require("../utils/cloudinary");
+// Patch console to add timestamps and file logging (idempotent)
+require('../utils/logger');
 const { normalizeProductData } = require('../utils/imageNormalizer');
 
 // ===== CRUD OPERATIONS =====
@@ -16,21 +18,35 @@ const createProduct = asyncHandler(async (req, res) => {
       title, 
       description, 
       price, 
+      discount, // Ajout discount
       category, 
       subcategory,
-      brand, 
+      brandId, // Utiliser brandId
       color, 
       tags, 
       quantity, 
       images 
     } = req.body;
 
-    // Validation des champs obligatoires (brand est maintenant optionnel)
+    // Forcer discount à 0 si non défini ou invalide
+    const discountValue = (discount === undefined || discount === null || discount === '' || isNaN(parseFloat(discount))) ? 0 : parseFloat(discount);
+
+    // Validation des champs obligatoires (brandId est optionnel)
     if (!title || !description || !price || !category || !quantity) {
       return res.status(400).json({
         success: false,
         message: "Tous les champs obligatoires doivent être remplis"
       });
+    }
+    // Vérifier que la marque existe si brandId fourni
+    if (brandId) {
+      const brandExists = await Brand.findByPk(brandId);
+      if (!brandExists) {
+        return res.status(400).json({
+          success: false,
+          message: "Marque non valide"
+        });
+      }
     }
 
     // ✅ VALIDATION DES IMAGES - Au moins une image requise
@@ -80,14 +96,15 @@ const createProduct = asyncHandler(async (req, res) => {
       slug,
       description,
       price: parseFloat(price),
+      discount: discountValue, // Toujours un nombre
       category: parseInt(category),
       subcategory: subcategory ? parseInt(subcategory) : null,
-      brand,
+      brandId: brandId ? parseInt(brandId) : null,
       color: Array.isArray(color) ? JSON.stringify(color) : color,
       tags,
       quantity: parseInt(quantity),
-      // Images: toujours stocker en string JSON, peu importe le format reçu
-      images: typeof images === 'string' ? images : JSON.stringify(images || [])
+      // Images: toujours stocker comme tableau JSON
+      images: Array.isArray(images) ? images : (typeof images === 'string' ? JSON.parse(images) : [])
     };
 
     console.log("📦 Product data à sauvegarder:", {
@@ -111,13 +128,20 @@ const createProduct = asyncHandler(async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Produit créé avec succès",
-      product: normalizedProduct
+      product: { ...normalizedProduct, discount: normalizedProduct.discount ?? 0 }
     });
   } catch (error) {
+    console.error("❌ ERREUR CRÉATION PRODUIT:", error);
+    console.error("❌ Message:", error.message);
+    console.error("❌ Stack:", error.stack);
+    if (error.errors) {
+      console.error("❌ Validation errors:", JSON.stringify(error.errors, null, 2));
+    }
     res.status(500).json({
       success: false,
       message: "Erreur lors de la création du produit",
-      error: error.message
+      error: error.message,
+      details: error.errors || null
     });
   }
 });
@@ -134,6 +158,7 @@ const getAllProduct = asyncHandler(async (req, res) => {
       minPrice, 
       maxPrice, 
       search,
+      minRating, // Ajout filtrage par note minimale
       sortBy = 'createdAt',
       sortOrder = 'DESC'
     } = req.query;
@@ -151,9 +176,9 @@ const getAllProduct = asyncHandler(async (req, res) => {
       whereClause.subcategory = subcategory;
     }
     
-    // Filtrer par marque
+    // Filtrer par marque (brandId)
     if (brand) {
-      whereClause.brand = brand;
+      whereClause.brandId = brand;
     }
     
     // Filtrer par prix
@@ -172,6 +197,11 @@ const getAllProduct = asyncHandler(async (req, res) => {
       ];
     }
 
+    // Filtrer par note minimale
+    if (minRating !== undefined && minRating !== null && minRating !== "") {
+      whereClause.totalRating = { [Op.gte]: parseFloat(minRating) };
+    }
+
     const { count, rows } = await Product.findAndCountAll({
       where: whereClause,
       limit: parseInt(limit),
@@ -179,32 +209,45 @@ const getAllProduct = asyncHandler(async (req, res) => {
       order: [[sortBy, sortOrder]]
     });
 
-    // Récupérer toutes les catégories pour le mapping
+    // Récupérer toutes les catégories et marques pour le mapping
     const categories = await Category.findAll({
       attributes: ['id', 'title', 'slug']
+    });
+    
+    const brands = await Brand.findAll({
+      attributes: ['id', 'title']
     });
     
     const categoryMap = {};
     categories.forEach(cat => {
       categoryMap[cat.id] = cat.toJSON();
     });
+    
+    const brandMap = {};
+    brands.forEach(brand => {
+      brandMap[brand.id] = brand.toJSON();
+    });
 
     // Traiter les données pour le frontend avec normalisation
     const products = rows.map(product => {
       const productJson = product.toJSON();
       let productData = normalizeProductData(productJson);
-      
+      // Toujours renvoyer discount (0 si absent)
+      productData.discount = productData.discount ?? 0;
       // Ajouter les informations de catégorie
       if (productData.category && categoryMap[productData.category]) {
         productData.categoryInfo = categoryMap[productData.category];
         productData.categoryName = categoryMap[productData.category].title;
       }
-      
       if (productData.subcategory && categoryMap[productData.subcategory]) {
         productData.subcategoryInfo = categoryMap[productData.subcategory];
         productData.subcategoryName = categoryMap[productData.subcategory].title;
       }
-      
+      // Ajouter les informations de marque
+      if (productData.brandId && brandMap[productData.brandId]) {
+        productData.brandInfo = brandMap[productData.brandId];
+        productData.brand = brandMap[productData.brandId].title; // Pour compatibilité
+      }
       return productData;
     });
 
@@ -241,17 +284,14 @@ const getaProduct = asyncHandler(async (req, res) => {
 
     // Chercher par ID ou par slug
     let product;
-    
     // Si c'est un nombre, chercher par ID
     if (!isNaN(id)) {
       product = await Product.findByPk(id);
     }
-    
     // Si pas trouvé par ID ou si c'est un slug, chercher par slug
     if (!product) {
       product = await Product.findOne({ where: { slug: id } });
     }
-
     if (!product) {
       console.log('❌ Produit non trouvé pour:', id);
       return res.status(404).json({
@@ -259,13 +299,10 @@ const getaProduct = asyncHandler(async (req, res) => {
         message: "Produit non trouvé"
       });
     }
-    
     console.log('✅ Produit trouvé:', product.id, '-', product.title);
-
     // Normaliser les données du produit
     const productJson = product.toJSON();
     let productData = normalizeProductData(productJson);
-    
     // Récupérer les informations de catégorie
     if (productData.category) {
       const category = await Category.findByPk(productData.category, {
@@ -276,7 +313,6 @@ const getaProduct = asyncHandler(async (req, res) => {
         productData.categoryName = category.title;
       }
     }
-    
     if (productData.subcategory) {
       const subcategory = await Category.findByPk(productData.subcategory, {
         attributes: ['id', 'title', 'slug', 'description']
@@ -286,7 +322,26 @@ const getaProduct = asyncHandler(async (req, res) => {
         productData.subcategoryName = subcategory.title;
       }
     }
-
+    
+    // Récupérer les informations de marque
+    if (productData.brandId) {
+      const brand = await Brand.findByPk(productData.brandId, {
+        attributes: ['id', 'title']
+      });
+      if (brand) {
+        productData.brandInfo = brand.toJSON();
+        productData.brand = brand.title; // Pour compatibilité
+      }
+    }
+    // Récupérer les avis/rating du produit
+    const ratings = await ProductRating.findAll({
+      where: { productId: product.id },
+      attributes: ['id', 'star', 'comment', 'userId', 'createdAt'],
+      order: [['createdAt', 'DESC']]
+    });
+    productData.ratings = ratings;
+    // Toujours renvoyer discount (0 si absent)
+    productData.discount = productData.discount ?? 0;
     res.json({
       success: true,
       product: productData
@@ -305,6 +360,10 @@ const updateProduct = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = { ...req.body };
+    // Si discount est fourni, le forcer en float (ou 0 si vide)
+    if (updateData.discount !== undefined) {
+      updateData.discount = updateData.discount === '' ? 0 : parseFloat(updateData.discount);
+    }
     
     console.log("📝 UPDATE PRODUCT - ID:", id);
     console.log("📝 Update data reçu:", {
@@ -382,11 +441,11 @@ const updateProduct = asyncHandler(async (req, res) => {
       updateData.color = JSON.stringify(updateData.color);
     }
     
-    // Images: toujours stocker en string JSON
+    // Images: toujours stocker comme tableau JSON
     if (updateData.images) {
-      updateData.images = typeof updateData.images === 'string' 
-        ? updateData.images 
-        : JSON.stringify(updateData.images);
+      updateData.images = Array.isArray(updateData.images)
+        ? updateData.images
+        : (typeof updateData.images === 'string' ? JSON.parse(updateData.images) : []);
     }
     
     console.log("📦 Update data:", {
@@ -396,15 +455,34 @@ const updateProduct = asyncHandler(async (req, res) => {
     });
 
     // Mettre à jour le produit
-    await Product.update(updateData, { where: { id: id } });
+    const [updateCount] = await Product.update(updateData, { where: { id: id } });
+    
+    console.log(`📊 Nombre de lignes mises à jour: ${updateCount}`);
+    
+    if (updateCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Aucune modification effectuée - produit peut-être inexistant"
+      });
+    }
     
     // Récupérer le produit mis à jour et le normaliser
     const updatedProductRaw = await Product.findByPk(id);
+    
+    if (!updatedProductRaw) {
+      return res.status(404).json({
+        success: false,
+        message: "Produit non trouvé après mise à jour"
+      });
+    }
+    
     const updatedProduct = normalizeProductData(updatedProductRaw);
     
     console.log("✅ Produit mis à jour et normalisé:", {
       id: updatedProduct.id,
-      images: updatedProduct.images
+      title: updatedProduct.title,
+      price: updatedProduct.price,
+      images: updatedProduct.images?.length || 0
     });
 
     res.json({
@@ -426,7 +504,10 @@ const deleteProduct = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
     
-    console.log(`🗑️ Demande de suppression du produit ID: ${id}`);
+  console.log(`🗑️ Demande de suppression du produit ID: ${id}`);
+  // Log all product IDs for debugging
+  const allProducts = await Product.findAll({ attributes: ['id', 'title', 'slug'] });
+  console.log('[DEBUG] Liste des produits existants:', allProducts.map(p => p.toJSON()));
     
     if (!id) {
       return res.status(400).json({
@@ -581,94 +662,88 @@ const addToWishlist = asyncHandler(async (req, res) => {
   }
 });
 
-// Noter un produit
+// Noter un produit (corrigé pour ProductRating relationnel)
 const rating = asyncHandler(async (req, res) => {
   try {
+    console.log('--- [API RATING] Nouvelle requête ---');
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
+    console.log('User:', req.user);
     const { star, prodId, comment } = req.body;
-    const userId = req.user.id;
-    
+    const userId = req.user?.id;
+
     if (!star || !prodId) {
+      console.warn('[API RATING] star ou prodId manquant:', { star, prodId });
       return res.status(400).json({
         success: false,
         message: "Note et ID produit requis"
       });
     }
 
+    // Debug: print all product IDs and slugs
+    const allProducts = await Product.findAll({ attributes: ['id', 'slug', 'title'] });
+    console.log('[DEBUG] Liste des produits (id, slug, title):', allProducts.map(p => p.toJSON()));
+
     const product = await Product.findByPk(prodId);
     if (!product) {
+      console.warn('[API RATING] Produit non trouvé:', prodId);
       return res.status(404).json({
         success: false,
         message: "Produit non trouvé"
       });
     }
 
-    let alreadyRated = product.ratings.find(
-      (rating) => rating.postedby.toString() === userId.toString()
-    );
+    // Vérifier si l'utilisateur a déjà noté ce produit
+    const [existingRating, created] = await ProductRating.findOrCreate({
+      where: { userId, productId: prodId },
+      defaults: { star, comment }
+    });
 
-    if (alreadyRated) {
-      // Mettre à jour la note existante avec Sequelize
-      const product = await Product.findByPk(prodId);
-      const ratings = product.ratings ? JSON.parse(JSON.stringify(product.ratings)) : [];
-      
-      const ratingIndex = ratings.findIndex(
-        (rating) => rating.postedby.toString() === userId.toString()
-      );
-      
-      if (ratingIndex !== -1) {
-        ratings[ratingIndex].star = star;
-        ratings[ratingIndex].comment = comment;
-      }
-      
-      await Product.update({
-        ratings: ratings
-      }, {
-        where: { id: prodId }
-      });
-    } else {
-      // Ajouter une nouvelle note avec Sequelize
-      const product = await Product.findByPk(prodId);
-      const ratings = product.ratings ? JSON.parse(JSON.stringify(product.ratings)) : [];
-      
-      ratings.push({
-        star: star,
-        comment: comment,
-        postedby: userId,
-      });
-      
-      await Product.update({
-        ratings: ratings
-      }, {
-        where: { id: prodId }
-      });
+    if (!created) {
+      // Mise à jour de la note existante
+      existingRating.star = star;
+      existingRating.comment = comment;
+      await existingRating.save();
     }
 
-    // Calculer la note moyenne
-    const getallratings = await Product.findByPk(prodId);
-    let totalRating = getallratings.ratings ? getallratings.ratings.length : 0;
-    let ratingsum = getallratings.ratings
-      ? getallratings.ratings.map((item) => item.star).reduce((prev, curr) => prev + curr, 0)
-      : 0;
-    let actualRating = totalRating > 0 ? Math.round(ratingsum / totalRating) : 0;
-    
+    // Recalculer la note moyenne
+    const allRatings = await ProductRating.findAll({ where: { productId: prodId } });
+    const totalRating = allRatings.length;
+    const ratingsum = allRatings.reduce((sum, r) => sum + (r.star || 0), 0);
+    const actualRating = totalRating > 0 ? Math.round((ratingsum / totalRating) * 10) / 10 : 0;
+
     await Product.update({
-      totalrating: actualRating,
+      totalRating: actualRating
     }, {
       where: { id: prodId }
     });
-    
+
     const finalproduct = await Product.findByPk(prodId);
 
+    console.log('[API RATING] Succès:', { star, comment, prodId, userId, actualRating });
     res.json({
       success: true,
       message: "Note ajoutée avec succès",
       product: finalproduct
     });
   } catch (error) {
+    console.error("❌ ERREUR RATING:", error);
+    console.error("❌ Message:", error.message);
+    console.error("❌ Stack:", error.stack);
+    if (error.errors) {
+      console.error("❌ Validation errors:", JSON.stringify(error.errors, null, 2));
+    }
     res.status(500).json({
       success: false,
       message: "Erreur lors de l'ajout de la note",
-      error: error.message
+      error: error.message,
+      stack: error.stack,
+      validation: error.errors || null,
+      received: {
+        headers: req.headers,
+        body: req.body,
+        user: req.user
+      }
     });
   }
 });
@@ -715,6 +790,19 @@ const uploadImages = asyncHandler(async (req, res) => {
   }
 });
 
+// Get product count
+const getProductCount = asyncHandler(async (req, res) => {
+  try {
+    const count = await Product.count();
+    res.json({
+      success: true,
+      count: count
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 module.exports = {
   createProduct,
   getAllProduct,
@@ -724,4 +812,5 @@ module.exports = {
   addToWishlist,
   rating,
   uploadImages,
+  getProductCount,
 };

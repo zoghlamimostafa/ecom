@@ -79,7 +79,7 @@ const Homme = () => {
 
     return (
         <Container class1='new-informatique-container py-5'>
-            <h2 className='page-title'>Informatique et Tablettes</h2>
+            <h2 className='page-title'>Mode Homme</h2>
             <p className="product-count">{infoProducts.length} produits disponibles</p>
             <div className='new-informatique-grid'>
                 {infoProducts.map((item, index) => (

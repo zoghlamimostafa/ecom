@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaFacebookF, FaInstagram, FaTiktok, FaLinkedinIn, FaArrowUp } from 'react-icons/fa';
+import { FaFacebookF, FaInstagram, FaWhatsapp, FaLinkedinIn, FaArrowUp } from 'react-icons/fa';
 import { useTranslation } from '../contexts/TranslationContext';
 import logosanny from "../images/logosanny.png";
 
@@ -30,10 +30,12 @@ const Footer = () => {
             <div className="footer-column">
               <h5>{t('categories')}</h5>
               <ul className="footer-links">
-                <li><Link to="/products?category=Auto">{t('automobiles')}</Link></li>
-                <li><Link to="/products?category=Beauté">{t('beauty')}</Link></li>
-                <li><Link to="/products?category=Informatique">{t('computers')}</Link></li>
-                <li><Link to="/products?category=Mode">{t('womenFashion')}</Link></li>
+                <li><Link to="/product?category=1">Électronique</Link></li>
+                <li><Link to="/product?category=381">Mode Femme</Link></li>
+                <li><Link to="/product?category=233">High-Tech</Link></li>
+                <li><Link to="/product?category=3">Sport</Link></li>
+                <li><Link to="/product?category=4">Maison</Link></li>
+                <li><Link to="/product?category=386">Santé et Beauté</Link></li>
               </ul>
             </div>
 
@@ -54,27 +56,27 @@ const Footer = () => {
                   <span>{t('location')}</span>
                 </div>
                 <div className="contact-item">
-                  <span>+216 99 249 987</span>
+                  <span>📞 +216 99 249 987</span>
                 </div>
                 <div className="contact-item">
-                  <span>Sannyshop02@gmail.com</span>
+                  <span>📧 Sannyshop02@gmail.com</span>
                 </div>
               </div>
               
               <div className="footer-social-section">
                 <h6>{t('followUs')}</h6>
                 <div className="footer-socials">
-                  <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="social-link">
+                  <a href="https://www.facebook.com/profile.php?id=61551214524462" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="social-link">
                     <FaFacebookF />
                     <span>{t('facebook')}</span>
                   </a>
-                  <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="social-link">
+                  <a href="https://www.instagram.com/sanny_tn/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="social-link">
                     <FaInstagram />
                     <span>{t('instagram')}</span>
                   </a>
-                  <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" aria-label="Tiktok" className="social-link">
-                    <FaTiktok />
-                    <span>{t('tiktok')}</span>
+                  <a href="https://wa.me/21699249987" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="social-link">
+                    <FaWhatsapp />
+                    <span>WhatsApp</span>
                   </a>
                   <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="social-link">
                     <FaLinkedinIn />
@@ -106,9 +108,6 @@ const Footer = () => {
             <div className="footer-bottom-content">
               <div className="footer-copyright">
                 <p>&copy; {new Date().getFullYear()} Sanny Marketplace. {t('allRightsReserved')}</p>
-                <p className="developer-credit">
-                  <a href="https://el-makina.tn" target="_blank" rel="noopener noreferrer" className="developer-link">el-makina.tn</a>
-                </p>
               </div>
               <div className="footer-bottom-links">
                 <span>{t('securePayment')}</span>

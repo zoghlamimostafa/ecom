@@ -11,7 +11,7 @@
  * - Si REACT_APP_API_URL est défini, l'utiliser
  * - Sinon, détecter selon window.location.hostname
  */
-const getBackendUrl = () => {
+export const getBackendUrl = () => {
   // 1. Priorité: Variable d'environnement
   if (process.env.REACT_APP_API_URL) {
     return process.env.REACT_APP_API_URL;

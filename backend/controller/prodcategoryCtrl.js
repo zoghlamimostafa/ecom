@@ -119,10 +119,22 @@ const getAllCategory = asyncHandler(async (req, res) => {
 
     const categories = await query(sql, params);
 
+    // Ajouter le nombre de produits pour chaque catégorie
+    const categoriesWithCount = await Promise.all(categories.map(async (category) => {
+      const productCount = await query(
+        'SELECT COUNT(*) as count FROM Products WHERE category = ? OR subcategory = ?',
+        [category.id, category.id]
+      );
+      return {
+        ...category,
+        productCount: productCount[0].count
+      };
+    }));
+
     res.json({
       success: true,
-      categories: categories,
-      total: categories.length
+      categories: categoriesWithCount,
+      total: categoriesWithCount.length
     });
   } catch (error) {
     console.error('Error getAllCategory:', error);

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { createOrder, getUserCart } from '../features/user/userSlice';
+import { toast } from 'react-toastify';
 import { getProductImageUrl } from '../utils/imageHelper';
 import Container from '../components/Container';
 import Meta from '../components/Meta';
@@ -12,6 +13,7 @@ import './Checkout.css';
 const shippingSchema = yup.object({
     firstName: yup.string().required("Le prénom est requis"),
     lastName: yup.string().required("Le nom de famille est requis"),
+    phone: yup.string().required("Le numéro de téléphone est requis").matches(/^[0-9]{8,15}$/, "Numéro de téléphone invalide"),
     address: yup.string().required("L'adresse est requise"),
     city: yup.string().required("La ville est requise"),
     state: yup.string().required("La région est requise"),
@@ -28,6 +30,9 @@ const Checkout = () => {
         expiryDate: '',
         cvv: ''
     });
+    const [couponCode, setCouponCode] = useState('');
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [couponLoading, setCouponLoading] = useState(false);
     
     const cartState = useSelector(state => state.auth.cartProducts);
     const buyNowItem = useSelector(state => state.auth.buyNowItem);
@@ -43,23 +48,77 @@ const Checkout = () => {
     
     // Frais de livraison standard (7 TND - cohérent avec Cart.js)
     const SHIPPING_COST = 7.00;
-    const FREE_SHIPPING_THRESHOLD = 100.00;
-    
     // Calcul du sous-total (prix des produits uniquement)
     const subtotal = itemsToDisplay?.reduce((acc, item) => {
         return acc + (item.price * item.quantity);
     }, 0) || 0;
-    
-    // Calcul des frais de livraison (gratuit si > 100 TND)
-    const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-    
+    // Livraison toujours 7dt
+    const shippingCost = subtotal > 0 ? SHIPPING_COST : 0;
     // Total avec livraison
-    const totalPrice = subtotal + shippingCost;
+    let totalPrice = subtotal + shippingCost;
+    
+    // Appliquer la réduction du coupon si présent
+    let discountAmount = 0;
+    if (appliedCoupon) {
+        discountAmount = appliedCoupon.discountAmount || 0;
+        totalPrice = appliedCoupon.totalAfterDiscount || totalPrice;
+    }
+    
+    // Fonction pour appliquer le coupon
+    const handleApplyCoupon = async () => {
+        if (!couponCode || couponCode.trim() === '') {
+            toast.error('Veuillez entrer un code promo');
+            return;
+        }
+        
+        setCouponLoading(true);
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                }
+            };
+            
+            const cartTotalBeforeShipping = subtotal + shippingCost;
+            
+            const response = await fetch('http://localhost:4000/api/coupon/apply', {
+                method: 'POST',
+                headers: config.headers,
+                body: JSON.stringify({
+                    couponName: couponCode.toUpperCase(),
+                    cartTotal: cartTotalBeforeShipping
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                setAppliedCoupon(data.coupon);
+                toast.success(data.message);
+            } else {
+                toast.error(data.message || 'Code promo invalide');
+            }
+        } catch (error) {
+            console.error('Erreur application coupon:', error);
+            toast.error('Erreur lors de l\'application du code promo');
+        } finally {
+            setCouponLoading(false);
+        }
+    };
+    
+    // Fonction pour retirer le coupon
+    const handleRemoveCoupon = () => {
+        setAppliedCoupon(null);
+        setCouponCode('');
+        toast.info('Code promo retiré');
+    };
 
     const formik = useFormik({
         initialValues: {
             firstName: '',
             lastName: '',
+            phone: '',
             address: '',
             city: '',
             state: '',
@@ -73,26 +132,45 @@ const Checkout = () => {
                     alert('Veuillez remplir toutes les informations de la carte bancaire');
                     return;
                 }
-                
                 // Validation basique du numéro de carte (16 chiffres)
                 if (cardInfo.cardNumber.replace(/\s/g, '').length !== 16) {
                     alert('Le numéro de carte doit contenir 16 chiffres');
                     return;
                 }
-                
                 // Validation CVV (3 ou 4 chiffres)
                 if (cardInfo.cvv.length < 3 || cardInfo.cvv.length > 4) {
                     alert('Le CVV doit contenir 3 ou 4 chiffres');
                     return;
                 }
             }
-            
+
+            // Contrôle de stock strict AVANT création de commande
+            let stockError = null;
+            for (const item of itemsToDisplay) {
+                // Support des deux structures (product ou productId)
+                const product = item.product || item.productId;
+                const stock = product?.quantity ?? 0;
+                if (stock > 0 && item.quantity > stock) {
+                    stockError = `Rupture de stock : il reste seulement ${stock} exemplaire(s) pour "${product?.title || 'ce produit'}".`;
+                    break;
+                }
+                if (stock === 0) {
+                    stockError = `Rupture de stock : "${product?.title || 'ce produit'}" n'est plus disponible.`;
+                    break;
+                }
+            }
+            if (stockError) {
+                toast.error(stockError);
+                return;
+            }
+
             const orderData = {
                 shippingInfo: values,
                 orderItems: itemsToDisplay,
                 subtotal: subtotal,
                 shippingCost: shippingCost,
                 totalPrice: totalPrice,
+                couponCode: appliedCoupon ? appliedCoupon.name : null,
                 paymentInfo: {
                     method: selectedPaymentMethod,
                     status: selectedPaymentMethod === 'card' ? "Payé" : "En attente",
@@ -102,8 +180,36 @@ const Checkout = () => {
                     })
                 }
             };
-            dispatch(createOrder(orderData));
-            navigate('/my-orders');
+            
+            // Créer la commande et rediriger après succès
+            dispatch(createOrder(orderData)).unwrap()
+                .then((response) => {
+                    // Afficher le toast de succès
+                    toast.success('🎉 Commande créée avec succès ! Redirection vers vos commandes...', {
+                        position: 'top-center',
+                        autoClose: 2000
+                    });
+                    
+                    console.log('✅ Commande créée:', response);
+                    
+                    // Redirection vers la page des commandes après un court délai
+                    setTimeout(() => {
+                        navigate('/my-orders', { 
+                            replace: true,
+                            state: { 
+                                orderCreated: true, 
+                                orderId: response?.order?.id 
+                            }
+                        });
+                    }, 1500);
+                })
+                .catch((error) => {
+                    toast.error(`❌ Erreur: ${error.message || 'Impossible de créer la commande'}`, {
+                        position: 'top-center',
+                        autoClose: 5000
+                    });
+                    console.error('❌ Erreur création commande:', error);
+                });
         },
     });
 
@@ -172,6 +278,19 @@ const Checkout = () => {
                                             )}
                                         </div>
                                         
+                                        <div className="col-md-6">
+                                            <label htmlFor="phone" className="form-label">Téléphone *</label>
+                                            <input 
+                                                type="tel" 
+                                                id="phone" 
+                                                name="phone" 
+                                                className={`form-control ${formik.touched.phone && formik.errors.phone ? 'is-invalid' : ''}`}
+                                                {...formik.getFieldProps('phone')} 
+                                            />
+                                            {formik.touched.phone && formik.errors.phone && (
+                                                <div className="invalid-feedback">{formik.errors.phone}</div>
+                                            )}
+                                        </div>
                                         <div className="col-12">
                                             <label htmlFor="address" className="form-label">Adresse *</label>
                                             <input 
@@ -226,6 +345,14 @@ const Checkout = () => {
                                             {formik.touched.pincode && formik.errors.pincode && (
                                                 <div className="invalid-feedback">{formik.errors.pincode}</div>
                                             )}
+                                        </div>
+                                    </div>
+                                    {/* Affichage du prix de livraison */}
+                                    <div className="row g-3 mt-2">
+                                        <div className="col-12">
+                                            <div className="alert alert-info" style={{fontSize: '15px', padding: '10px 16px'}}>
+                                                <strong>Livraison :</strong> {shippingCost > 0 ? `${shippingCost.toFixed(2)} DT` : '0 DT'} (Livraison 7 DT partout en Tunisie)
+                                            </div>
                                         </div>
                                     </div>
                                 </form>
@@ -369,25 +496,40 @@ const Checkout = () => {
                                 <div className="order-items mb-3">
                                                                         {itemsToDisplay.map((item) => {
                                         // Utiliser imageHelper pour gérer les URLs correctement
-                                        const imageUrl = getProductImageUrl(
-                                            item.images || item.product?.images
-                                        );
+                                        // Toujours prioriser l'image du produit source si elle existe
+                                        let imagesSource = item.product?.images || item.images;
+                                        // Si item.images est un tableau/objet vide mais product.images existe, prendre product.images
+                                        if ((!item.images || (Array.isArray(item.images) && item.images.length === 0)) && item.product?.images) {
+                                            imagesSource = item.product.images;
+                                        }
+                                        const imageUrl = getProductImageUrl(imagesSource);
                                         
                                         // Données du produit
                                         const title = item.title || item.product?.title || 'Produit';
                                         const price = item.price || item.product?.price || 0;
                                         
+                                        console.log('🖼️ Checkout Image Debug:', {
+                                            itemId: item.id,
+                                            rawImages: item.images || item.product?.images,
+                                            finalUrl: imageUrl
+                                        });
+                                        
                                         return (
                                             <div key={item.id} className="checkout-product-item">
                                                 <div className="product-image-checkout">
-                                                    <img 
-                                                        src={imageUrl} 
-                                                        alt={title}
-                                                        onError={(e) => {
-                                                            e.target.onerror = null;
-                                                            e.target.src = "/images/default-product.jpg";
-                                                        }}
-                                                    />
+                                                    {imageUrl && !imageUrl.includes('default-product') ? (
+                                                        <img 
+                                                            src={imageUrl} 
+                                                            alt={title}
+                                                            onError={(e) => {
+                                                                console.error('❌ Image failed to load:', imageUrl);
+                                                                e.target.style.display = 'none';
+                                                                e.target.parentElement.innerHTML = '<div class="no-image-placeholder">📦</div>';
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <div className="no-image-placeholder">📦</div>
+                                                    )}
                                                 </div>
                                                 <div className="product-details-checkout">
                                                     <div className="product-title-checkout">{title}</div>
@@ -399,6 +541,43 @@ const Checkout = () => {
                                             </div>
                                         );
                                     })}
+                                </div>
+
+                                {/* Section Code Promo */}
+                                <div className="coupon-section mb-3">
+                                    <h6 className="coupon-title">🎫 Code Promo</h6>
+                                    {!appliedCoupon ? (
+                                        <div className="coupon-input-group">
+                                            <input 
+                                                type="text" 
+                                                className="form-control coupon-input"
+                                                placeholder="Entrez votre code"
+                                                value={couponCode}
+                                                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                                disabled={couponLoading}
+                                            />
+                                            <button 
+                                                className="btn btn-coupon"
+                                                onClick={handleApplyCoupon}
+                                                disabled={couponLoading || !couponCode}
+                                            >
+                                                {couponLoading ? 'Vérification...' : 'Appliquer'}
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="coupon-applied">
+                                            <div className="coupon-badge">
+                                                <span className="coupon-code">✅ {appliedCoupon.name}</span>
+                                                <span className="coupon-discount">-{appliedCoupon.discount}%</span>
+                                            </div>
+                                            <button 
+                                                className="btn btn-remove-coupon"
+                                                onClick={handleRemoveCoupon}
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Calculs */}
@@ -415,6 +594,12 @@ const Checkout = () => {
                                             <span>{shippingCost.toFixed(2)} DT</span>
                                         )}
                                     </div>
+                                    {appliedCoupon && (
+                                        <div className="summary-row discount-row">
+                                            <span>🎁 Réduction ({appliedCoupon.discount}%)</span>
+                                            <span className="discount-amount">-{discountAmount.toFixed(2)} DT</span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="order-total">

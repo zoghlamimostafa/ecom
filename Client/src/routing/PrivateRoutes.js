@@ -1,7 +1,12 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 export const PrivateRoutes = ({ children }) => {
-    const getTokenFromLocalStorage = JSON.parse(localStorage.getItem("customer"));
-    console.log(getTokenFromLocalStorage?.token);
-    return getTokenFromLocalStorage?.token !== undefined ? children : (<Navigate to="/login" replace={true} />);
+    const location = useLocation();
+    const getTokenFromLocalStorage = JSON.parse(sessionStorage.getItem("customer"));
+    const token = getTokenFromLocalStorage?.token;
+    const isAuthenticated = typeof token === 'string' && token.length > 10;
+    
+    return isAuthenticated ? children : (
+        <Navigate to="/login" replace={true} state={{ from: location }} />
+    );
 }

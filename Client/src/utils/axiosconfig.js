@@ -1,6 +1,6 @@
 // Fonction pour récupérer la configuration d'authentification dynamique
 export const getAuthConfig = () => {
-  const customer = localStorage.getItem("customer");
+  const customer = sessionStorage.getItem("customer");
   const token = customer ? JSON.parse(customer).token : "";
   
   return {
